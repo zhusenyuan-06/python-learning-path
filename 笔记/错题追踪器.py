@@ -37,7 +37,10 @@ REVIEW_TITLE = "周四大复习：错题重练 + 查漏补缺（2h）"
 # ---------------------------------------------------------------- 数据读写
 def load():
     with open(JSON_PATH, encoding="utf-8") as f:
-        return json.load(f)
+        db = json.load(f)
+    if "skills" not in db:
+        db["skills"] = []
+    return db
 
 
 def save(db):
@@ -215,6 +218,48 @@ def cmd_regress(db, pid, note=""):
     print("🔴 %s 已掌握但又出现 → 重新激活，门槛升到 %d 次。" % (it["id"], it["need"]))
 
 
+def cmd_add_skill(db, title, source):
+    skills = db.setdefault("skills", [])
+    n = 0
+    for sk in skills:
+        if sk["id"].startswith("S") and sk["id"][1:].isdigit():
+            n = max(n, int(sk["id"][1:]))
+    sk = {
+        "id": "S%02d" % (n + 1),
+        "title": title,
+        "from_jd": source,
+        "priority": "high",
+        "status": "todo",
+        "notes": "",
+        "created": today(),
+    }
+    skills.append(sk)
+    print("已登记能力缺口 %s：%s" % (sk["id"], title))
+    if source:
+        print("   来源: %s" % source)
+
+
+def cmd_skills(db):
+    skills = db.get("skills", [])
+    if not skills:
+        print("还没有登记能力缺口。")
+        print("用法: 错题追踪器.py skill \"FastAPI 写 GET 接口\" \"某某JD\"")
+        return
+    print("能力缺口清单（从 JD 里读出来的、你还不会的）")
+    print("=" * 60)
+    todo = [s for s in skills if s.get("status") != "done"]
+    done = [s for s in skills if s.get("status") == "done"]
+    for sk in todo:
+        print("  %-5s %s" % (sk["id"], sk["title"]))
+        if sk.get("from_jd"):
+            print("        来源: %s" % sk["from_jd"])
+    if done:
+        print("\n已完成:")
+        for sk in done:
+            print("  %-5s [已会] %s" % (sk["id"], sk["title"]))
+    print("\n共 %d 项待补，%d 项已会" % (len(todo), len(done)))
+
+
 def cmd_plan(db, n):
     items = priority(active_items(db))[:n]
     if not items:
@@ -377,6 +422,14 @@ def main():
     elif cmd == "regress":
         cmd_regress(db, args[0], args[1] if len(args) > 1 else "")
         save(db)
+    elif cmd == "skill":
+        if len(args) < 1:
+            print("用法: skill \"能力缺口标题\" [来源JD]")
+            return
+        cmd_add_skill(db, args[0], args[1] if len(args) > 1 else "")
+        save(db)
+    elif cmd == "skills":
+        cmd_skills(db)
     elif cmd == "render":
         render(db)
         print("已重新生成 %s" % MD_PATH)
