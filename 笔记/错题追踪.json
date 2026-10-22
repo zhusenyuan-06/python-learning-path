@@ -1,0 +1,716 @@
+{
+  "version": 1,
+  "created": "2026-10-22",
+  "updated": "2026-10-22",
+  "config": {
+    "master_streak_default": 2,
+    "review_day": "周四",
+    "note": "犯过 → 进池 → 每周四必考 → 连对2次退场 → 再犯则门槛+1"
+  },
+  "items": [
+    {
+      "id": "E01",
+      "title": "if 缺 else/return：提示了却照样执行",
+      "bad": "def a(name, p):\n    if name in contacts:\n        print(\"已存在，未覆盖\")\n    contacts[name] = {\"电话\": p}   # 照样覆盖了！",
+      "good": "def a(name, p):\n    if name in contacts:\n        return \"已存在，未覆盖\"   # 有 return 就停在这\n    contacts[name] = {\"电话\": p}",
+      "tags": [
+        "静默错误",
+        "控制流",
+        "函数"
+      ],
+      "occurrences": 3,
+      "first_seen": "2026-10-21",
+      "last_seen": "2026-10-22",
+      "streak": 0,
+      "need": 2,
+      "status": "active",
+      "source": [
+        "10.21练习2.py 添加()",
+        "10.22复习.py a()",
+        "10.20练习.py 笔记 4.10~4.17"
+      ],
+      "history": [
+        {
+          "date": "2026-10-21",
+          "result": "fail",
+          "note": "通讯录题：提示未覆盖但实际覆盖了"
+        },
+        {
+          "date": "2026-10-22",
+          "result": "fail",
+          "note": "10.22复习.py 原样重犯，输出确实被覆盖"
+        },
+        {
+          "date": "2026-10-22",
+          "result": "explain",
+          "note": "已在 10.20练习.py 4.11 补记错/对对照"
+        },
+        {
+          "date": "2026-10-22",
+          "result": "pending",
+          "note": "10-22 周四大复习卷 第3 题已出，待作答"
+        }
+      ]
+    },
+    {
+      "id": "E02",
+      "title": "同一个变量名承担两种角色（被覆盖/泄漏）",
+      "bad": "def sum_list(nums): nums = 0     # 入参被覆盖成累加器\nfor w, counts in t: print(w, counts)  # 字典被覆盖成 int\nprint(sum_list(b))                    # 循环变量泄漏到循环外",
+      "good": "def sum_list(nums):\n    total = 0\n    for i in nums: total += i\n    return total\n\nfor w, c in t: print(w, c)   # counts 留给字典，c 给次数",
+      "tags": [
+        "变量角色",
+        "高频",
+        "函数"
+      ],
+      "occurrences": 4,
+      "first_seen": "2026-10-19",
+      "last_seen": "2026-10-21",
+      "streak": 0,
+      "need": 2,
+      "status": "active",
+      "source": [
+        "10.19练习.py sum_list",
+        "10.21练习.py for w, counts in t",
+        "10.20练习.py 笔记 4.10~4.17"
+      ],
+      "history": [
+        {
+          "date": "2026-10-19",
+          "result": "fail",
+          "note": "sum_list 里 nums=0 覆盖入参"
+        },
+        {
+          "date": "2026-10-20",
+          "result": "fail",
+          "note": "同类：b 被赋成 list(students.values()) 拿到 dict 的 list"
+        },
+        {
+          "date": "2026-10-21",
+          "result": "fail",
+          "note": "for w, counts in t 把字典 counts 覆盖成 int"
+        },
+        {
+          "date": "2026-10-22",
+          "result": "fail",
+          "note": "复习时再次指出，仍未彻底改掉"
+        },
+        {
+          "date": "2026-10-22",
+          "result": "explain",
+          "note": "已在 10.20练习.py 4.12 补记（补了\"这位置该是什么类型\"的自查法）"
+        },
+        {
+          "date": "2026-10-22",
+          "result": "pending",
+          "note": "10-22 周四大复习卷 第2 题已出，待作答"
+        }
+      ]
+    },
+    {
+      "id": "E03",
+      "title": "静默错误：漏了 .strip()，词频被标点污染",
+      "bad": "for w in words:\n    w = w.lower()          # 没去标点\n    counts[w] = counts.get(w, 0) + 1",
+      "good": "for w in words:\n    w = w.lower().strip(\".,!?\")   # 必须 strip\n    if w in stopwords: continue\n    counts[w] = counts.get(w, 0) + 1",
+      "tags": [
+        "静默错误",
+        "字符串",
+        "高频"
+      ],
+      "occurrences": 2,
+      "first_seen": "2026-10-21",
+      "last_seen": "2026-10-21",
+      "streak": 0,
+      "need": 2,
+      "status": "active",
+      "source": [
+        "10.21练习.py 第4行",
+        "10.20练习.py 笔记 4.10~4.17"
+      ],
+      "history": [
+        {
+          "date": "2026-10-21",
+          "result": "fail",
+          "note": "漏了 .strip()，代码能跑但结果错"
+        },
+        {
+          "date": "2026-10-22",
+          "result": "fail",
+          "note": "复习重考仍未主动补上"
+        },
+        {
+          "date": "2026-10-22",
+          "result": "explain",
+          "note": "已在 10.20练习.py 4.10 归入\"静默错误三件套\""
+        },
+        {
+          "date": "2026-10-22",
+          "result": "pending",
+          "note": "10-22 周四大复习卷 第6 题已出，待作答"
+        }
+      ]
+    },
+    {
+      "id": "E04",
+      "title": "静默错误：sorted 漏 reverse=True，排名是倒的",
+      "bad": "after = sorted(counts.items(), key=lambda x: x[1])   # 少了 reverse=True",
+      "good": "after = sorted(counts.items(), key=lambda x: x[1], reverse=True)",
+      "tags": [
+        "静默错误",
+        "排序",
+        "高频"
+      ],
+      "occurrences": 2,
+      "first_seen": "2026-10-21",
+      "last_seen": "2026-10-22",
+      "streak": 0,
+      "need": 2,
+      "status": "active",
+      "source": [
+        "10.21练习.py 第16行",
+        "10.20练习.py 笔记 4.10~4.17"
+      ],
+      "history": [
+        {
+          "date": "2026-10-21",
+          "result": "fail",
+          "note": "top N 排出来是升序"
+        },
+        {
+          "date": "2026-10-22",
+          "result": "fail",
+          "note": "重考仍未写 reverse=True"
+        },
+        {
+          "date": "2026-10-22",
+          "result": "explain",
+          "note": "已在 10.20练习.py 4.10 归入\"静默错误三件套\""
+        },
+        {
+          "date": "2026-10-22",
+          "result": "pending",
+          "note": "10-22 周四大复习卷 第4 题已出，待作答"
+        }
+      ]
+    },
+    {
+      "id": "E05",
+      "title": "类型不统一：数字 vs 字符串混用",
+      "bad": "contacts = {\n    \"小明\": {\"电话\": 13800138000},   # 数字\n    \"小红\": {\"电话\": \"13900139000\"}  # 字符串\n}",
+      "good": "contacts = {\n    \"小明\": {\"电话\": \"13800138000\"},   # 全用字符串\n    \"小红\": {\"电话\": \"13900139000\"},\n}",
+      "tags": [
+        "类型",
+        "静默错误",
+        "数据一致性"
+      ],
+      "occurrences": 2,
+      "first_seen": "2026-10-21",
+      "last_seen": "2026-10-22",
+      "streak": 0,
+      "need": 2,
+      "status": "active",
+      "source": [
+        "10.21练习2.py 第2行",
+        "10.22复习.py 第2行"
+      ],
+      "history": [
+        {
+          "date": "2026-10-21",
+          "result": "fail",
+          "note": "小明电话没加引号"
+        },
+        {
+          "date": "2026-10-22",
+          "result": "fail",
+          "note": "10.22复习.py 里又写成数字了"
+        },
+        {
+          "date": "2026-10-22",
+          "result": "pending",
+          "note": "10-22 周四大复习卷 第5 题已出，待作答"
+        }
+      ]
+    },
+    {
+      "id": "E06",
+      "title": "硬编码：写死的数字",
+      "bad": "zongfen / 4        # 4 科写死了\ncounts = {}\ncounts = 0             # 初始化写死",
+      "good": "zongfen / len(fenshubiao)   # 用真实长度\ncounts = {}",
+      "tags": [
+        "硬编码",
+        "可维护性"
+      ],
+      "occurrences": 1,
+      "first_seen": "2026-10-20",
+      "last_seen": "2026-10-20",
+      "streak": 0,
+      "need": 2,
+      "status": "active",
+      "source": [
+        "10.20练习.py"
+      ],
+      "history": [
+        {
+          "date": "2026-10-20",
+          "result": "new",
+          "note": "zongfen / 4 写死科数"
+        }
+      ]
+    },
+    {
+      "id": "E07",
+      "title": "嵌套安全查必须传 {} 当默认值",
+      "bad": "d.get(\"不存在\")            # 返回 None\nd.get(\"不存在\").get(\"字段\")  # AttributeError: 'NoneType' has no attribute 'get'",
+      "good": "d.get(\"不存在\", {}).get(\"字段\", \"未填写\")   # 两层各配默认值",
+      "tags": [
+        "dict",
+        "安全查"
+      ],
+      "occurrences": 1,
+      "first_seen": "2026-10-19",
+      "last_seen": "2026-10-19",
+      "streak": 0,
+      "need": 2,
+      "status": "active",
+      "source": [
+        "10.19练习.py",
+        "10.20练习.py 笔记 4.10~4.17"
+      ],
+      "history": [
+        {
+          "date": "2026-10-19",
+          "result": "new",
+          "note": "不传 {} 再链式调 .get() 会崩"
+        },
+        {
+          "date": "2026-10-22",
+          "result": "explain",
+          "note": "已在 10.20练习.py 4.14 补记；另发现 10.19 剥皮绕了两步"
+        }
+      ]
+    },
+    {
+      "id": "E08",
+      "title": ".get() 的 key 不能是 list（unhashable）",
+      "bad": "d.get(['小刚'], {})    # TypeError: unhashable type: 'list'\nd.get('小刚', {})    # 对",
+      "good": "d.get('小刚', {})           # key 去掉方括号\nd[('a','b')] = 1            # tuple 可以当 key",
+      "tags": [
+        "dict",
+        "key",
+        "括号"
+      ],
+      "occurrences": 1,
+      "first_seen": "2026-10-19",
+      "last_seen": "2026-10-19",
+      "streak": 0,
+      "need": 2,
+      "status": "active",
+      "source": [
+        "10.19练习.py"
+      ],
+      "history": [
+        {
+          "date": "2026-10-19",
+          "result": "new",
+          "note": "get 参数带方括号了"
+        }
+      ]
+    },
+    {
+      "id": "E09",
+      "title": "key= 传函数本身，不带括号",
+      "bad": "sorted(d, key=pinjun())   # TypeError: missing 1 required positional argument",
+      "good": "sorted(d, key=pinjun)     # 函数本身，不加括号",
+      "tags": [
+        "排序",
+        "key=",
+        "函数"
+      ],
+      "occurrences": 1,
+      "first_seen": "2026-10-20",
+      "last_seen": "2026-10-20",
+      "streak": 2,
+      "need": 2,
+      "status": "mastered",
+      "source": [
+        "10.20练习.py"
+      ],
+      "history": [
+        {
+          "date": "2026-10-20",
+          "result": "new",
+          "note": "key=pinjun() 多括号"
+        },
+        {
+          "date": "2026-10-22",
+          "result": "pass",
+          "note": "10-22 key= 专题讲解后，正确回答 x[1] 取第2项、x 类型判断"
+        },
+        {
+          "date": "2026-10-22",
+          "result": "pass",
+          "note": "自己发现并修复 key=lambda x:[1] 少写 x 的问题，key 语义已掌握"
+        }
+      ],
+      "mastered_on": "2026-10-22"
+    },
+    {
+      "id": "E10",
+      "title": "{} 不是空 set；空 set 必须 set()",
+      "bad": "x = {}            # 这是空 dict\ny = set()        # 这才是空 set",
+      "good": "x = set()        # 空 set\n# 记住：大括号没冒号=set，有冒号=dict",
+      "tags": [
+        "set",
+        "容器",
+        "括号"
+      ],
+      "occurrences": 1,
+      "first_seen": "2026-10-19",
+      "last_seen": "2026-10-19",
+      "streak": 0,
+      "need": 2,
+      "status": "active",
+      "source": [
+        "10.19练习.py"
+      ],
+      "history": [
+        {
+          "date": "2026-10-19",
+          "result": "new",
+          "note": "counts = [] 写成了 list，缺 {} 当字典"
+        }
+      ]
+    },
+    {
+      "id": "E11",
+      "title": "遍历中不能 remove()，会漏删",
+      "bad": "for w in words:\n    if w in stop: words.remove(w)   # 漏删",
+      "good": "for w in words:\n    if w in stop: continue        # 统计时跳过\n# 或者：words = [w for w in words if w not in stop]",
+      "tags": [
+        "list",
+        "循环",
+        "静默错误"
+      ],
+      "occurrences": 1,
+      "first_seen": "2026-10-21",
+      "last_seen": "2026-10-21",
+      "streak": 0,
+      "need": 2,
+      "status": "active",
+      "source": [
+        "10.21练习.py",
+        "10.20练习.py 笔记 4.10~4.17"
+      ],
+      "history": [
+        {
+          "date": "2026-10-21",
+          "result": "new",
+          "note": "遍历中 remove 实测 ['a','a','b'] → ['a','b']"
+        },
+        {
+          "date": "2026-10-22",
+          "result": "explain",
+          "note": "已在 10.20练习.py 4.17 补记"
+        }
+      ]
+    },
+    {
+      "id": "E12",
+      "title": "continue 只能在循环里用",
+      "bad": "continue          # 顶层写 → SyntaxError: 'continue' not properly in loop",
+      "good": "for w in words:\n    if w in stopwords:\n        continue      # 必须在循环体内",
+      "tags": [
+        "控制流",
+        "语法"
+      ],
+      "occurrences": 1,
+      "first_seen": "2026-10-21",
+      "last_seen": "2026-10-21",
+      "streak": 0,
+      "need": 2,
+      "status": "active",
+      "source": [
+        "10.21练习.py",
+        "10.20练习.py 笔记 4.10~4.17"
+      ],
+      "history": [
+        {
+          "date": "2026-10-21",
+          "result": "new",
+          "note": "顶层写 continue 报 SyntaxError"
+        },
+        {
+          "date": "2026-10-22",
+          "result": "explain",
+          "note": "已在 10.20练习.py 4.16 补记"
+        }
+      ]
+    },
+    {
+      "id": "E13",
+      "title": "字符串方法返回新值，不改原变量",
+      "bad": "w.lower()        # 白干，w 没变\nw.strip(\".,!?\")  # 同上",
+      "good": "w = w.lower().strip(\".,?!\")   # 必须赋值回去",
+      "tags": [
+        "字符串",
+        "赋值",
+        "高频"
+      ],
+      "occurrences": 2,
+      "first_seen": "2026-10-21",
+      "last_seen": "2026-10-21",
+      "streak": 0,
+      "need": 2,
+      "status": "active",
+      "source": [
+        "10.21练习.py 第9行",
+        "10.20练习.py 笔记 4.10~4.17"
+      ],
+      "history": [
+        {
+          "date": "2026-10-21",
+          "result": "fail",
+          "note": "一开始漏了赋值和 strip"
+        },
+        {
+          "date": "2026-10-22",
+          "result": "fail",
+          "note": "重考仍漏 .strip()（与 E03 同源）"
+        },
+        {
+          "date": "2026-10-22",
+          "result": "explain",
+          "note": "已在 10.20练习.py 4.13 补记"
+        }
+      ]
+    },
+    {
+      "id": "E14",
+      "title": "注释里的锚点值要和真实输出对得上",
+      "bad": "print(\"只出现1次的词:\", len(once))   # → 17   ← 注释写错了，真值是 15",
+      "good": "print(\"只出现1次的词:\", len(once))   # → 15   ← 跑一遍再写注释",
+      "tags": [
+        "验证习惯",
+        "自检"
+      ],
+      "occurrences": 1,
+      "first_seen": "2026-10-22",
+      "last_seen": "2026-10-22",
+      "streak": 0,
+      "need": 2,
+      "status": "active",
+      "source": [
+        "10.21练习.py 第24行"
+      ],
+      "history": [
+        {
+          "date": "2026-10-22",
+          "result": "new",
+          "note": "注释写 17，实际运行 15（当时锚点给错导致）"
+        }
+      ]
+    },
+    {
+      "id": "E15",
+      "title": "静默错误三件套：能跑但结果是错的（缺 strip / 缺 reverse / 缺 else）",
+      "bad": "# 代码能跑、输出好看，但结果是错的\nw = w.lower()             # 缺 .strip()\nafter = sorted(counts.items(), key=lambda x: x[1])   # 缺 reverse=True\nif 姓名 in contacts: print(\"未覆盖\")   # 缺 return，照样覆盖",
+      "good": "# 每次写完先问：这行\"跑得出来\"和\"跑得对\"是一回事吗？\nw = w.lower().strip(\".,!?\")\nafter = sorted(counts.items(), key=lambda x: x[1], reverse=True)\nif 姓名 in contacts: return \"未覆盖\"",
+      "tags": [
+        "静默错误",
+        "核心方法论",
+        "高频"
+      ],
+      "occurrences": 5,
+      "first_seen": "2026-10-21",
+      "last_seen": "2026-10-22",
+      "streak": 0,
+      "need": 2,
+      "status": "active",
+      "source": [
+        "10.21练习.py",
+        "10.22复习.py",
+        "10.22 大复习第2轮"
+      ],
+      "history": [
+        {
+          "date": "2026-10-21",
+          "result": "fail",
+          "note": "缺 .strip()"
+        },
+        {
+          "date": "2026-10-22",
+          "result": "fail",
+          "note": "缺 reverse=True，排名是倒的"
+        },
+        {
+          "date": "2026-10-22",
+          "result": "explain",
+          "note": "10.22 大复习总结为方法论，已写入笔记 4.10"
+        },
+        {
+          "date": "2026-10-22",
+          "result": "fail",
+          "note": "新增实例：keys() + x[1] 静默按第二字母排序（已单独记为 E16）"
+        },
+        {
+          "date": "2026-10-22",
+          "result": "pending",
+          "note": "10-22 周四大复习卷 第1 题已出，待作答"
+        },
+        {
+          "date": "2026-10-22",
+          "result": "fail",
+          "note": "第3个实例：key=lambda x:[1] 少写 x，排序不生效（已单独记为 E16）"
+        }
+      ]
+    },
+    {
+      "id": "E16",
+      "title": "静默错误：x[1] 取到什么，取决于 x 是什么类型",
+      "bad": "sorted(counts.keys(), key=lambda x: x[1])\n# 不报错！但 'python'[1] 是第二个字母 'y'\n# 结果按 a/e/o/y 排，和次数毫无关系\n\n# 同类笔误：key=lambda x:[1]   <- 少了 x\n# 每个元素都返回常量 [1]，全都一样，排序完全不生效",
+      "good": "sorted(counts.items(), key=lambda x: x[1], reverse=True)\n# 要么用 items() 让词和次数捆在一起\n# 要么 key=lambda x: counts[x] 回头查字典\n\n# 自查规则：看到 lambda x:xxx，先问 xxx 里有没有用到 x\n#   lambda x: x[1]  ✅ 用到了\n#   lambda x: [1]  ❌ 没用到 -> 一定是笔误",
+      "tags": [
+        "静默错误",
+        "key=",
+        "类型",
+        "高频"
+      ],
+      "occurrences": 2,
+      "first_seen": "2026-10-22",
+      "last_seen": "2026-10-22",
+      "streak": 0,
+      "need": 2,
+      "status": "active",
+      "source": [
+        "10-22 key= 专题讲解时的对照实验"
+      ],
+      "history": [
+        {
+          "date": "2026-10-22",
+          "result": "fail",
+          "note": "用户答\"keys() 不能用 x[1]\"——推理对，但没意识到不报错，实测按第二个字母排序"
+        },
+        {
+          "date": "2026-10-22",
+          "result": "explain",
+          "note": "已讲解并写入 10.20练习.py 笔记 4.19"
+        },
+        {
+          "date": "2026-10-22",
+          "result": "fail",
+          "note": "同类新实例：key=lambda x:[1] 少写 x，排序完全没生效但不报错"
+        }
+      ]
+    },
+    {
+      "id": "E17",
+      "title": "浅拷贝：dict(a) / a.copy() 只复制外层，内层 dict 仍共享",
+      "bad": "班级A = {\"小明\": {\"语文\": 90, \"数学\": 85}}\n总表 = dict(班级A); 总表.update(班级B)   # ❌ 外层是新 dict，内层还是同一个对象\n\n总表[\"小明\"][\"语文\"] = 99\nprint(班级A[\"小明\"])      # ❌ 变成 {'语文': 99, ...}，原数据被偷偷改了",
+      "good": "# ✅ 逐层复制（只有两层，够用）\n总表 = {k: dict(v) for k, v in 班级A.items()}\n总表.update(班级B)\n\n# ✅ 或者用标准库（层数不定时用它）\nimport copy\n总表 = copy.deepcopy(班级A)\n总表.update(班级B)\n\n# 验证：改总表不影响班级A",
+      "tags": [
+        "浅拷贝",
+        "字典合并",
+        "静默错误",
+        "查漏补缺"
+      ],
+      "occurrences": 1,
+      "first_seen": "2026-10-22",
+      "last_seen": "2026-10-22",
+      "streak": 0,
+      "need": 2,
+      "status": "active",
+      "source": [],
+      "history": [
+        {
+          "date": "2026-10-22",
+          "result": "new",
+          "note": "首次登记"
+        }
+      ]
+    },
+    {
+      "id": "E18",
+      "title": "静默覆盖：update() 遇到同名 key 直接顶掉，不报错也没提示",
+      "bad": "a = {\"小明\": {\"语文\": 90, \"数学\": 85}}\nb = {\"小明\": {\"语文\": 70, \"数学\": 89}}\n总 = dict(a)\n总.update(b)\n# ❌ 小明的语文从 90 变成 70，数据没了，全程无任何提示",
+      "good": "# ✅ 合并前先看有没有重名\n重名 = set(a) & set(b)\nif 重名:\n    print(\"⚠️ 同名 key，会被覆盖:\", 重名)\n    for k in 重名:\n        print(\"  \", k, \"旧:\", a[k], \"→ 新:\", b[k])   # 先让你看见\n\n总 = dict(a)\n总.update(b)\n\n# ✅ 真的要保留旧值，就合并而不是覆盖\n总 = dict(a)\nfor k, v in b.items():\n    总.setdefault(k, v)      # 已存在就保留旧的",
+      "tags": [
+        "字典合并",
+        "静默覆盖",
+        "静默错误",
+        "查漏补缺"
+      ],
+      "occurrences": 1,
+      "first_seen": "2026-10-22",
+      "last_seen": "2026-10-22",
+      "streak": 0,
+      "need": 2,
+      "status": "active",
+      "source": [],
+      "history": [
+        {
+          "date": "2026-10-22",
+          "result": "new",
+          "note": "首次登记"
+        }
+      ]
+    },
+    {
+      "id": "E19",
+      "title": "strip 后可能变成空串，空串被算进词频",
+      "bad": "for w in words:\n    w = w.lower().strip(\".,!?\")\n    if w in stopwords:\n        continue\n    counts[w] = counts.get(w, 0) + 1\n# ❌ 原文里有 \"...\" / \"!!!\" 这种纯标点独立成词时，\n#    strip 完变成空串 ''，照样进统计 → counts 里多出一个键 ''",
+      "good": "for w in words:\n    w = w.lower().strip(\".,!?\")\n    if not w:                 # ← strip 之后必须判空\n        continue\n    if w in stopwords:\n        continue\n    counts[w] = counts.get(w, 0) + 1\n\n# 验证：words 里加一个 \"...\"\n# 没有 if not w → counts 里出现 '': 1\n# 有  if not w → counts 里没有空串键",
+      "tags": [
+        "字符串",
+        "strip",
+        "词频",
+        "静默错误",
+        "查漏补缺"
+      ],
+      "occurrences": 1,
+      "first_seen": "2026-10-22",
+      "last_seen": "2026-10-22",
+      "streak": 0,
+      "need": 2,
+      "status": "active",
+      "source": [],
+      "history": [
+        {
+          "date": "2026-10-22",
+          "result": "new",
+          "note": "首次登记"
+        }
+      ]
+    },
+    {
+      "id": "E20",
+      "title": "缩进决定归属：print 放在循环里会每轮都打印",
+      "bad": "for name, object in 总表.items():\n    d.append((name, zongfen))\n    print(d)     # 缩进在循环里 -> 打印 4 次成长过程",
+      "good": "for name, object in 总表.items():\n    d.append((name, zongfen))\nprint(d)         # 缩进退到 0 -> 循环完只打印 1 次",
+      "tags": [
+        "缩进",
+        "控制流",
+        "调试"
+      ],
+      "occurrences": 1,
+      "first_seen": "2026-10-22",
+      "last_seen": "2026-10-22",
+      "streak": 0,
+      "need": 2,
+      "status": "active",
+      "source": [
+        "10.22复习.2.py"
+      ],
+      "history": [
+        {
+          "date": "2026-10-22",
+          "result": "fail",
+          "note": "print(d) 缩进在 for 里，输出了 4 行成长过程"
+        },
+        {
+          "date": "2026-10-22",
+          "result": "explain",
+          "note": "已讲解：缩进 = 归属关系"
+        }
+      ]
+    }
+  ]
+}

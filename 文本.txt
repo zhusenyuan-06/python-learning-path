@@ -1,0 +1,5 @@
+The quick brown fox jumps over the lazy dog.
+Python is great, python is fun. PYTHON is powerful!
+Data science needs data, and data needs Python.
+Learning Python is learning to think in data.
+The best code is code that reads well.

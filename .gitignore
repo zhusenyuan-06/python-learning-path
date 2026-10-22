@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyc
+.venv/
+venv/
+
+# PyCharm
+.idea/
+
+# 系统
+.DS_Store
+Thumbs.db
+
+# 本地垃圾（test.txt 是随手测试用的，不需要传）
+test.txt
