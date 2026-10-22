@@ -14,3 +14,6 @@ Thumbs.db
 
 # 本地垃圾（test.txt 是随手测试用的，不需要传）
 test.txt
+
+# 临时练习文件（做题时的草稿，不进作品集）
+cishi.py

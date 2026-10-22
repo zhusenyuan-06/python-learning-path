@@ -21,7 +21,7 @@
       "occurrences": 3,
       "first_seen": "2026-10-21",
       "last_seen": "2026-10-22",
-      "streak": 0,
+      "streak": 1,
       "need": 2,
       "status": "active",
       "source": [
@@ -49,6 +49,11 @@
           "date": "2026-10-22",
           "result": "pending",
           "note": "10-22 周四大复习卷 第3 题已出，待作答"
+        },
+        {
+          "date": "2026-10-22",
+          "result": "pass",
+          "note": ""
         }
       ]
     },
@@ -65,7 +70,7 @@
       "occurrences": 4,
       "first_seen": "2026-10-19",
       "last_seen": "2026-10-21",
-      "streak": 0,
+      "streak": 1,
       "need": 2,
       "status": "active",
       "source": [
@@ -103,6 +108,11 @@
           "date": "2026-10-22",
           "result": "pending",
           "note": "10-22 周四大复习卷 第2 题已出，待作答"
+        },
+        {
+          "date": "2026-10-22",
+          "result": "pass",
+          "note": ""
         }
       ]
     },
@@ -119,7 +129,7 @@
       "occurrences": 2,
       "first_seen": "2026-10-21",
       "last_seen": "2026-10-21",
-      "streak": 0,
+      "streak": 1,
       "need": 2,
       "status": "active",
       "source": [
@@ -146,6 +156,11 @@
           "date": "2026-10-22",
           "result": "pending",
           "note": "10-22 周四大复习卷 第6 题已出，待作答"
+        },
+        {
+          "date": "2026-10-22",
+          "result": "pass",
+          "note": ""
         }
       ]
     },
@@ -162,7 +177,7 @@
       "occurrences": 2,
       "first_seen": "2026-10-21",
       "last_seen": "2026-10-22",
-      "streak": 0,
+      "streak": 1,
       "need": 2,
       "status": "active",
       "source": [
@@ -189,6 +204,11 @@
           "date": "2026-10-22",
           "result": "pending",
           "note": "10-22 周四大复习卷 第4 题已出，待作答"
+        },
+        {
+          "date": "2026-10-22",
+          "result": "pass",
+          "note": ""
         }
       ]
     },
@@ -205,7 +225,7 @@
       "occurrences": 2,
       "first_seen": "2026-10-21",
       "last_seen": "2026-10-22",
-      "streak": 0,
+      "streak": 1,
       "need": 2,
       "status": "active",
       "source": [
@@ -227,6 +247,11 @@
           "date": "2026-10-22",
           "result": "pending",
           "note": "10-22 周四大复习卷 第5 题已出，待作答"
+        },
+        {
+          "date": "2026-10-22",
+          "result": "pass",
+          "note": ""
         }
       ]
     },
@@ -458,7 +483,7 @@
       "occurrences": 2,
       "first_seen": "2026-10-21",
       "last_seen": "2026-10-21",
-      "streak": 0,
+      "streak": 1,
       "need": 2,
       "status": "active",
       "source": [
@@ -480,6 +505,11 @@
           "date": "2026-10-22",
           "result": "explain",
           "note": "已在 10.20练习.py 4.13 补记"
+        },
+        {
+          "date": "2026-10-22",
+          "result": "pass",
+          "note": ""
         }
       ]
     },
@@ -522,7 +552,7 @@
       "occurrences": 5,
       "first_seen": "2026-10-21",
       "last_seen": "2026-10-22",
-      "streak": 0,
+      "streak": 1,
       "need": 2,
       "status": "active",
       "source": [
@@ -560,6 +590,11 @@
           "date": "2026-10-22",
           "result": "fail",
           "note": "第3个实例：key=lambda x:[1] 少写 x，排序不生效（已单独记为 E16）"
+        },
+        {
+          "date": "2026-10-22",
+          "result": "pass",
+          "note": ""
         }
       ]
     },
@@ -577,7 +612,7 @@
       "occurrences": 2,
       "first_seen": "2026-10-22",
       "last_seen": "2026-10-22",
-      "streak": 0,
+      "streak": 1,
       "need": 2,
       "status": "active",
       "source": [
@@ -598,6 +633,11 @@
           "date": "2026-10-22",
           "result": "fail",
           "note": "同类新实例：key=lambda x:[1] 少写 x，排序完全没生效但不报错"
+        },
+        {
+          "date": "2026-10-22",
+          "result": "pass",
+          "note": ""
         }
       ]
     },
