@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
 """登记本次查漏补缺发现的新错题（复用追踪器的 cmd_add + save，同一条路径）。"""
 import os, sys
-sys.path.insert(0, r"D:\AI应用工程师\01-学习仓库-Python学习路径\pythonProject\笔记")
+
+# 2026-10-27 目录重组后：改用相对定位，目录再搬也不失效
+笔记目录 = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, 笔记目录)
 import importlib.util
-spec = importlib.util.spec_from_file_location("zhuizong", r"D:\AI应用工程师\01-学习仓库-Python学习路径\pythonProject\笔记\错题追踪器.py")
+spec = importlib.util.spec_from_file_location("zhuizong", os.path.join(笔记目录, "错题追踪器.py"))
 m = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(m)
 

@@ -1,11 +1,17 @@
 # -*- coding: utf-8 -*-
 """验证候选 B 是否真的存在于用户今天写的 10.21练习.py 的代码路径里。"""
-import io, re, sys
+import io, os, re, sys
+
+# 2026-10-27 目录重组后：10.21练习.py 和 文本.txt 都搬到 练习/ 了
+练习目录 = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+    "练习",
+)
 
 print("=" * 62)
 print("用户 10.21练习.py 的清洗循环（原文）")
 print("=" * 62)
-src = open(r"D:\AI应用工程师\01-学习仓库-Python学习路径\pythonProject\10.21练习.py", encoding="utf-8").read()
+src = open(os.path.join(练习目录, "10.21练习.py"), encoding="utf-8").read()
 for i, ln in enumerate(src.splitlines(), 1):
     if 5 <= i <= 13:
         print("%2d| %s" % (i, ln))
@@ -14,7 +20,7 @@ print()
 print("=" * 62)
 print("用用户的原文逻辑 + 真实文本.txt 跑一遍")
 print("=" * 62)
-text = open(r"D:\AI应用工程师\01-学习仓库-Python学习路径\pythonProject\文本.txt", encoding="utf-8").read()
+text = open(os.path.join(练习目录, "文本.txt"), encoding="utf-8").read()
 words = text.split()
 stopwords = {"the", "is", "and", "to", "in", "a", "of", "that"}
 
