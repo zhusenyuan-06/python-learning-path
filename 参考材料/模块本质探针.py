@@ -12,6 +12,10 @@ print("=" * 60)
 print("二、搬过来的不只是函数，还有模块里的所有名字")
 print("=" * 60)
 
+import os
+import sys
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "教学"))
+
 import 配送工具
 
 # 打印模块里都有什么（dir = 列出模块内的名字）

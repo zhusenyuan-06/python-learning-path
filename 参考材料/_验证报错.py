@@ -1,3 +1,7 @@
+import os
+import sys
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "教学"))
+
 import 配送工具
 
 print("=== 探索 A 复现：函数名写错 ===")

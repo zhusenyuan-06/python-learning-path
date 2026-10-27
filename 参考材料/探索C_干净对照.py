@@ -17,6 +17,10 @@ print("=" * 62)
 print("实验 2：先 import，再调用（同一个文件里）")
 print("=" * 62)
 
+import os
+import sys
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "教学"))
+
 from 配送工具 import 生成配送单
 
 生成配送单("珑湖湾", "青菜", "豆腐", 供应商="鑫鑫")
