@@ -22,6 +22,5 @@ cishi.py
 push.sh
 push_github.sh
 push_gitcode.sh
-push_gitcode.sh
 
 # 截图目录（本地素材，放 README 引用前先确认体积）
