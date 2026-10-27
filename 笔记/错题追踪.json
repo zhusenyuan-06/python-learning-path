@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created": "2026-10-22",
-  "updated": "2026-10-22",
+  "updated": "2026-10-27",
   "config": {
     "master_streak_default": 2,
     "review_day": "周四",
@@ -749,6 +749,83 @@
           "date": "2026-10-22",
           "result": "explain",
           "note": "已讲解：缩进 = 归属关系"
+        }
+      ]
+    },
+    {
+      "id": "E21",
+      "title": "json.dumps 忘写 ensure_ascii=False：中文变成 \\uXXXX",
+      "bad": "import json\ns = json.dumps(订单2)\nprint(s)\n# 输出: {\"\\u83dc\\u540d\": \"\\u6392\\u9aa8\"}\n# 中文全变成 Unicode 转义，看不清，且发给 LLM 会掉质量",
+      "good": "import json\ns = json.dumps(订单2, ensure_ascii=False)\nprint(s)\n# 输出: {\"菜名\": \"排骨\", \"重量\": 15.0, \"送到\": \"阳光城\"}\n# ⭐ 跟中文打交道，dumps 永远写死 ensure_ascii=False",
+      "tags": [
+        "json",
+        "标准库",
+        "中文乱码",
+        "静默错误"
+      ],
+      "occurrences": 1,
+      "first_seen": "2026-10-27",
+      "last_seen": "2026-10-27",
+      "streak": 0,
+      "need": 2,
+      "status": "active",
+      "source": [],
+      "history": [
+        {
+          "date": "2026-10-27",
+          "result": "new",
+          "note": "首次登记"
+        }
+      ]
+    },
+    {
+      "id": "E22",
+      "title": "import 报错时机搞反：以为 from 写法会晚报错",
+      "bad": "import 配送工具\n配送工具.生成配送单表(\"珑湖湾\")   # 模块里没这个函数\n# 我以为「写法1会马上报错」 → ❌ 反了\n# 实际：import 模块不检查函数名，运行到调用那行才炸 AttributeError",
+      "good": "from 配送工具 import 生成配送单\n# 模块里叫「生成配送单表」，这里写「生成配送单」\n# 立刻报 ImportError：cannot import name '生成配送单' from '配送工具'\n# ⭐ from 后面写了名字 → 立刻查；import 后面没写名字 → 用到才查",
+      "tags": [
+        "import",
+        "模块",
+        "报错时机"
+      ],
+      "occurrences": 1,
+      "first_seen": "2026-10-27",
+      "last_seen": "2026-10-27",
+      "streak": 0,
+      "need": 2,
+      "status": "active",
+      "source": [],
+      "history": [
+        {
+          "date": "2026-10-27",
+          "result": "new",
+          "note": "首次登记"
+        }
+      ]
+    },
+    {
+      "id": "E23",
+      "title": "*args 当成乘法、**kwargs 当成幂运算",
+      "bad": "def my_sum(*args):\n    return 3 * 10\n# ❌ 把 *args 当成运算符了 → TypeError: can't multiply sequence by non-int of type 'type'\n# 实际：定义时 *args = 把多余的位置参数收集成 tuple，**kwargs = 收集成 dict",
+      "good": "def my_sum(*args):\n    n = 0\n    for i in args:      # args 本身就是元组，直接遍历\n        n += i\n    return n\n# ⭐ 定义时 *args 收集成元组；调用时 *列表 才是解包成多个参数",
+      "tags": [
+        "args",
+        "kwargs",
+        "函数",
+        "可变参数"
+      ],
+      "occurrences": 1,
+      "first_seen": "2026-10-27",
+      "last_seen": "2026-10-27",
+      "streak": 0,
+      "need": 2,
+      "status": "active",
+      "source": [],
+      "history": [
+        {
+          "date": "2026-10-27",
+          "result": "new",
+          "note": "首次登记"
         }
       ]
     }
