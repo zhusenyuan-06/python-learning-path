@@ -31,7 +31,10 @@
   python 工具链坑.py add "标题" "症状" "原因" "解法" "标签1,标签2"
   python 工具链坑.py hit T03 "备注"  又踩了一次 → 次数 +1
   python 工具链坑.py fix T03 "新解法" 追加一个解法
+  python 工具链坑.py tag T03 "git,网络,排查"  改标签（整组替换）
   python 工具链坑.py render          重新生成 工具链坑.md
+
+标签分隔符：英文逗号 / 中文逗号 / 中文顿号 都认
 """
 
 import datetime
@@ -215,6 +218,22 @@ def cmd_show(db, tid):
     print("没找到 %s" % tid)
 
 
+def split_tags(raw):
+    """标签拆分：英文逗号、中文逗号、中文顿号都当分隔符。
+
+    起因：录 T07 时用「、」连接标签，结果整串变成了一个超长标签。
+    中文写标签天然会用顿号，所以这里一并认掉。
+    """
+    if not raw:
+        return []
+    parts = []
+    for chunk in raw.replace("，", ",").replace("、", ",").split(","):
+        chunk = chunk.strip()
+        if chunk:
+            parts.append(chunk)
+    return parts
+
+
 def cmd_add(db, title, symptom, cause, solution, tags):
     item = {
         "id": next_id(db),
@@ -222,7 +241,7 @@ def cmd_add(db, title, symptom, cause, solution, tags):
         "symptom": symptom,
         "cause": cause,
         "solutions": [solution],
-        "tags": [t.strip() for t in tags.split(",") if t.strip()],
+        "tags": split_tags(tags),
         "hits": 1,
         "first_hit": today(),
         "last_hit": today(),
@@ -230,6 +249,7 @@ def cmd_add(db, title, symptom, cause, solution, tags):
     db.setdefault("items", []).append(item)
     save(db)
     print("已添加 %s · %s" % (item["id"], title))
+    print("   标签: %s" % ("、".join(item["tags"]) or "（无）"))
 
 
 def cmd_hit(db, tid, note):
@@ -251,6 +271,17 @@ def cmd_fix(db, tid, solution):
             it.setdefault("solutions", []).append(solution)
             save(db)
             print("%s 已追加解法（共 %d 条）" % (it["id"], len(it["solutions"])))
+            return
+    print("没找到 %s" % tid)
+
+
+def cmd_tag(db, tid, tags):
+    """改某条坑的标签（整组替换，不是追加）。"""
+    for it in db.get("items", []):
+        if it["id"].lower() == tid.lower():
+            it["tags"] = split_tags(tags)
+            save(db)
+            print("%s 标签已更新: %s" % (it["id"], "、".join(it["tags"]) or "（空）"))
             return
     print("没找到 %s" % tid)
 
@@ -281,11 +312,13 @@ def main():
         cmd_hit(db, sys.argv[2], sys.argv[3] if len(sys.argv) >= 4 else "")
     elif cmd == "fix" and len(sys.argv) >= 4:
         cmd_fix(db, sys.argv[2], sys.argv[3])
+    elif cmd == "tag" and len(sys.argv) >= 4:
+        cmd_tag(db, sys.argv[2], sys.argv[3])
     elif cmd == "render":
         cmd_render(db)
     else:
         print(__doc__)
-        print("命令拼错了。可用：ls / stats / show / add / hit / fix / render")
+        print("命令拼错了。可用：ls / stats / show / add / hit / fix / tag / render")
 
 
 if __name__ == "__main__":

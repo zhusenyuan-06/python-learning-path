@@ -102,6 +102,41 @@
       "hits": 1,
       "first_hit": "2026-10-27",
       "last_hit": "2026-10-27"
+    },
+    {
+      "id": "T07",
+      "title": "git ls-files 对中文路径做八进制转义，统计文件数必须加 -z",
+      "symptom": "统计根目录 .py 数量时 git ls-files | grep -c \"\\.py$\" 返回 0；用 git ls-tree 看到文件名显示成 \"\\351\\273\\210...\" 一串八进制",
+      "cause": "git 默认 core.quotepath=true，输出非 ASCII 路径时用 C 风格转义而不是原样输出；配合 wc -l / grep 统计时路径被拆错",
+      "solutions": [
+        "统计文件数统一用 git ls-files -z | tr \"\\0\" \"\\n\"；查看文件名用 git -c core.quotepath=false ls-tree --name-only HEAD"
+      ],
+      "tags": [
+        "git",
+        "统计",
+        "编码",
+        "盘点"
+      ],
+      "hits": 1,
+      "first_hit": "2026-10-27",
+      "last_hit": "2026-10-27"
+    },
+    {
+      "id": "T08",
+      "title": "bash for 循环里 $(...) 会被空格拆词，含空格的文件名统计会漏",
+      "symptom": "for f in $(git ls-files ...); do wc -l < \"$f\"; done 统计出 22 个文件，真实是 23 个；stderr 报 \"默认参数: No such file or directory\"、\"& 关键字参数.py: No such file\"",
+      "cause": "命令替换的结果会做词分割（word splitting）和 glob 展开，含空格的路径被拆成多个参数，循环里当成不存在的文件名",
+      "solutions": [
+        "改用 while read -d \"\" 逐行读，或直接交给 Python 处理：git ls-files -z | python -c \"import sys; ...\""
+      ],
+      "tags": [
+        "bash",
+        "统计",
+        "文件名"
+      ],
+      "hits": 1,
+      "first_hit": "2026-10-27",
+      "last_hit": "2026-10-27"
     }
   ],
   "updated": "2026-10-27"
