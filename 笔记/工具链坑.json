@@ -137,6 +137,42 @@
       "hits": 1,
       "first_hit": "2026-10-27",
       "last_hit": "2026-10-27"
+    },
+    {
+      "id": "T09",
+      "title": "预览本地 xlsx 后原文件从磁盘消失，只剩备份在",
+      "symptom": "调用 present_files 预览桌面技能清单 xlsx 后，桌面上的 AI应用工程师技能清单.xlsx 整份不见了（ls 看不到，全盘 find 也搜不到）；只留 18:22 做的备份。全盘搜到 .workbuddy/workspace/sessions/<id>/modify_backup/ 但里面只有「更新前」的版本",
+      "cause": "WorkBuddy 有全局文件监控（modify_backup + .modify_backup_meta 按 hash 跟踪文件），本地文档预览会接管原文件；预览面板关闭/超时后原文件没被还原",
+      "solutions": [
+        "① 重要文件改前必备份，且改动要脚本化（脚本已提交 git 就能 100% 重跑复现）；② 桌面留工作副本 + D 盘留权威副本 + git 留快照，三层保险；③ 谨慎 present 本地 xlsx，改用文字汇报表格内容"
+      ],
+      "tags": [
+        "WorkBuddy",
+        "文件安全",
+        "备份",
+        "xlsx"
+      ],
+      "hits": 1,
+      "first_hit": "2026-10-27",
+      "last_hit": "2026-10-27"
+    },
+    {
+      "id": "T10",
+      "title": "执行即写入的脚本不能拿来\"测试\"——我为了验证路径改对没，把错题池污染了",
+      "symptom": "只是想确认 _登记新错题.py 改完路径还能跑，直接执行了，结果它当场新增 E21/E22/E23 三条错题（JSON 里多了 3 条，md 被自动重新渲染）",
+      "cause": "这类脚本是\"执行即写入\"型，副作用和数据变更不可逆，且没有 dry-run 开关；测试它 = 真的做了一遍",
+      "solutions": [
+        "① 测试写数据的脚本前先 git stash / 先备份，或在副本上测；② git checkout -- <数据文件> 回滚 JSON，再 render 一次让 md 同步回来；③ 给这类脚本加 --dry-run 参数"
+      ],
+      "tags": [
+        "Python",
+        "脚本",
+        "git",
+        "测试"
+      ],
+      "hits": 1,
+      "first_hit": "2026-10-27",
+      "last_hit": "2026-10-27"
     }
   ],
   "updated": "2026-10-27"

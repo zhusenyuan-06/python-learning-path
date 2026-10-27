@@ -5,7 +5,7 @@ import io, re, sys
 print("=" * 62)
 print("用户 10.21练习.py 的清洗循环（原文）")
 print("=" * 62)
-src = open(r"D:\pythonProject\10.21练习.py", encoding="utf-8").read()
+src = open(r"D:\AI应用工程师\01-学习仓库-Python学习路径\pythonProject\10.21练习.py", encoding="utf-8").read()
 for i, ln in enumerate(src.splitlines(), 1):
     if 5 <= i <= 13:
         print("%2d| %s" % (i, ln))
@@ -14,7 +14,7 @@ print()
 print("=" * 62)
 print("用用户的原文逻辑 + 真实文本.txt 跑一遍")
 print("=" * 62)
-text = open(r"D:\pythonProject\文本.txt", encoding="utf-8").read()
+text = open(r"D:\AI应用工程师\01-学习仓库-Python学习路径\pythonProject\文本.txt", encoding="utf-8").read()
 words = text.split()
 stopwords = {"the", "is", "and", "to", "in", "a", "of", "that"}
 
