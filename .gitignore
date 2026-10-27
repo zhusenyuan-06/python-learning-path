@@ -20,3 +20,6 @@ cishi.py
 
 # 本地网络/环境辅助脚本（含本机特定配置，不属于作品内容）
 push.sh
+push_gitcode.sh
+
+# 截图目录（本地素材，放 README 引用前先确认体积）
