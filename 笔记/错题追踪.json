@@ -182,7 +182,7 @@
       "occurrences": 3,
       "first_seen": "2026-10-21",
       "last_seen": "2026-10-28",
-      "streak": 0,
+      "streak": 1,
       "need": 2,
       "status": "active",
       "source": [
@@ -219,6 +219,11 @@
           "date": "2026-10-28",
           "result": "fail",
           "note": "10-28 变式题：sorted(字典) 忘了 .items()，且 [:3] 会切掉并列第 3 名"
+        },
+        {
+          "date": "2026-10-28",
+          "result": "pass",
+          "note": "10-28 变式题二：阈值法已讲透（录取线比喻 + 排序后[前N-1][1] 拆解），连对 1/2"
         }
       ]
     },
