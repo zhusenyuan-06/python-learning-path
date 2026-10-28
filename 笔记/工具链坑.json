@@ -292,6 +292,25 @@
       "hits": 1,
       "first_hit": "2026-10-28",
       "last_hit": "2026-10-28"
+    },
+    {
+      "id": "T17",
+      "title": "GitHub 的 api.github.com 和 github.com 不在同一批边缘 IP —— 绑错会被 301 弹走",
+      "symptom": "curl https://api.github.com/user 返回 301，Location: https://github.com/user，响应体空，拿不到任何 API 数据；换 8 个 IP 全是 301",
+      "cause": "GitHub 的 api 站点边缘节点在 .5/.6 段（140.82.112.5、140.82.112.6、140.82.113.5…），web 站点在 .3/.4 段（140.82.112.3、140.82.114.4…）。拿 web 的 IP 去解析 api.github.com，边缘节点会按 Host 把你路由到 github.com 站点 → 301",
+      "solutions": [
+        "api.github.com 要单独绑 .5/.6 段（实测 140.82.112.6 / 140.82.113.5 / 140.82.114.6 / 140.82.116.6 / 140.82.121.6 都返 200）；push.sh 原来的 LOCK_IP 把四个域名绑同一个 IP，属于绑错，但 push 本身不调 API 所以一直没暴露"
+      ],
+      "tags": [
+        "网络",
+        "GitHub",
+        "排查",
+        "API"
+      ],
+      "hits": 2,
+      "first_hit": "2026-10-28",
+      "last_hit": "2026-10-28",
+      "note": "2026-10-28 晚首次撞上：查 token 身份时 API 一直 301"
     }
   ],
   "updated": "2026-10-28"
