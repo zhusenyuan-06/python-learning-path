@@ -234,13 +234,34 @@ def split_tags(raw):
     return parts
 
 
+def split_solutions(raw):
+    """解法拆分：一行 = 一个要点。
+
+    起因：录 T12 时写了 6 条要点，add 把整段塞进 solutions[0]，
+    结果渲染出来挤成一大块（还多出一层 "- " 前缀）。
+    渲染层本来就会给每条加 "- "，所以这里顺手把行首手写的 "- " 去掉。
+    """
+    if not raw:
+        return []
+    out = []
+    for ln in raw.split("\n"):
+        ln = ln.strip()
+        if not ln:
+            continue
+        if ln.startswith("- "):
+            ln = ln[2:].strip()
+        if ln:
+            out.append(ln)
+    return out
+
+
 def cmd_add(db, title, symptom, cause, solution, tags):
     item = {
         "id": next_id(db),
         "title": title,
         "symptom": symptom,
         "cause": cause,
-        "solutions": [solution],
+        "solutions": split_solutions(solution),
         "tags": split_tags(tags),
         "hits": 1,
         "first_hit": today(),

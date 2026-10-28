@@ -47,10 +47,10 @@
         "排查",
         "GitHub"
       ],
-      "hits": 2,
+      "hits": 3,
       "first_hit": "2026-10-27",
-      "last_hit": "2026-10-27",
-      "note": "17:12 那次推送全挂，又想起这个坑"
+      "last_hit": "2026-10-28",
+      "note": "17:12 那次推送全挂，又想起这个坑 | 10-28 又掐一次：先测别的站点确认只有 GitHub 被掐，没在'再换个 IP'上白费时间"
     },
     {
       "id": "T04",
@@ -191,7 +191,32 @@
       "hits": 1,
       "first_hit": "2026-10-27",
       "last_hit": "2026-10-27"
+    },
+    {
+      "id": "T12",
+      "title": "GitHub 推送失败的四步诊断法 —— 别急着换 IP",
+      "symptom": "git push 报 Recv failure: Connection was reset；push.sh 第 2 步 ls-remote 连不上就直接退出。反复换 IP 重试，40 分钟没进展。",
+      "cause": "失败原因分四层：链路整体断 / DNS 被阻 / 代理没生效 / IP 池整段过期。不按顺序排查就瞎试 IP，等于在错误的层面上反复用力。",
+      "solutions": [
+        "① 先测别的站点（百度/Gitee/GitCode/B站）：全部 200 → 网络正常，只有 GitHub 被掐，别去改路由器",
+        "② nslookup github.com：超时 → DNS 被阻。但 git 走锁定 IP 时不受影响，照样能 push",
+        "③ env | grep proxy：WorkBuddy 注入的 127.0.0.1:54880 只放行特定域名，对 GitHub 无效 —— 脚本里 unset 掉是对的",
+        "④ 扫 IP 池：原 6 个 IP 全部 TCP 握手失败（curl 返回 000）。GitHub 封 IP 是整段随机的 → 必须扩池（6→12），换顺序没用",
+        "关键：curl 探测 200 不等于 git push 成功（中间隔着 git 自己的 HTTP/2 + 认证层）→ 探测阶段和推送阶段必须各自独立重试",
+        "脚本改造：push.sh 第 2 步 ls-remote 失败不再 exit 1，改为提示后继续（推送阶段本来就有独立换 IP 重试）；第 5 步不再 2>/dev/null 吞报错，捕获到 LAST_ERR 再打印并给出分诊指引"
+      ],
+      "tags": [
+        "git",
+        "GitHub",
+        "网络",
+        "排查",
+        "DNS",
+        "代理"
+      ],
+      "hits": 1,
+      "first_hit": "2026-10-28",
+      "last_hit": "2026-10-28"
     }
   ],
-  "updated": "2026-10-27"
+  "updated": "2026-10-28"
 }
