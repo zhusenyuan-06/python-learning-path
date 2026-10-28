@@ -59,10 +59,6 @@ python contact_book.py
   地址: 西城区
 ```
 
-![通讯录 CLI 运行效果](../../截图/01-通讯录CLI.png)
-
-*上图是 `python contact_book.py` 的真实运行输出。*
-
 ---
 
 ## 技术点
