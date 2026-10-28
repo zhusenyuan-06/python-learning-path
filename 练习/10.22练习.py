@@ -28,3 +28,8 @@ print(前3)
 # 第4步：打印前三名，带名次
 for i, (名字, 总分) in enumerate(前3, 1):
     print(i, 名字, 总分)
+
+
+
+a = "ab";  b = a;  a += "c"
+print(a, b)

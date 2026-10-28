@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created": "2026-10-22",
-  "updated": "2026-10-27",
+  "updated": "2026-10-28",
   "config": {
     "master_streak_default": 2,
     "review_day": "周四",
@@ -126,10 +126,10 @@
         "字符串",
         "高频"
       ],
-      "occurrences": 2,
+      "occurrences": 3,
       "first_seen": "2026-10-21",
-      "last_seen": "2026-10-21",
-      "streak": 1,
+      "last_seen": "2026-10-28",
+      "streak": 0,
       "need": 2,
       "status": "active",
       "source": [
@@ -161,6 +161,11 @@
           "date": "2026-10-22",
           "result": "pass",
           "note": ""
+        },
+        {
+          "date": "2026-10-28",
+          "result": "fail",
+          "note": "10-28 变式题：以为 strip(chars) 会连空白一起剥（\"  苹果，\".strip(\"，\") 其实是\"  苹果\"）"
         }
       ]
     },
@@ -174,10 +179,10 @@
         "排序",
         "高频"
       ],
-      "occurrences": 2,
+      "occurrences": 3,
       "first_seen": "2026-10-21",
-      "last_seen": "2026-10-22",
-      "streak": 1,
+      "last_seen": "2026-10-28",
+      "streak": 0,
       "need": 2,
       "status": "active",
       "source": [
@@ -209,6 +214,11 @@
           "date": "2026-10-22",
           "result": "pass",
           "note": ""
+        },
+        {
+          "date": "2026-10-28",
+          "result": "fail",
+          "note": "10-28 变式题：sorted(字典) 忘了 .items()，且 [:3] 会切掉并列第 3 名"
         }
       ]
     },
@@ -480,10 +490,10 @@
         "赋值",
         "高频"
       ],
-      "occurrences": 2,
+      "occurrences": 3,
       "first_seen": "2026-10-21",
-      "last_seen": "2026-10-21",
-      "streak": 1,
+      "last_seen": "2026-10-28",
+      "streak": 0,
       "need": 2,
       "status": "active",
       "source": [
@@ -510,6 +520,11 @@
           "date": "2026-10-22",
           "result": "pass",
           "note": ""
+        },
+        {
+          "date": "2026-10-28",
+          "result": "fail",
+          "note": "10-28 变式题：把 p = p + [3] 当成 += ，以为别名会跟着变（实际不会）"
         }
       ]
     },
