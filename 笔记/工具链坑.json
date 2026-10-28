@@ -311,6 +311,24 @@
       "first_hit": "2026-10-28",
       "last_hit": "2026-10-28",
       "note": "2026-10-28 晚首次撞上：查 token 身份时 API 一直 301"
+    },
+    {
+      "id": "T18",
+      "title": "git push 报「失败」但服务端其实已经推上去了 —— 别急着重推",
+      "symptom": "git push 报 fatal: Recv failure: Connection was reset，exit=128；紧接着换 IP 再推却输出 \"Everything up-to-date\"，exit=0 —— 第一次「失败」的那次其实已经成功了",
+      "cause": "git 协议是「客户端推 pack → 服务端解包并更新 ref → 回传确认」。连接在最后一步断掉时，服务端 ref 已经更新了，客户端没收到 ack 就报失败。校园网链路抖动下这个现象极常见",
+      "solutions": [
+        "push 报网络类错误后，先查远端 HEAD 再决定要不要重推：git ls-remote origin refs/heads/main 比对本地 git rev-parse HEAD，一致就说明已成功。也可以用 API：GET /repos/<owner>/<repo>/commits/main（注意 api.github.com 要绑 .5/.6 段 IP）"
+      ],
+      "tags": [
+        "git",
+        "网络",
+        "GitHub",
+        "排查"
+      ],
+      "hits": 1,
+      "first_hit": "2026-10-28",
+      "last_hit": "2026-10-28"
     }
   ],
   "updated": "2026-10-28"
