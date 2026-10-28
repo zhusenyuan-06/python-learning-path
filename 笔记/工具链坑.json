@@ -22,7 +22,8 @@
       "symptom": "git push 没报错也没输出，exit code 是 0，看着像成功了。但 git ls-remote --heads origin 查远端还是空的。加 GIT_TRACE=1 才看到最后一行停在：run_command: 'git credential-manager get'",
       "cause": "Credential Manager 会弹图形界面问用户名密码，无 GUI 环境里弹不出来，进程就一直等。这是认证问题，但表现像网络问题，极具误导性。",
       "solutions": [
-        "git config --global credential.interactive never\n排查：GIT_TRACE=1 git push > log 2>&1 看停在哪一行\nbash 里 git 的输出可能被吞，必须重定向到文件再读"
+        "git config --global credential.interactive never\n排查：GIT_TRACE=1 git push > log 2>&1 看停在哪一行\nbash 里 git 的输出可能被吞，必须重定向到文件再读",
+        "2026-10-28 补充第二种形态：git credential-manager github login 在非交互 shell 里 exit=0 但零输出，不一定是弹窗，也可能是 stdout 重定向到文件时的块缓冲（设备码还没刷出来就被当成「没输出」）。排查顺序：先 GIT_TRACE=1 看停在哪一行，再怀疑缓冲。另外 where git-credential-manager 可能查到的是 WorkBuddy PortableGit 的副本而不是用户自己 D://Git 的，两个版本号相同、但排查时别被路径迷惑"
       ],
       "tags": [
         "git",
@@ -47,10 +48,10 @@
         "排查",
         "GitHub"
       ],
-      "hits": 3,
+      "hits": 4,
       "first_hit": "2026-10-27",
       "last_hit": "2026-10-28",
-      "note": "17:12 那次推送全挂，又想起这个坑 | 10-28 又掐一次：先测别的站点确认只有 GitHub 被掐，没在'再换个 IP'上白费时间"
+      "note": "17:12 那次推送全挂，又想起这个坑 | 10-28 又掐一次：先测别的站点确认只有 GitHub 被掐，没在'再换个 IP'上白费时间 | 2026-10-28 又一次：浏览器能打开 github.com/login/device 完成授权，但 git 通道仍需 IP 池才能通 —— 网页通道与 git 通道确实分开"
     },
     {
       "id": "T04",
@@ -203,7 +204,8 @@
         "③ env | grep proxy：WorkBuddy 注入的 127.0.0.1:54880 只放行特定域名，对 GitHub 无效 —— 脚本里 unset 掉是对的",
         "④ 扫 IP 池：原 6 个 IP 全部 TCP 握手失败（curl 返回 000）。GitHub 封 IP 是整段随机的 → 必须扩池（6→12），换顺序没用",
         "关键：curl 探测 200 不等于 git push 成功（中间隔着 git 自己的 HTTP/2 + 认证层）→ 探测阶段和推送阶段必须各自独立重试",
-        "脚本改造：push.sh 第 2 步 ls-remote 失败不再 exit 1，改为提示后继续（推送阶段本来就有独立换 IP 重试）；第 5 步不再 2>/dev/null 吞报错，捕获到 LAST_ERR 再打印并给出分诊指引"
+        "脚本改造：push.sh 第 2 步 ls-remote 失败不再 exit 1，改为提示后继续（推送阶段本来就有独立换 IP 重试）；第 5 步不再 2>/dev/null 吞报错，捕获到 LAST_ERR 再打印并给出分诊指引",
+        "2026-10-28 补充：curl 探测 200 只代表 GET 通，GitHub 的 POST 端点（/login/oauth/access_token）由不同边缘节点转发，必须按方法分开测（详见 T16）；另外 WorkBuddy 注入的代理端口每次会话都会变（54880 → 50011），所以别写死端口，一律 unset 掉"
       ],
       "tags": [
         "git",
@@ -212,6 +214,80 @@
         "排查",
         "DNS",
         "代理"
+      ],
+      "hits": 1,
+      "first_hit": "2026-10-28",
+      "last_hit": "2026-10-28"
+    },
+    {
+      "id": "T13",
+      "title": "git push --dry-run 给你「假绿」—— 本地==远端时根本不触发认证",
+      "symptom": "删掉 GitHub Token 后，git push --dry-run origin main 依然 exit=0、零报错，误以为认证没问题；结果真推时立刻 fatal: unable to get password from user",
+      "cause": "本地 main 与 origin/main 的 ref 完全相同时，git 在本地就判定「Everything up-to-date」，根本不发起写请求、不向凭据管理器索要密码 —— 认证路径压根没被执行过",
+      "solutions": [
+        "要测认证必须造一个真实写操作：git push origin main:refs/heads/_authtest_tmp 推临时分支，推得动说明认证通，再 git push origin --delete _authtest_tmp 清理"
+      ],
+      "tags": [
+        "git",
+        "认证",
+        "排查",
+        "GitHub"
+      ],
+      "hits": 1,
+      "first_hit": "2026-10-28",
+      "last_hit": "2026-10-28"
+    },
+    {
+      "id": "T14",
+      "title": "WorkBuddy 注入的本地代理会让 GitHub 连不通 —— 直连 200、走代理 000",
+      "symptom": "curl https://github.com 返回 http_code=000 且 remote_ip 为空，但同一时刻加 --noproxy \"*\" 就返回 200；push 也报 Failed to connect to github.com:443",
+      "cause": "WorkBuddy 沙箱会注入 http_proxy=http://127.0.0.1:50011，这个本地代理对 GitHub 的 CDN 链路不通；DNS 超时和「连不上」常常是这个代理造出来的假象，不是真的没网",
+      "solutions": [
+        "访问 GitHub 前先 unset http_proxy https_proxy HTTP_PROXY HTTPS_PROXY 并 export NO_PROXY=\"*\"；curl 再额外加 --noproxy \"*\"；git 用 push.sh 开头那行同名 unset（原本就在）"
+      ],
+      "tags": [
+        "网络",
+        "代理",
+        "WorkBuddy",
+        "排查",
+        "GitHub"
+      ],
+      "hits": 1,
+      "first_hit": "2026-10-28",
+      "last_hit": "2026-10-28"
+    },
+    {
+      "id": "T15",
+      "title": "GCM 设备流在非交互 shell 里拿不到设备码 —— 改走手动 OAuth Device Flow",
+      "symptom": "git credential-manager github login --device 报 fatal: Cannot prompt because terminal prompts have been disabled；或者 exit=0 但屏幕上一个字都没有，像什么都没发生",
+      "cause": "① WorkBuddy 全局设了 GIT_TERMINAL_PROMPT=0，直接禁掉终端提示；② 非交互 shell 没有 TTY，GCM 无法提问；③ stdout 重定向到文件时是块缓冲，设备码还没刷出来，看着就像「没输出」",
+      "solutions": [
+        "手动走 OAuth Device Flow：POST https://github.com/login/device/code（client_id=0120e057bd645470c1ed，scope=repo）拿 user_code 让用户在 https://github.com/login/device 输入，再轮询 POST https://github.com/login/oauth/access_token 换 access_token，最后 printf protocol/host/username/password | git credential-manager store 入库。gho_ 开头的 OAuth token 权限比 classic PAT 细，且不用手动到期"
+      ],
+      "tags": [
+        "认证",
+        "OAuth",
+        "WorkBuddy",
+        "排查",
+        "GitHub"
+      ],
+      "hits": 1,
+      "first_hit": "2026-10-28",
+      "last_hit": "2026-10-28"
+    },
+    {
+      "id": "T16",
+      "title": "GitHub 的 GET 通道通 ≠ POST 通道通 —— 换 IP 时要按方法分开测",
+      "symptom": "同一批 IP 里 GET .../info/refs?service=git-upload-pack 全部返 200，但 POST /login/oauth/access_token 全部超时零响应，一个字都收不到",
+      "cause": "GitHub 不同边缘节点对 GET 和 POST 的转发策略不一样；校园网链路抖动叠加后，就出现「读得回来、写不回去」的局面",
+      "solutions": [
+        "IP 池探测要按方法分开测；轮询换 token 用「多 IP × 多轮」轮换而不是死磕一个 IP；curl 加 -v 看清是「握手后无响应」还是「压根没连上」，两者解法不同"
+      ],
+      "tags": [
+        "网络",
+        "GitHub",
+        "排查",
+        "校园网"
       ],
       "hits": 1,
       "first_hit": "2026-10-28",
