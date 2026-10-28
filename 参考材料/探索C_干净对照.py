@@ -7,7 +7,7 @@ print("=" * 62)
 
 # 这里直接调用，什么都不 import
 try:
-    生成配送单("珑湖湾")
+    生成配送单("云湖湾")
 except NameError as e:
     print(f"❌ NameError: {e}")
     print("   ↑ 报错原因：当前文件里根本没有这个名字")
@@ -23,7 +23,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."
 
 from 配送工具 import 生成配送单
 
-生成配送单("珑湖湾", "青菜", "豆腐", 供应商="鑫鑫")
+生成配送单("云湖湾", "青菜", "豆腐", 供应商="锦源")
 print("✅ 没报错 —— 因为第 30 行已经把名字绑进来了")
 print()
 
@@ -33,7 +33,7 @@ print("=" * 62)
 
 print("  ↓↓↓ 第 40 行，调用 ↓↓↓")
 try:
-    生成配送单2("珑湖湾")
+    生成配送单2("云湖湾")
 except NameError as e:
     print(f"❌ NameError: {e}")
     print("   ↑ 报错了！import 在下面，但上面用不到它")

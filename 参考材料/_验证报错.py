@@ -6,7 +6,7 @@ import 配送工具
 
 print("=== 探索 A 复现：函数名写错 ===")
 try:
-    配送工具.生成配送单表("珑湖湾")
+    配送工具.生成配送单表("云湖湾")
 except AttributeError as e:
     print(f"AttributeError: {e}")
 
@@ -20,7 +20,7 @@ except ModuleNotFoundError as e:
 print()
 print("=== 探索 C 复现：新文件没 import 就用 ===")
 try:
-    生成配送单("珑湖湾")
+    生成配送单("云湖湾")
 except NameError as e:
     print(f"NameError: {e}")
 
