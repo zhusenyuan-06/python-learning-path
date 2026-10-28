@@ -25,3 +25,6 @@ push_gitcode.sh
 save_token.sh
 
 # 截图目录（本地素材，放 README 引用前先确认体积）
+
+# README 截图生成脚本的中间产物
+截图/__pycache__/
