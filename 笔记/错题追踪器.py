@@ -14,6 +14,8 @@
   python 错题追踪器.py ls                列出待复习清单（按优先级排序）
   python 错题追踪器.py stats             统计概览
   python 错题追踪器.py plan 5            生成本周复习卷（含错/对代码对照）
+  python 错题追踪器.py plan 5            默认：固定留 2 个坑位给「本周新错」
+  python 错题追踪器.py plan 5 --no-new   关掉新错区，只考老题（总题数不变）
   python 错题追踪器.py show E01          看某题详情
   python 错题追踪器.py add "标题" "错误写法" "正确写法" "标签1,标签2"
   python 错题追踪器.py record E01 pass|fail ["备注"]
@@ -260,22 +262,83 @@ def cmd_skills(db):
     print("\n共 %d 项待补，%d 项已会" % (len(todo), len(done)))
 
 
-def cmd_plan(db, n):
-    items = priority(active_items(db))[:n]
-    if not items:
+def _print_q(idx, it):
+    tag = "【高频 %d 次】" % it["occurrences"] if it["occurrences"] >= 2 else ""
+    print("\n第 %d 题  %s  %s%s" % (idx, it["id"], it["title"], tag))
+    print("  涉及: %s" % ", ".join(it.get("tags", [])))
+    print("  ❌ 错在这:\n%s" % _indent(it.get("bad", "")))
+    print("  ✅ 应该:\n%s" % _indent(it.get("good", "")))
+    print("  " + "-" * 56)
+    print("  ✍️ 先自己写一遍再对答案")
+
+
+def _recent_new(db, days=7):
+    """最近 N 天「新登记」的错题（first_seen 落在窗口内），按新近倒序。
+
+    为什么必须单独开一段：
+      priority() 只按 occurrences 排序，而新错 occurrences 一律 = 1。
+      只要池里还有犯过 ≥2 次的题，plan N 就永远抽不到这些新错 ——
+      它们会一直排在队列尾巴上，直到别的题先毕业为止。
+      新错不趁热复习，等它攒到 2 次时反而更贵（同一个错误重复得更快）。
+    """
+    cutoff = (datetime.date.today() - datetime.timedelta(days=days)).isoformat()
+    items = [it for it in db["items"]
+             if it["status"] == "active" and it.get("first_seen", "") >= cutoff]
+    items.sort(key=lambda x: (x.get("first_seen", ""), x.get("last_seen", "")),
+               reverse=True)
+    return items
+
+
+def cmd_plan(db, n, with_new=True, new_days=7, new_cap=2):
+    """生成复习卷。
+
+    取题规则（2026-10-29 改）：
+      ① 先给「最近 new_days 天新登记的错题」留 new_cap 个坑位
+      ② 剩下的名额按老规则（犯过次数多的优先）填
+      ③ **总题数恒为 n**（不够就少几题，绝不超）
+
+    为什么改（2026-10-29 发现的自我饿死循环）：
+      老规则只按 occurrences 排序，而新错 occurrences 一律 = 1。
+      池里只要还有犯过 ≥2 次的题，plan N 就永远抽不到新错 ——
+      新错排最后 → 进不了卷 → 没人复习 → 次数不涨 → 永远排最后。
+      今晚实测：池里 27 题，plan 6 全被 10-21~10-28 的老高频题占满，
+      当天亲手犯的 E24~E28 一道没进卷。
+      所以必须**用坑位强制留出**，不能指望它靠排序挤进去。
+    """
+    all_items = priority(active_items(db))
+
+    # ---- 第一步：新错区（占坑位）----
+    # 注意 min(new_cap, n)：n 比坑位数还小时（plan 1 / plan 0），
+    # 新错区也得跟着收缩，否则总数会超过 n（plan 1 会出 2 题）。
+    new_items, dropped = [], 0
+    if with_new and n > 0:
+        cand = _recent_new(db, new_days)
+        new_items = cand[:min(new_cap, n)]
+        dropped = len(cand) - len(new_items)
+
+    # ---- 第二步：老规则区（排除已被新错区占用的，剩下的名额填这里）----
+    new_ids = {it["id"] for it in new_items}
+    core = [it for it in all_items if it["id"] not in new_ids][: max(0, n - len(new_items))]
+
+    if not core and not new_items:
         print("复习池是空的。")
         return
     print("=" * 62)
-    print("周四大复习 · 复习卷（%d 题）" % len(items))
+    print("周四大复习 · 复习卷（%d 题）" % (len(core) + len(new_items)))
     print("=" * 62)
-    for i, it in enumerate(items, 1):
-        tag = "【高频 %d 次】" % it["occurrences"] if it["occurrences"] >= 2 else ""
-        print("\n第 %d 题  %s  %s%s" % (i, it["id"], it["title"], tag))
-        print("  涉及: %s" % ", ".join(it.get("tags", [])))
-        print("  ❌ 错在这:\n%s" % _indent(it.get("bad", "")))
-        print("  ✅ 应该:\n%s" % _indent(it.get("good", "")))
-        print("  " + "-" * 56)
-        print("  ✍️ 先自己写一遍再对答案")
+    if core:
+        print("【第一部分 · 必考区】按犯过次数排的老题（%d 题）" % len(core))
+        for i, it in enumerate(core, 1):
+            _print_q(i, it)
+    if new_items:
+        print()
+        print("【第二部分 · 本周新错区】最近 %d 天新登记的错，一周内必须过一遍（%d 题）"
+              % (new_days, len(new_items)))
+        for i, it in enumerate(new_items, len(core) + 1):
+            _print_q(i, it)
+        if dropped:
+            print("  （本周新登记 %d 条，本卷收录 %d 条，其余 %d 条排在下一卷）"
+                  % (len(new_items) + dropped, len(new_items), dropped))
     print("\n" + "=" * 62)
     print("答完用：python 错题追踪器.py record <ID> pass|fail")
 
@@ -390,7 +453,12 @@ def main():
     elif cmd == "stats":
         cmd_stats(db)
     elif cmd == "plan":
-        cmd_plan(db, int(args[0]) if args else 5)
+        flags = [a for a in args if a.startswith("--")]
+        nums = [a for a in args if not a.startswith("--")]
+        n = int(nums[0]) if nums else 5
+        # 默认就带「本周新错区」；--no-new 可以关掉，--new 保留是为了兼容旧习惯
+        with_new = "--no-new" not in flags
+        cmd_plan(db, n, with_new=with_new)
     elif cmd == "show":
         cmd_show(db, args[0])
     elif cmd == "add":
