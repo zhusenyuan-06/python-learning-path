@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created": "2026-10-22",
-  "updated": "2026-10-28",
+  "updated": "2026-10-29",
   "config": {
     "master_streak_default": 2,
     "review_day": "周四",
@@ -18,10 +18,10 @@
         "控制流",
         "函数"
       ],
-      "occurrences": 3,
+      "occurrences": 4,
       "first_seen": "2026-10-21",
-      "last_seen": "2026-10-22",
-      "streak": 1,
+      "last_seen": "2026-10-29",
+      "streak": 0,
       "need": 2,
       "status": "active",
       "source": [
@@ -54,6 +54,11 @@
           "date": "2026-10-22",
           "result": "pass",
           "note": ""
+        },
+        {
+          "date": "2026-10-29",
+          "result": "fail",
+          "note": "又犯了：load_tasks 的分支没写 return，返回 None 导致 len(None) 报 TypeError"
         }
       ]
     },
@@ -844,6 +849,132 @@
       "history": [
         {
           "date": "2026-10-27",
+          "result": "new",
+          "note": "首次登记"
+        }
+      ]
+    },
+    {
+      "id": "E24",
+      "title": "open(path, 'w') 会先清空再写 —— 中途失败留下 0 字节文件",
+      "bad": "with open(DATA_FILE, 'w', encoding='utf-8') as f:\n    f.write(json.dumps(tasks))\n# tasks 未定义 → 崩溃。但 open('w') 已经把旧文件清空了",
+      "good": "open(path,'w') 的语义是「不存在则创建 + 存在则清空」，不是「追加」。\n所以写之前必须保证待写内容已经准备好（变量有值、不依赖未定义的东西）\n另外：备份用 'a'，读用 'r'，写新内容用 'w'",
+      "tags": [
+        "文件读写",
+        "持久化",
+        "w模式"
+      ],
+      "occurrences": 1,
+      "first_seen": "2026-10-29",
+      "last_seen": "2026-10-29",
+      "streak": 0,
+      "need": 2,
+      "status": "active",
+      "source": [],
+      "history": [
+        {
+          "date": "2026-10-29",
+          "result": "new",
+          "note": "首次登记"
+        }
+      ]
+    },
+    {
+      "id": "E25",
+      "title": "'not in' 和 'not' 混淆 —— not in 后面必须跟容器",
+      "bad": "if path.exists(DATA_FILE) not in tasks:\n    tasks = []",
+      "good": "if not path.exists(DATA_FILE):\n    tasks = []\n# not in 是「成员判断」，右边必须是 list/dict/set/str 这类容器\n# not 是「布尔取反」，右边是单个布尔值\n# path.exists() 返回 True/False，不是容器，不能放在 not in 右边",
+      "tags": [
+        "条件判断",
+        "not",
+        "in",
+        "布尔"
+      ],
+      "occurrences": 1,
+      "first_seen": "2026-10-29",
+      "last_seen": "2026-10-29",
+      "streak": 0,
+      "need": 2,
+      "status": "active",
+      "source": [],
+      "history": [
+        {
+          "date": "2026-10-29",
+          "result": "new",
+          "note": "首次登记"
+        }
+      ]
+    },
+    {
+      "id": "E26",
+      "title": "顺序错：先存盘后改内存 —— 存进去的是旧值",
+      "bad": "save_tasks(tasks)   # ← 先写磁盘\nadd_task(tasks, text)  # ← 后改内存",
+      "good": "add_task(tasks, text)   # ① 先改内存\nsave_tasks(tasks)       # ② 再写磁盘\n只要数据变了就要重新存一遍，顺序不能反 —— 反了等于白存",
+      "tags": [
+        "持久化",
+        "顺序",
+        "数据流"
+      ],
+      "occurrences": 1,
+      "first_seen": "2026-10-29",
+      "last_seen": "2026-10-29",
+      "streak": 0,
+      "need": 2,
+      "status": "active",
+      "source": [],
+      "history": [
+        {
+          "date": "2026-10-29",
+          "result": "new",
+          "note": "首次登记"
+        }
+      ]
+    },
+    {
+      "id": "E27",
+      "title": "复制粘贴的代码块：改一处会漏另一处",
+      "bad": "# add 分支里被误删了一行 add_task(tasks, text)\n# 因为 quit 分支里有一份几乎一样的代码，长得太像，改错了地方",
+      "good": "同一段逻辑只写一份，其余地方调用同一个函数：\nelif cmd == 'quit':\n    save_tasks(tasks)   # 不复制粘贴写文件的代码\n写文件、读文件、格式化输出这类操作，永远只写一份",
+      "tags": [
+        "复制粘贴",
+        "代码复用",
+        "重构"
+      ],
+      "occurrences": 1,
+      "first_seen": "2026-10-29",
+      "last_seen": "2026-10-29",
+      "streak": 0,
+      "need": 2,
+      "status": "active",
+      "source": [],
+      "history": [
+        {
+          "date": "2026-10-29",
+          "result": "new",
+          "note": "首次登记"
+        }
+      ]
+    },
+    {
+      "id": "E28",
+      "title": "缩进栈层级不匹配 —— docstring 多缩进一层就报 IndentationError",
+      "bad": "if cmd.startswith('add '):\n    if len(cmd) > 4:\n        \"\"\"\n        这里缩进 16 格了\n        \"\"\"\n    add_task(tasks, text)   # ← 这行回到 12 格，栈里没有 → 报错",
+      "good": "Python 的缩进是「层级栈」，不是「对齐美观」：\n同一层级必须缩进完全相同，多一格少一格都算新的层级\n另外：放在 if 分支里的 docstring 只是没用上的字符串字面量，别放那儿",
+      "tags": [
+        "缩进",
+        "IndentationError",
+        "docstring"
+      ],
+      "occurrences": 1,
+      "first_seen": "2026-10-29",
+      "last_seen": "2026-10-29",
+      "streak": 0,
+      "need": 2,
+      "status": "active",
+      "source": [],
+      "history": [
+        {
+          "date": "2026-10-29",
           "result": "new",
           "note": "首次登记"
         }
