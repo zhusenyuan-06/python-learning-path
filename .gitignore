@@ -29,6 +29,9 @@ save_token.sh
 # README 截图生成脚本的中间产物
 截图/__pycache__/
 
+# 待办工具的运行时数据（每次运行都会变，不属于作品内容）
+todos.json
+
 # 幼儿园菜项目：打包与临时产物（不进仓库）
 projects/幼儿园菜汇总工具/_构建产物/
 projects/幼儿园菜汇总工具/.buildenv/
