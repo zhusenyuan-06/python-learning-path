@@ -21,7 +21,7 @@
       "occurrences": 4,
       "first_seen": "2026-10-21",
       "last_seen": "2026-10-29",
-      "streak": 0,
+      "streak": 1,
       "need": 2,
       "status": "active",
       "source": [
@@ -64,6 +64,11 @@
           "date": "2026-10-29",
           "result": "pending",
           "note": "10-29 周四大复习卷已出，待作答"
+        },
+        {
+          "date": "2026-10-29",
+          "result": "pass",
+          "note": "用 else 解决：存在就 print 不存在才添加，原理讲清楚了"
         }
       ]
     },
@@ -77,10 +82,10 @@
         "高频",
         "函数"
       ],
-      "occurrences": 4,
+      "occurrences": 5,
       "first_seen": "2026-10-19",
-      "last_seen": "2026-10-21",
-      "streak": 1,
+      "last_seen": "2026-10-29",
+      "streak": 0,
       "need": 2,
       "status": "active",
       "source": [
@@ -128,6 +133,11 @@
           "date": "2026-10-29",
           "result": "pending",
           "note": "10-29 周四大复习卷已出，待作答"
+        },
+        {
+          "date": "2026-10-29",
+          "result": "fail",
+          "note": "改写不完整：漏了循环体和 return，且把 print 的位置结论说反了"
         }
       ]
     },
@@ -141,9 +151,9 @@
         "字符串",
         "高频"
       ],
-      "occurrences": 3,
+      "occurrences": 4,
       "first_seen": "2026-10-21",
-      "last_seen": "2026-10-28",
+      "last_seen": "2026-10-29",
       "streak": 0,
       "need": 2,
       "status": "active",
@@ -186,6 +196,11 @@
           "date": "2026-10-29",
           "result": "pending",
           "note": "10-29 周四大复习卷已出，待作答"
+        },
+        {
+          "date": "2026-10-29",
+          "result": "fail",
+          "note": "漏了 stopwords 那行，且 strip 只去中文逗号，英文标点仍会残留"
         }
       ]
     },
@@ -589,10 +604,10 @@
         "核心方法论",
         "高频"
       ],
-      "occurrences": 5,
+      "occurrences": 6,
       "first_seen": "2026-10-21",
-      "last_seen": "2026-10-22",
-      "streak": 1,
+      "last_seen": "2026-10-29",
+      "streak": 0,
       "need": 2,
       "status": "active",
       "source": [
@@ -640,6 +655,11 @@
           "date": "2026-10-29",
           "result": "pending",
           "note": "10-29 周四大复习卷已出，待作答"
+        },
+        {
+          "date": "2026-10-29",
+          "result": "fail",
+          "note": "三个错全找到了（strip/reverse/return），但 return 拼成 ruturn，运行会 NameError"
         }
       ]
     },
@@ -884,7 +904,7 @@
         "持久化",
         "w模式"
       ],
-      "occurrences": 1,
+      "occurrences": 2,
       "first_seen": "2026-10-29",
       "last_seen": "2026-10-29",
       "streak": 0,
@@ -901,6 +921,11 @@
           "date": "2026-10-29",
           "result": "pending",
           "note": "10-29 周四大复习卷已出，待作答"
+        },
+        {
+          "date": "2026-10-29",
+          "result": "fail",
+          "note": "方向错：这段代码本意就是写，不该改成 r；正解是写之前先把内容备好"
         }
       ]
     },
@@ -915,7 +940,7 @@
         "in",
         "布尔"
       ],
-      "occurrences": 1,
+      "occurrences": 2,
       "first_seen": "2026-10-29",
       "last_seen": "2026-10-29",
       "streak": 0,
@@ -932,6 +957,11 @@
           "date": "2026-10-29",
           "result": "pending",
           "note": "10-29 周四大复习卷已出，待作答"
+        },
+        {
+          "date": "2026-10-29",
+          "result": "fail",
+          "note": "未作答"
         }
       ]
     },
@@ -948,7 +978,7 @@
       "occurrences": 1,
       "first_seen": "2026-10-29",
       "last_seen": "2026-10-29",
-      "streak": 0,
+      "streak": 1,
       "need": 2,
       "status": "active",
       "source": [],
@@ -962,6 +992,11 @@
           "date": "2026-10-29",
           "result": "pending",
           "note": "10-29 周四大复习卷已出，待作答"
+        },
+        {
+          "date": "2026-10-29",
+          "result": "pass",
+          "note": "顺序反了，核心判断对（术语反：add_task 是改内存不是写入）"
         }
       ]
     },
@@ -975,7 +1010,7 @@
         "代码复用",
         "重构"
       ],
-      "occurrences": 1,
+      "occurrences": 2,
       "first_seen": "2026-10-29",
       "last_seen": "2026-10-29",
       "streak": 0,
@@ -992,6 +1027,11 @@
           "date": "2026-10-29",
           "result": "pending",
           "note": "10-29 周四大复习卷已出，待作答"
+        },
+        {
+          "date": "2026-10-29",
+          "result": "fail",
+          "note": "未作答"
         }
       ]
     },
@@ -1005,7 +1045,7 @@
         "IndentationError",
         "docstring"
       ],
-      "occurrences": 1,
+      "occurrences": 2,
       "first_seen": "2026-10-29",
       "last_seen": "2026-10-29",
       "streak": 0,
@@ -1022,6 +1062,11 @@
           "date": "2026-10-29",
           "result": "pending",
           "note": "10-29 周四大复习卷已出，待作答"
+        },
+        {
+          "date": "2026-10-29",
+          "result": "fail",
+          "note": "只答出缩进多了，没指出 docstring 根本不该放在 if 分支里"
         }
       ]
     }
