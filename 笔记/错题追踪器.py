@@ -272,20 +272,41 @@ def _print_q(idx, it):
     print("  ✍️ 先自己写一遍再对答案")
 
 
-def _recent_new(db, days=7):
-    """最近 N 天「新登记」的错题（first_seen 落在窗口内），按新近倒序。
+def _answered(it):
+    """这道题被真正练过几次（pass/fail 计数）。
 
-    为什么必须单独开一段：
-      priority() 只按 occurrences 排序，而新错 occurrences 一律 = 1。
-      只要池里还有犯过 ≥2 次的题，plan N 就永远抽不到这些新错 ——
-      它们会一直排在队列尾巴上，直到别的题先毕业为止。
-      新错不趁热复习，等它攒到 2 次时反而更贵（同一个错误重复得更快）。
+    pending 不算 —— 题发出去了但用户没作答，等于没练过。
+    """
+    return sum(1 for h in it.get("history", [])
+               if h.get("result") in ("pass", "fail"))
+
+
+def _neg_ord(d):
+    """ISO 日期字符串 → 负序数。配合升序排序 = 「新的排前面」。"""
+    try:
+        return -datetime.date.fromisoformat(d).toordinal()
+    except (TypeError, ValueError):
+        return 0
+
+
+def _recent_new(db, days=7):
+    """最近 N 天「新登记」的错题（first_seen 落在窗口内）。
+
+    排序规则：**没被真正练过的排前面**，其次按新近倒序。
+
+    为什么不能只按 first_seen 排（2026-10-29 修）：
+      只按新近排 → 每周抽到的都是同一批最新的（E24、E25），
+      等 7 天窗口一滑，这批连同其余 12 条一起过期 ——
+      「没被抽到过」的新错一次都没被考过，这就是另一种自我饿死。
+      加上 _answered 计数当第一排序键后 → 没练过的先上，
+      练过的往后排，保证每条新错都能轮到。
     """
     cutoff = (datetime.date.today() - datetime.timedelta(days=days)).isoformat()
     items = [it for it in db["items"]
              if it["status"] == "active" and it.get("first_seen", "") >= cutoff]
-    items.sort(key=lambda x: (x.get("first_seen", ""), x.get("last_seen", "")),
-               reverse=True)
+    items.sort(key=lambda x: (_answered(x),
+                              _neg_ord(x.get("first_seen", "")),
+                              _neg_ord(x.get("last_seen", ""))))
     return items
 
 

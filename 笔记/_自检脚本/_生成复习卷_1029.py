@@ -23,13 +23,16 @@ PY = r"D:\AAAA\python.exe"
 TRACKER = BASE / "错题追踪器.py"
 JSON_PATH = BASE / "错题追踪.json"
 OUT = BASE / "周四大复习_2026-10-29_复习卷.md"
+TODAY = "2026-10-29"
 
 Q_RE = re.compile(r"^第 (\d+) 题\s+(E\d+)\s+(.*)$", re.M)
 
 HEAD = """# 周四大复习 · 复习卷 · 2026-10-29（周四）
 
 > **本卷共 {n} 题**：第一部分 {n_core} 题是「必考区」（犯过 ≥2 次的高频顽固题），
-> 第二部分 {n_new} 题是「本周新错区」（最近 7 天你亲手登记的新错）。
+> 第二部分 {n_new} 题是「本周新错区」（最近 7 天你亲手登记的新错），
+> 附加 {n_extra} 题是「今日新错加练」（今天 10-29 登记、但新错区只留了 {n_new} 个坑位，
+> 剩下的几条不能因为「没抽到」就不考）。
 >
 > **答案不在这个文件里。** 写完一整份再对照讲解：
 > `周四大复习_2026-10-29_答案与讲解.md`（等你交卷后我单独生成，现在还没写）。
@@ -59,7 +62,8 @@ HEAD = """# 周四大复习 · 复习卷 · 2026-10-29（周四）
 
 > 答错不丢人，答错不记才丢人。
 > 第一部分那几题是**你反复犯过的**（E15 犯了 5 次、E01/E02 各 4 次）；
-> 第二部分那几题是**你这周刚犯的** —— 趁热打铁比放到下个月便宜得多。
+> 后两部分那几题是**你这周刚犯的** —— 趁热打铁比放到下个月便宜得多。
+> 附加那几题是今天下午刚踩的，**做的时候要能说出「我当时为什么会这么写」**。
 
 ---
 
@@ -83,15 +87,16 @@ TAIL = """
 """
 
 
-def _q_block(idx, it):
+def _q_block(idx, it, zone=""):
     """一题：题目 + 涉及标签 + ❌错在这 + 留白作答区。**不含 ✅。**"""
     tags = " / ".join(it.get("tags", [])) or "—"
     occ = it.get("occurrences", 0)
     L = []
     L.append("## 第 %d 题（%s）· %s" % (idx, it["id"], it["title"]))
     L.append("")
-    L.append("**涉及标签**：%s　｜　**犯过 %d 次**　｜　**连对 %d/%d**"
-             % (tags, occ, it.get("streak", 0), it.get("need", 2)))
+    L.append("**涉及标签**：%s　｜　**犯过 %d 次**　｜　**连对 %d/%d**%s"
+             % (tags, occ, it.get("streak", 0), it.get("need", 2),
+                ("　｜　**%s**" % zone) if zone else ""))
     L.append("")
     L.append("```python")
     L.append(it.get("bad", "").rstrip())
@@ -146,19 +151,42 @@ def main():
         n_core = len([m for m in Q_RE.finditer(r.stdout[:second_idx])])
         n_new = len(order) - n_core
 
+    # 3b) 加练区 = 今天新登记、但没进主区的错题
+    #     新错区只留 2 个坑位，今天一登记就是 5 条 —— 剩下的不能因为
+    #     「没抽到」就不考，那等于今天犯的错今晚放过。
+    used = {pid for _, pid in order}
+    extra_ids = [it["id"] for it in db["items"]
+                 if it["status"] == "active"
+                 and it.get("first_seen", "") == TODAY
+                 and it["id"] not in used]
+
+    zones = {}
+    for idx, pid in order:
+        zones[pid] = "必考区" if idx <= n_core else "本周新错区"
+
     rows = []
     for idx, pid in order:
         it = by_id[pid]
-        zone = "必考区" if idx <= n_core else "本周新错区"
         rows.append("| %d | %s | %s | %d | %s |"
-                    % (idx, pid, it["title"].replace("|", "/"), it.get("occurrences", 0), zone))
+                    % (idx, pid, it["title"].replace("|", "/"), it.get("occurrences", 0),
+                       zones[pid]))
+    for i, pid in enumerate(extra_ids):
+        idx = len(order) + i + 1
+        it = by_id[pid]
+        zones[pid] = "今日新错加练"
+        rows.append("| %d | %s | %s | %d | %s |"
+                    % (idx, pid, it["title"].replace("|", "/"), it.get("occurrences", 0),
+                       zones[pid]))
     table = "\n".join(rows)
 
     body = []
     for idx, pid in order:
-        body.append(_q_block(idx, by_id[pid]))
+        body.append(_q_block(idx, by_id[pid], zones[pid]))
+    for i, pid in enumerate(extra_ids):
+        body.append(_q_block(len(order) + i + 1, by_id[pid], zones[pid]))
 
-    text = HEAD.format(n=len(order), n_core=n_core, n_new=n_new, table=table)
+    text = HEAD.format(n=len(order) + len(extra_ids), n_core=n_core,
+                       n_new=n_new, n_extra=len(extra_ids), table=table)
     text += "\n".join(body)
     text += TAIL
 
@@ -168,9 +196,11 @@ def main():
 
     OUT.write_text(text, encoding="utf-8", newline="\n")
     print("已保存：" + str(OUT))
-    print("题数：%d（必考区 %d + 本周新错区 %d）" % (len(order), n_core, n_new))
+    print("题数：%d（必考区 %d + 本周新错区 %d + 今日新错加练 %d）"
+          % (len(order) + len(extra_ids), n_core, n_new, len(extra_ids)))
     print("大小：" + str(OUT.stat().st_size) + " 字节")
-    print("题目：" + " ".join(pid for _, pid in order))
+    print("题目：" + " ".join(pid for _, pid in order)
+          + (" | 加练 " + " ".join(extra_ids) if extra_ids else ""))
 
 
 if __name__ == "__main__":
