@@ -380,6 +380,30 @@
         "IP轮换",
         "并发探活"
       ]
+    },
+    {
+      "id": "T21",
+      "title": "三个「会骗你」的东西：bat 的 echo 会吃掉 `>` 后的代码行 / curl 的 000 不是状态码 / 单次探测有一半是假的",
+      "symptom": "【A】桌面《修复GitHub访问_v2.bat》双击后报：\n    The system cannot find the path specified.\n    File \"C:\\Users\\15816\\AppData\\Local\\Temp\\gh_fix2.py\", line 25\n      nm = parts[1].lower()\n    IndentationError: unexpected indent\n【B】自己写的 probe() 判定 `len(code)==3 and code.isdigit()`，\n    导致 curl 连不上时输出的 \"000\" 也被判成「链路是通的」——\n    dry-run 时 185.199.110.133（实际已不可达）被判 OK。\n【C】raw.githubusercontent.com 连测 10 次：301 000 301 000 301 000 301 301 000 000\n    —— 成功率只有 5/10，同一个 IP 同一命令时通时不通。",
+      "cause": "【A】cmd.exe 的 echo 参数里，**> 和 >> 是重定向符**，不是普通字符。\n    `echo     if len(parts) >= 2:` 会被解析成「输出到名为 \"= 2:\" 的文件」，\n    于是这一行从临时 py 里**消失**，后面所有行整体上移一行 → 缩进错位。\n    根因不是缩进写错，是**用 bat 拼代码这条路本身就不该走**。\n【B】curl 的 -w \"%{http_code}\" 在连接失败时输出 **000**，它是 3 位数字、\n    isdigit() 为真 —— 于是「连都没连上」被当成了「拿到了响应」。\n    正确语义：000 = 没有 HTTP 响应，必须显式排除。\n【C】校园网对 raw.githubusercontent.com 所在的 185.199.x 段有约一半的丢包/限流，\n    连接会在 0.09 秒被 RST。**单次探测的结果有一半是假的。**",
+      "solutions": [
+        "**别在 bat 里拼代码**：Python 独立成 .py 文件，bat 只做「检查管理员 → 调 python → pause」。\n    路径用 `%~dp0` + **ASCII 文件名**（如 gh_hosts_fix.py），避免 bat 里出现中文路径的编码问题。\n    配套：桌面上放 v3 的 bat + py 两个文件，bat 找不到 py 就明确报错。",
+        "**判定状态码必须显式排除 000**：`if len(code)==3 and code.isdigit() and code != \"000\"`。\n    而且判定标准要按 host 分开：github.com/login 稳定 200；api.github.com 根路径 301 属正常；raw 根路径也是 301。\n    一刀切要 200 会误杀。",
+        "**探测必须重试**：规则是「任一次成功就算活（宽松），全都失败才算死（严格）」。\n    probe 内部循环 3 次，每次调一次 curl；3 次全 000 才判定为死。\n    这样两个方向的误判都能躲开。",
+        "**探活别只探一次就用**：今天实测 20.27.177.113 在第 2 步（探 github.com）判死、\n    在第 4 步（探 api.github.com）判活 —— 同一个 IP 不同域名表现不同。\n    所以「现有绑定验证」和「新 IP 探测」要分别做，不能共用一次结论。",
+        "**web 段和 api 段必须分开选**（T17 在浏览器侧同样成立）：\n    github.com / codeload / objects 用 web 段 IP；api.github.com 用 api 段 IP。\n    实测 Azure 中国段（20.x / 207.x）能同时承载，但 GitHub 美国边缘的 .3/.4 和 .5/.6 是不同网段。",
+        "**写入必须有回滚**：新工具的做法是「备份 → 写 → 校验 → 不通过自动 copy 回来」。\n    校验要区分「致命问题（文件写坏了）」和「网络问题（可能只是抖动）」，\n    网络项重试 3 轮再判，避免误回滚。"
+      ],
+      "hits": 1,
+      "tags": [
+        "bat",
+        "cmd转义",
+        "curl",
+        "000状态码",
+        "探测重试",
+        "hosts",
+        "T17"
+      ]
     }
   ],
   "updated": "2026-10-29"
