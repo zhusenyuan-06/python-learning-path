@@ -329,7 +329,35 @@
       "hits": 1,
       "first_hit": "2026-10-28",
       "last_hit": "2026-10-28"
+    },
+    {
+      "id": "T19",
+      "title": "git config 里 curloptResolve 绑的 IP 也会整段过期 —— 不用改 hosts，改 git config 就能绕过管理员权限",
+      "symptom": "2026-10-29 push 报 fatal: unable to access 'https://github.com/...': Recv failure: Connection was reset；curl https://github.com 返回 000 且 remote_ip 为空。查 git config --global --get-regexp curloptResolve 发现绑的是 140.82.121.3 —— 昨天还好好的，今天已死。hosts 里绑的 20.27.177.113 同样已死（curl --resolve 验证返回 000）。",
+      "cause": "GitHub 的边缘 IP 是分批下线的，某个 IP 今天通明天就可能 000。git 的 http.https://域名/.curloptResolve 会优先用绑定的 IP，绑的 IP 一死就完全绕不过去；hosts 的绑定同理。T12 说的「IP 池整段过期」不只是 hosts，git config 里的绑定同样是定时炸弹。另外桌面《修复GitHub访问.bat》(v1) 把同一个 IP 同时绑给 github.com 和 api.github.com，违反 T17 —— 就算 hosts 修好了，API 调用仍会 301。",
+      "solutions": [
+        "不用改 hosts：改 hosts 要管理员权限，WorkBuddy 沙箱直接被拒（见 T06）。改用 git config 的 URL 级 curloptResolve，一个域名绑多个活 IP 做冗余，git 侧完全不需要提权",
+        "git config --global --unset-all \"http.https://github.com/.curloptResolve\" 后用 --add 逐条加；注意 T01：不带 URL 前缀的是单值键，会互相覆盖",
+        "探测可用 IP：curl -s -o /dev/null -w '%{http_code}' --noproxy '*' --resolve \"github.com:443:$IP\" https://github.com/login，返回 200 才是活的",
+        "web 段（github.com / codeload / objects）用 .3/.4 段；api.github.com 用 .5/.6 段（T17）。实测 2026-10-29 可用：web 140.82.112.3/.114.3/.116.3/.112.4/.114.4，api 140.82.112.6/.113.5/.114.6/.116.6",
+        "api.github.com 的探测路径要用 https://api.github.com/ 根路径（返回 200），用 /user 会返回 401，别把 401 当成不可用",
+        "curl 不读 git 的 config，单独调 API 时必须自己加 --resolve \"api.github.com:443:<api段IP>\"，否则拿到的是 301 空响应",
+        "hosts 层面的修复仍需管理员：把《修复GitHub访问_v2.bat》交给用户双击（脚本自己 Start-Process -Verb RunAs 提权）。v2 相比 v1 修正了 T17：web 段和 api 段分开探测、分开写入",
+        "写 .bat 交付给用户后务必转 CRLF 再自检：提取 bat 里的 echo 行拼成 .py，拿 hosts 副本跑一遍，确认 exit code 和改写结果都对，别让用户双击才发现写坏"
+      ],
+      "tags": [
+        "git",
+        "GitHub",
+        "网络",
+        "排查",
+        "IP池",
+        "hosts",
+        "curloptResolve"
+      ],
+      "hits": 1,
+      "first_hit": "2026-10-29",
+      "last_hit": "2026-10-29"
     }
   ],
-  "updated": "2026-10-28"
+  "updated": "2026-10-29"
 }
