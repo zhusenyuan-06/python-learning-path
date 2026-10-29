@@ -325,6 +325,38 @@ def cmd_plan(db, n, with_new=True, new_days=7, new_cap=2):
       今晚实测：池里 27 题，plan 6 全被 10-21~10-28 的老高频题占满，
       当天亲手犯的 E24~E28 一道没进卷。
       所以必须**用坑位强制留出**，不能指望它靠排序挤进去。
+
+    逐行拆解：
+        all_items = priority(active_items(db))
+          └─ active_items = 只取还在池子里的题（status == "active"）
+          └─ priority = 按「犯过次数」降序排（同次数按最近犯的优先）
+
+        new_items, dropped = [], 0
+          └─ 同时给两个变量赋值，左边的列表先建好，右边的 0 是初始值
+
+        if with_new and n > 0:
+          └─ 两个条件都要满足才进新错区：
+            with_new = 允许开新错区（--no-new 可以关掉）
+            n > 0     = 题数为 0 时没东西可分
+
+        cand = _recent_new(db, new_days)
+          └─ _recent_new = 取最近 new_days 天新登记的错题
+          └─ 内部排序：没被真正练过的排前面 → 再按新近排
+
+        new_items = cand[:min(new_cap, n)]
+          └─ [:2] = 切片，取前 2 个（new_cap）
+          └─ min(new_cap, n) = 坑位数和总题数取小的那个
+            ⚠️ 这一行是补过的 bug：少了 min，plan 1 会抽出 2 题，
+               违反「总题数恒为 n」。（2026-10-29 改完立刻自测发现的）
+
+        new_ids = {it["id"] for it in new_items}
+          └─ 集合推导式 = 取每道题的 id，组成一个集合
+          └─ 用集合是因为「在不在里面」这个判断，集合比列表快
+
+        core = [it for it in all_items if it["id"] not in new_ids][: max(0, n - len(new_items))]
+          └─ 列表推导式 + 过滤：排除已经被新错区占用的题
+          └─ [:max(0, n - len(new_items))] = 老规则区只能用剩下的名额
+          └─ max(0, ...) 防止 n 比新错数还小时算出负数（负数切片会倒着取！）
     """
     all_items = priority(active_items(db))
 

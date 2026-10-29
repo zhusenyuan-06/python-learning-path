@@ -88,7 +88,44 @@ TAIL = """
 
 
 def _q_block(idx, it, zone=""):
-    """一题：题目 + 涉及标签 + ❌错在这 + 留白作答区。**不含 ✅。**"""
+    """一题：题目 + 涉及标签 + ❌错在这 + 留白作答区。**不含 ✅。**
+
+    为什么这里【绝对不能出现 ✅】：
+        这份文件是给你做的卷子，你要在上面自己写。
+        如果答案在同一页，你眼睛一扫就看到了，等于没做。
+        所以答案只从 JSON 的 good 字段取，放进另一个文件
+        （答案与讲解.md），交卷后才给。
+
+    逐行拆解：
+        zone="" = 默认参数：调用时不给 zone 就用空字符串
+          └─ 默认参数必须放在【所有普通参数后面】，所以只能加在最后
+
+        tags = " / ".join(it.get("tags", [])) or "—"
+          └─ .get("tags", []) = 取标签列表，没有就给空列表
+          └─ " / ".join(列表) = 用 " / " 把列表拼成字符串
+          └─ or "—" = 如果拼出来是空字符串，就换成破折号占位
+            （or 的短路写法：左边为假就取右边）
+
+        L = [] = 建一个空列表当「行缓冲区」
+          └─ 为什么不直接用一个大字符串 +=？
+            因为 += 反复拼大字符串效率低（每次都要复制一遍），
+            列表追加再 join 更快。
+
+        L.append("## 第 %d 题（%s）· %s" % (idx, it["id"], it["title"]))
+          └─ % 格式化：%d 整数、%s 字符串
+          └─ % 的老式写法（Python 3.6 以后也支持 f-string，但 % 兼容性最好）
+
+        ("　｜　**%s**" % zone) if zone else ""
+          └─ 三元表达式：zone 有值就显示区名，没有就显示空串
+          └─ 注意这里用【全角空格　】分隔，跟 Markdown 里的排版配套
+
+        "```python" / "```" = Markdown 的代码块围栏
+          └─ 围栏包住的是【等宽字体】，缩进才不会乱
+
+        it.get("bad", "").rstrip() = 取「错误写法」并去掉尾部空白
+          └─ rstrip() = 只去右边空白，左边缩进保留
+            （lstrip() 会把代码块的缩进干掉！）
+    """
     tags = " / ".join(it.get("tags", [])) or "—"
     occ = it.get("occurrences", 0)
     L = []
@@ -127,6 +164,47 @@ def _q_block(idx, it, zone=""):
 
 
 def main():
+    """生成复习卷文件：跑追踪器拿题目顺序 → 从 JSON 取详情 → 拼 Markdown。
+
+    逐行拆解：
+        subprocess.run([PY, str(TRACKER), "plan", "6"], ...)
+          └─ 调追踪器的 plan 命令，题数 6
+          └─ capture_output=True = 收下 stdout/stderr，不直接打屏
+          └─ text=True + encoding="utf-8" = 输出按 UTF-8 解码成 str
+          └─ 为什么不自己实现取题逻辑？因为追踪器才是唯一真源，
+            这里【只做排版】，不另搞一套优先级（否则两边会打架）
+
+        if r.returncode != 0: raise SystemExit(...)
+          └─ SystemExit("消息") = 抛出一个退出异常并打印消息
+          └─ 比起 print 完再 exit，好处是错误信息不会和正常输出混在一起
+
+        order = [(int(m.group(1)), m.group(2)) for m in Q_RE.finditer(r.stdout)]
+          └─ Q_RE.finditer(文本) = 用正则找到所有匹配，返回匹配对象序列
+          └─ m.group(1) = 第 1 个捕获组（题号），m.group(2) = 第 2 组（题号 E15）
+          └─ int(...) = 把字符串转成整数，才能排序和比较
+
+        db = json.loads(JSON_PATH.read_text(encoding="utf-8"))
+          └─ 从 JSON 取每道题的完整详情（标签、犯过几次、错误写法…）
+          └─ plan 的输出只有标题，详情得来这里拿
+
+        by_id = {it["id"]: it for it in db["items"]}
+          └─ 字典推导式 = 建一个「题号 → 题目对象」的对照表
+          └─ 这样 by_id["E15"] 就能直接拿到那道题，O(1) 查找
+
+        second_idx = r.stdout.find("【第二部分")
+          └─ .find(子串) = 找子串第一次出现的位置，找不到返回 -1
+          └─ 用它切分「必考区」和「新错区」两段
+
+        used = {pid for _, pid in order} = 集合推导式
+        extra_ids = [...] = 今天新登记、但没进主区的题（加练区）
+          └─ it.get("first_seen", "") == TODAY = 「今天登记的」
+          └─ and it["id"] not in used = 且没被主区选上
+          └─ 道理：新错区只有 2 个坑位，今天一口气登记 5 条，
+            剩下 3 条不能因为「没抽到」就不考 —— 今天犯的错今晚放过 = 白踩
+
+        return "\n".join(L)
+          └─ 把行列表拼成完整文本；join(列表) 里列表是字符串列表
+    """
     r = subprocess.run(
         [PY, str(TRACKER), "plan", "6"],
         capture_output=True, text=True, encoding="utf-8",
