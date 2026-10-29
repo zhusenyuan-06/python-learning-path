@@ -36,6 +36,7 @@
 #   "D:\AAAA\python.exe" gh_hosts_fix.py --dry-run  # 只看会改成啥，不写
 # ---------------------------------------------------------------
 
+import concurrent.futures
 import datetime
 import os
 import shutil
@@ -190,6 +191,54 @@ def probe(host, ip, path="/", timeout=6, tries=3):
 def probe_ok(host, ip, path="/", timeout=6, tries=3):
     """布尔版：链路是否通（任一次拿到非 000 的状态码就算通）。"""
     return probe(host, ip, path, timeout, tries) != "000"
+
+
+def pick_ip(ips, host, path="/", strict_200=False, workers=16,
+            timeout=6, tries=3):
+    """【并发】探测一批 IP，返回「按候选顺序」第一个可用的。
+
+    逐行拆解：
+      1. def _one(ip)              → 定义一个小工人：只干一件事（探一个 IP）
+      2. strict_200 ? == "200"     → 严格模式：必须正好是 200 才算活
+                                   → 宽松模式：只要不是 000 就算活
+      3. ThreadPoolExecutor(...)   → 线程池：一开就是 workers 个工人同时干
+      4. ex.map(_one, ips)         → 把每个 IP 派给一个工人，返回【按原顺序】的结果
+      5. dict(...)                 → 结果转成字典：IP → 是否可用
+      6. for ip in ips: if ...     → 按【候选列表顺序】挑第一个活的
+                                   → 为什么要按顺序挑？因为列表顺序 = 优先级
+                                     （Azure 中国段排前面，因为它更耐用）
+
+    ⚠️ 为什么必须是并发（2026-10-29 21:4x 实测）：
+       串行版最坏要 6 个死 Azure IP × 3 次重试 × 6 秒 ≈ 108 秒
+       才轮到第一个美国边缘 IP —— 而【可用窗口只开几十秒】。
+       串行扫完，窗口早关了，工具必然白跑。
+       改成并发后：20 个 IP 一起探，最长 ≈ 单个 IP 的时间 ≈ 18 秒。
+    """
+    if not ips:
+        return None
+
+    def _one(ip):
+        # 每个工人只负责探一个 IP，返回 (ip, 是否可用)
+        if strict_200:
+            # 严格：必须正好 200（github.com/login 才用这个标准）
+            return ip, (probe(host, ip, path, timeout, tries) == "200")
+        # 宽松：不是 000 就算活（api/raw 根路径会 301/404/400，都属正常）
+        return ip, (probe(host, ip, path, timeout, tries) != "000")
+
+    # 工人数量不能超过任务数，否则浪费线程
+    n = min(workers, len(ips))
+    with concurrent.futures.ThreadPoolExecutor(max_workers=n) as ex:
+        #   └─ with = 用完自动关线程池（等价于 finally 里 shutdown）
+        #   └─ map 会等所有任务跑完才返回，返回顺序 = 传入顺序
+        results = dict(ex.map(_one, ips))
+        #   └─ dict(zip) 的作用：把 (ip, 是否可用) 的列表转成 字典
+        #   └─ 之后就能 results[某个ip] 直接查到结果，不用遍历找
+
+    # 按候选顺序挑第一个活的（列表顺序 = 优先级）
+    for ip in ips:
+        if results.get(ip):
+            return ip
+    return None
 
 
 def read_hosts(path):
@@ -394,42 +443,57 @@ def main():
         print("      （无）")
     print()
 
-    # ---- 2. 逐个验证现有绑定 ----
+    # ---- 2. 逐个验证现有绑定（并发） ----
     print("[2] 验证现有绑定是否还活着 ...")
     alive_web = []
-    for name, ip in old:
-        # github.com/login 稳定返回 200，用它做严格判定
-        #   └─ 其它域名（api/codeload/objects）根路径可能 301，
-        #     那是正常重定向，用「非 000」判定即可
+    alive_pairs = []   # [(域名, IP)] 探活的现有绑定，供第 3 步直接复用
+
+    def _check_pair(pair):
+        """探一个 (域名, IP) 组合是否还活着。返回 (域名, IP, 是否活)。"""
+        name, ip = pair
         if name == "github.com":
-            good = probe(name, ip, "/login") == "200"
-        else:
-            good = probe_ok(name, ip, "/")
-        mark = "OK" if good else "死"
-        print("      %-32s %-16s %s" % (name, ip, mark))
-        # 只把【web 段】的域名收进候选池
-        #   └─ api 段单独在第 4 步找（T17：不同网段）
-        if good and name in ("github.com", "codeload.github.com",
-                             "objects.githubusercontent.com"):
-            if ip not in alive_web:
-                alive_web.append(ip)
+            # github.com/login 稳定返回 200，用它做严格判定
+            #   └─ 其它域名（api/codeload/objects）根路径可能 301，
+            #     那是正常重定向，用「非 000」判定即可
+            return name, ip, (probe(name, ip, "/login") == "200")
+        return name, ip, probe_ok(name, ip, "/")
+
+    if old:
+        #   └─ 并发探所有现有绑定 —— 串行的话 6 个域名 × 18 秒 = 108 秒，
+        #     而可用窗口只开几十秒，串行必然错过
+        with concurrent.futures.ThreadPoolExecutor(max_workers=8) as ex:
+            results = list(ex.map(_check_pair, old))
+            #   └─ ex.map 保序，所以打印顺序和 hosts 里的顺序一致
+        for name, ip, good in results:
+            mark = "OK" if good else "死"
+            print("      %-32s %-16s %s" % (name, ip, mark))
+            if not good:
+                continue
+            alive_pairs.append((name, ip))
+            # 只把【web 段】的域名收进候选池
+            #   └─ api 段单独在第 4 步找（T17：不同网段）
+            if name in ("github.com", "codeload.github.com",
+                        "objects.githubusercontent.com"):
+                if ip not in alive_web:
+                    alive_web.append(ip)
     print()
 
     # ---- 3. 找 web 段 IP ----
     web_ip = None
-    for ip in alive_web:
-        if probe("github.com", ip, "/login") == "200":
+    # 3a. 现有绑定里 github.com 本身就是严格 200 探过的，直接复用（零成本）
+    for name, ip in alive_pairs:
+        if name == "github.com":
             web_ip = ip
             break
-    if web_ip is None:
-        print("[3] 现有 web 绑定全死，重新探测 web 段 ...")
-        for ip in WEB_CANDS:
-            if probe("github.com", ip, "/login") == "200":
-                web_ip = ip
-                print("      选中 %s" % ip)
-                break
-    else:
+
+    if web_ip is not None:
         print("[3] 沿用现有可用的 web IP：%s（最小改动）" % web_ip)
+    else:
+        # 3b. 现有 web 绑定全死 → 并发重探整个候选池
+        print("[3] 现有 web 绑定全死，并发重探 web 段（%d 个候选）..." % len(WEB_CANDS))
+        web_ip = pick_ip(WEB_CANDS, "github.com", "/login", strict_200=True)
+        if web_ip:
+            print("      选中 %s" % web_ip)
     if web_ip is None:
         print()
         print("[X] 找不到任何可用的 web IP —— 可能整个 GitHub 段此刻不可达")
@@ -438,15 +502,12 @@ def main():
     print()
 
     # ---- 4. 找 api 段 IP（T17：api 是另一段网段）----
-    print("[4] 探测 api 段（api.github.com 是另一段网段）...")
-    api_ip = None
-    for ip in API_CANDS:
-        # api 根路径返回 301 是正常的，所以用宽松判定
-        if probe_ok("api.github.com", ip, "/"):
-            api_ip = ip
-            print("      选中 %s" % ip)
-            break
-    if api_ip is None and probe_ok("api.github.com", web_ip, "/"):
+    print("[4] 并发探测 api 段（api.github.com 是另一段网段）...")
+    # api 根路径返回 301/404/400 都是正常的，所以用宽松判定（非 000 即算活）
+    api_ip = pick_ip(API_CANDS, "api.github.com", "/")
+    if api_ip:
+        print("      选中 %s" % api_ip)
+    elif probe_ok("api.github.com", web_ip, "/"):
         # 兜底：web 段这个 IP 恰好也能承载 api（Azure 段就是这样）
         api_ip = web_ip
         print("      api 段没单独探到，但 web IP %s 也能承载 api，沿用它" % web_ip)
@@ -455,14 +516,12 @@ def main():
     print()
 
     # ---- 5. 找 raw 段 IP ----
-    print("[5] 探测 raw 段（raw/gist 用的 185.199.x 段）...")
-    raw_ip, raw_ok = None, False
-    for ip in RAW_CANDS:
-        if probe_ok("raw.githubusercontent.com", ip, "/"):
-            raw_ip, raw_ok = ip, True
-            print("      选中 %s" % ip)
-            break
-    if not raw_ok:
+    print("[5] 并发探测 raw 段（raw/gist 用的 185.199.x 段）...")
+    raw_ip = pick_ip(RAW_CANDS, "raw.githubusercontent.com", "/")
+    raw_ok = raw_ip is not None
+    if raw_ok:
+        print("      选中 %s" % raw_ip)
+    else:
         print("      整段当前不可达（校园网限制），会写成「已知问题」注释")
     print()
 
