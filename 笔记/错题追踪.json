@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created": "2026-10-22",
-  "updated": "2026-10-29",
+  "updated": "2026-10-31",
   "config": {
     "master_streak_default": 2,
     "review_day": "周四",
@@ -21,9 +21,9 @@
       "occurrences": 4,
       "first_seen": "2026-10-21",
       "last_seen": "2026-10-29",
-      "streak": 1,
+      "streak": 2,
       "need": 2,
-      "status": "active",
+      "status": "mastered",
       "source": [
         "10.21练习2.py 添加()",
         "10.22复习.py a()",
@@ -69,8 +69,14 @@
           "date": "2026-10-29",
           "result": "pass",
           "note": "用 else 解决：存在就 print 不存在才添加，原理讲清楚了"
+        },
+        {
+          "date": "2026-10-31",
+          "result": "pass",
+          "note": "10-31 改bug第1题：else分支挡住覆盖，讲清 print 无约束力"
         }
-      ]
+      ],
+      "mastered_on": "2026-10-31"
     },
     {
       "id": "E02",
@@ -85,7 +91,7 @@
       "occurrences": 5,
       "first_seen": "2026-10-19",
       "last_seen": "2026-10-29",
-      "streak": 0,
+      "streak": 1,
       "need": 2,
       "status": "active",
       "source": [
@@ -138,6 +144,11 @@
           "date": "2026-10-29",
           "result": "fail",
           "note": "改写不完整：漏了循环体和 return，且把 print 的位置结论说反了"
+        },
+        {
+          "date": "2026-10-31",
+          "result": "pass",
+          "note": "10-31 改bug第2题：自己修掉return nums，对照讲解后记录（连对1/2）"
         }
       ]
     },
@@ -154,7 +165,7 @@
       "occurrences": 4,
       "first_seen": "2026-10-21",
       "last_seen": "2026-10-29",
-      "streak": 0,
+      "streak": 1,
       "need": 2,
       "status": "active",
       "source": [
@@ -201,6 +212,11 @@
           "date": "2026-10-29",
           "result": "fail",
           "note": "漏了 stopwords 那行，且 strip 只去中文逗号，英文标点仍会残留"
+        },
+        {
+          "date": "2026-10-31",
+          "result": "pass",
+          "note": "10-31 改bug第3题：strip改对+E13陷阱题讨论过，对照讲解后记录（连对1/2）"
         }
       ]
     },
@@ -217,9 +233,9 @@
       "occurrences": 3,
       "first_seen": "2026-10-21",
       "last_seen": "2026-10-28",
-      "streak": 1,
+      "streak": 2,
       "need": 2,
-      "status": "active",
+      "status": "mastered",
       "source": [
         "10.21练习.py 第16行",
         "10.20练习.py 笔记 4.10~4.17"
@@ -259,8 +275,14 @@
           "date": "2026-10-28",
           "result": "pass",
           "note": "10-28 变式题二：阈值法已讲透（录取线比喻 + 排序后[前N-1][1] 拆解），连对 1/2"
+        },
+        {
+          "date": "2026-10-31",
+          "result": "pass",
+          "note": "10-31 改bug第4题：reverse=True 补上，静默排序错讲清"
         }
-      ]
+      ],
+      "mastered_on": "2026-10-31"
     },
     {
       "id": "E05",
@@ -882,7 +904,7 @@
       "occurrences": 1,
       "first_seen": "2026-10-27",
       "last_seen": "2026-10-27",
-      "streak": 0,
+      "streak": 1,
       "need": 2,
       "status": "active",
       "source": [],
@@ -891,6 +913,11 @@
           "date": "2026-10-27",
           "result": "new",
           "note": "首次登记"
+        },
+        {
+          "date": "2026-10-31",
+          "result": "pass",
+          "note": "10-31 args_kwargs全套：定义处打包/调用处拆包讲透+8题做完"
         }
       ]
     },
@@ -943,7 +970,7 @@
       "occurrences": 2,
       "first_seen": "2026-10-29",
       "last_seen": "2026-10-29",
-      "streak": 0,
+      "streak": 1,
       "need": 2,
       "status": "active",
       "source": [],
@@ -962,6 +989,11 @@
           "date": "2026-10-29",
           "result": "fail",
           "note": "未作答"
+        },
+        {
+          "date": "2026-10-31",
+          "result": "pass",
+          "note": "10-31 改bug第5题：not位置+容器/布尔口诀，对照讲解后记录（连对1/2）"
         }
       ]
     },
@@ -978,9 +1010,9 @@
       "occurrences": 1,
       "first_seen": "2026-10-29",
       "last_seen": "2026-10-29",
-      "streak": 1,
+      "streak": 2,
       "need": 2,
-      "status": "active",
+      "status": "mastered",
       "source": [],
       "history": [
         {
@@ -997,8 +1029,14 @@
           "date": "2026-10-29",
           "result": "pass",
           "note": "顺序反了，核心判断对（术语反：add_task 是改内存不是写入）"
+        },
+        {
+          "date": "2026-10-31",
+          "result": "pass",
+          "note": "10-31 改bug第9题：先改内存再存盘，存旧值不报错讲对"
         }
-      ]
+      ],
+      "mastered_on": "2026-10-31"
     },
     {
       "id": "E27",
@@ -1048,7 +1086,7 @@
       "occurrences": 2,
       "first_seen": "2026-10-29",
       "last_seen": "2026-10-29",
-      "streak": 0,
+      "streak": 1,
       "need": 2,
       "status": "active",
       "source": [],
@@ -1067,6 +1105,11 @@
           "date": "2026-10-29",
           "result": "fail",
           "note": "只答出缩进多了，没指出 docstring 根本不该放在 if 分支里"
+        },
+        {
+          "date": "2026-10-31",
+          "result": "pass",
+          "note": "10-31 改bug第8题：缩进栈+docstring两点，对照讲解后记录（连对1/2）"
         }
       ]
     }
