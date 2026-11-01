@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created": "2026-10-22",
-  "updated": "2026-10-31",
+  "updated": "2026-11-01",
   "config": {
     "master_streak_default": 2,
     "review_day": "周四",
@@ -165,9 +165,9 @@
       "occurrences": 4,
       "first_seen": "2026-10-21",
       "last_seen": "2026-10-29",
-      "streak": 1,
+      "streak": 2,
       "need": 2,
-      "status": "active",
+      "status": "mastered",
       "source": [
         "10.21练习.py 第4行",
         "10.20练习.py 笔记 4.10~4.17"
@@ -217,8 +217,14 @@
           "date": "2026-10-31",
           "result": "pass",
           "note": "10-31 改bug第3题：strip改对+E13陷阱题讨论过，对照讲解后记录（连对1/2）"
+        },
+        {
+          "date": "2026-11-01",
+          "result": "pass",
+          "note": "10-31专项题1/4/6：strip中英文全字符集三处改写全对"
         }
-      ]
+      ],
+      "mastered_on": "2026-11-01"
     },
     {
       "id": "E04",
@@ -294,9 +300,9 @@
         "静默错误",
         "数据一致性"
       ],
-      "occurrences": 2,
+      "occurrences": 3,
       "first_seen": "2026-10-21",
-      "last_seen": "2026-10-22",
+      "last_seen": "2026-11-01",
       "streak": 1,
       "need": 2,
       "status": "active",
@@ -324,6 +330,16 @@
           "date": "2026-10-22",
           "result": "pass",
           "note": ""
+        },
+        {
+          "date": "2026-11-01",
+          "result": "fail",
+          "note": "10-31 补做：混合类型改对、前导0理由答对，但把 '==比较' 也当成会报错（实际静默返回 False）——E05 的'静默错误'这半没掌握，连对清零"
+        },
+        {
+          "date": "2026-11-01",
+          "result": "pass",
+          "note": "10-31 补救小测3问全对：==不报错静默False / in报错TypeError / 号码+1属静默错误——'混用类型不一定报错'这个点补上了"
         }
       ]
     },
@@ -555,9 +571,9 @@
       "occurrences": 3,
       "first_seen": "2026-10-21",
       "last_seen": "2026-10-28",
-      "streak": 0,
+      "streak": 2,
       "need": 2,
-      "status": "active",
+      "status": "mastered",
       "source": [
         "10.21练习.py 第9行",
         "10.20练习.py 笔记 4.10~4.17"
@@ -587,8 +603,19 @@
           "date": "2026-10-28",
           "result": "fail",
           "note": "10-28 变式题：把 p = p + [3] 当成 += ，以为别名会跟着变（实际不会）"
+        },
+        {
+          "date": "2026-11-01",
+          "result": "pass",
+          "note": "10-31专项题1/2：清洗B白干原因答对，w=赋值回去已内化"
+        },
+        {
+          "date": "2026-11-01",
+          "result": "pass",
+          "note": "10-31合成题：w=w.lower().strip(...)赋值回去从空白写对"
         }
-      ]
+      ],
+      "mastered_on": "2026-11-01"
     },
     {
       "id": "E14",
@@ -629,7 +656,7 @@
       "occurrences": 6,
       "first_seen": "2026-10-21",
       "last_seen": "2026-10-29",
-      "streak": 0,
+      "streak": 1,
       "need": 2,
       "status": "active",
       "source": [
@@ -682,6 +709,11 @@
           "date": "2026-10-29",
           "result": "fail",
           "note": "三个错全找到了（strip/reverse/return），但 return 拼成 ruturn，运行会 NameError"
+        },
+        {
+          "date": "2026-11-01",
+          "result": "pass",
+          "note": "10-31合成题：从空白写出清洗链+reverse+优雅分支五条全对"
         }
       ]
     },
@@ -699,9 +731,9 @@
       "occurrences": 2,
       "first_seen": "2026-10-22",
       "last_seen": "2026-10-22",
-      "streak": 1,
+      "streak": 2,
       "need": 2,
-      "status": "active",
+      "status": "mastered",
       "source": [
         "10-22 key= 专题讲解时的对照实验"
       ],
@@ -725,8 +757,14 @@
           "date": "2026-10-22",
           "result": "pass",
           "note": ""
+        },
+        {
+          "date": "2026-11-01",
+          "result": "pass",
+          "note": "10-31 补做：三种 sorted 写法输出全对，写法A/B 机制解释到位，自查规则核心默写正确"
         }
-      ]
+      ],
+      "mastered_on": "2026-11-01"
     },
     {
       "id": "E17",
@@ -792,10 +830,10 @@
         "静默错误",
         "查漏补缺"
       ],
-      "occurrences": 1,
+      "occurrences": 2,
       "first_seen": "2026-10-22",
-      "last_seen": "2026-10-22",
-      "streak": 0,
+      "last_seen": "2026-11-01",
+      "streak": 1,
       "need": 2,
       "status": "active",
       "source": [],
@@ -804,6 +842,16 @@
           "date": "2026-10-22",
           "result": "new",
           "note": "首次登记"
+        },
+        {
+          "date": "2026-11-01",
+          "result": "fail",
+          "note": "10-31专项题6：漏了if not w判空且判空排在停用词之后，空串会被算进词频"
+        },
+        {
+          "date": "2026-11-01",
+          "result": "pass",
+          "note": "10-31合成题：判空if not w排最前，从空白写对（上午fail的翻身仗）"
         }
       ]
     },
@@ -931,10 +979,10 @@
         "持久化",
         "w模式"
       ],
-      "occurrences": 2,
+      "occurrences": 3,
       "first_seen": "2026-10-29",
-      "last_seen": "2026-10-29",
-      "streak": 0,
+      "last_seen": "2026-11-01",
+      "streak": 1,
       "need": 2,
       "status": "active",
       "source": [],
@@ -953,6 +1001,16 @@
           "date": "2026-10-29",
           "result": "fail",
           "note": "方向错：这段代码本意就是写，不该改成 r；正解是写之前先把内容备好"
+        },
+        {
+          "date": "2026-11-01",
+          "result": "fail",
+          "note": "10-31 重写：写法C结构对(tmp+os.replace+清tmp+raise)，但 os.replace 写在 with 里面 → Windows WinError 32，存成功那条路必炸；官方自测只测了崩的路径所以假绿"
+        },
+        {
+          "date": "2026-11-01",
+          "result": "pass",
+          "note": "10-31 变式1 独立作答：情况②答'空'(0字节)正确、情况①正确、(1)先算后开门正确、(3)用w会清空正确；薄弱点：'a'模式语义、磁盘写一半=半截JSON、最低成本改法没落成代码"
         }
       ]
     },
@@ -1051,9 +1109,9 @@
       "occurrences": 2,
       "first_seen": "2026-10-29",
       "last_seen": "2026-10-29",
-      "streak": 0,
+      "streak": 2,
       "need": 2,
-      "status": "active",
+      "status": "mastered",
       "source": [],
       "history": [
         {
@@ -1070,8 +1128,19 @@
           "date": "2026-10-29",
           "result": "fail",
           "note": "未作答"
+        },
+        {
+          "date": "2026-11-01",
+          "result": "pass",
+          "note": "10-31 重写：两份 with open 全从函数体消失，全文只剩1份；抽出的那份改用练习1的安全函数（不再复制裸 open('w')）"
+        },
+        {
+          "date": "2026-11-01",
+          "result": "pass",
+          "note": "10-31 变式2：三份复制粘贴全抽走，全文件只剩保存文件一份with open；这次抽出来的是【安全版原子写入】不是裸open('w')（上次批改的教训已内化）"
         }
-      ]
+      ],
+      "mastered_on": "2026-11-01"
     },
     {
       "id": "E28",
@@ -1110,6 +1179,33 @@
           "date": "2026-10-31",
           "result": "pass",
           "note": "10-31 改bug第8题：缩进栈+docstring两点，对照讲解后记录（连对1/2）"
+        }
+      ]
+    },
+    {
+      "id": "E29",
+      "title": "默认参数在定义时绑定：path=DATA_FILE 把路径焊死",
+      "bad": "def 保存文件(tasks, path=\"todos.json\"):\n    ...  # 定义这一刻就把路径焊死了\n# 后果：代码里把 DATA_FILE 改成临时目录，保存函数却还写向旧的相对路径\n#      → 数据跑到别处去了，程序不报错（静默错误）",
+      "good": "def 保存文件(tasks, path=None):\n    if path is None:\n        path = DATA_FILE      # 运行时才读全局，改了才生效\n    ...\n# 口诀：路径/配置这类会变的值，一律用 None 占位，别用默认值",
+      "tags": [
+        "默认参数",
+        "作用域",
+        "静默错误",
+        "路径",
+        "函数定义"
+      ],
+      "occurrences": 1,
+      "first_seen": "2026-11-01",
+      "last_seen": "2026-11-01",
+      "streak": 0,
+      "need": 2,
+      "status": "active",
+      "source": [],
+      "history": [
+        {
+          "date": "2026-11-01",
+          "result": "new",
+          "note": "首次登记"
         }
       ]
     }

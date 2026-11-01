@@ -11,6 +11,12 @@
 #   E27  同一段 with open(...) 出现第二次就该抽成函数
 #
 # 讲义：笔记/10-30_补讲_E24_E27.md
+#
+# 📋 11-01 批改结果：
+#   E24 🔴 fail —— 写法C 的结构你写对了（tmp → os.replace → 清 tmp → raise），
+#                  但 os.replace 写在了 with 【里面】，Windows 上每次都炸
+#   E27 ✅ pass —— 抽函数这件事做对了（两份 with open 全消失，全文只剩 1 份）
+#   批改已写回本文件：你的原答案全部保留为注释，正确版本在下面。
 # ---------------------------------------------------------------
 
 import json
@@ -66,8 +72,48 @@ def save_tasks(tasks, path="todos.json"):
       ③ 什么时候才替换正式文件？
       ④ 崩了以后怎么清理？要不要 raise？
     """
-    # ← 练习 1：在这里写
-    pass
+    # 🔴 你 11-01 写的原版（保留对照）—— 结构完全正确，只错一处「时机」：
+    #
+    #     tmp = path + ".tmp"
+    #     try:
+    #         with open(tmp, "w", encoding="utf-8") as f:
+    #             f.write(json.dumps(tasks, ensure_ascii=False))
+    #             os.replace(tmp, path)      # ←🔴 就在这里！文件还开着就 replace
+    #     except Exception:
+    #         if os.path.exists(tmp):
+    #             os.remove(tmp)
+    #         raise
+    #
+    #     实测（Windows 10/11）：
+    #         PermissionError: [WinError 32] 另一个程序正在使用此文件，
+    #         进程无法访问：'xxx.tmp' -> 'xxx.json'
+    #
+    #     也就是说：这版代码【存成功的那条路】永远炸，只有 json.dumps
+    #     先崩的时候才「表现得正常」—— 是不是很讽刺？
+    #
+    # ⚠️ 为什么官方自测还是全绿？
+    #     因为 自测_练习1 只喂了「会崩的数据」，走的是 json.dumps 先崩那条路，
+    #     压根没测过「存成功」！  ← 这就是【测试覆盖不全】的典型假绿
+    #     （教训：自测全绿 ≠ 代码对，一定要有一条「成功路径」的用例）
+    #
+    # ⚠️ 为什么 Windows 会这样、Linux 不会？
+    #     Windows 上文件被打开时，句柄默认【不允许被重命名/替换】（没有 FILE_SHARE_DELETE）
+    #     → 文件还开着就 os.replace → 被系统拒绝 (WinError 32)
+    #     Linux 上文件句柄和文件名是分开的，unlink 一个还开着的文件完全没问题。
+    #     ⚠️ 所以这种 bug 在你本机一测就炸，别人写博客/教程可能还是对的 ——
+    #        「我这里能跑」不等于「到处都能跑」。
+    #
+    # ✅ 修正版：with 结束（= 文件已关闭）之后，再 os.replace
+    tmp = path + ".tmp"
+    try:
+        with open(tmp, "w", encoding="utf-8") as f:
+            f.write(json.dumps(tasks, ensure_ascii=False))
+        # ↑ 到这里 with 已经结束，tmp 文件【已经关闭】，Windows 才肯让我们替换它
+        os.replace(tmp, path)              # 写【成功】了才替换正式文件（原子）
+    except Exception:
+        if os.path.exists(tmp):
+            os.remove(tmp)                 # 崩了清理垃圾，不留 .tmp
+        raise                              # 必须再抛出，不然调用方以为存成功了
 
 
 # ============================================================
@@ -131,6 +177,36 @@ def 自测_练习1():
         shutil.rmtree(work, ignore_errors=True)
 
 
+def 自测_练习1_成功路径():
+    """🔴 补测：官方自测漏掉的「存成功」那条路。
+
+    没有这一条，os.replace 写在 with 里面这种 bug 照样能骗过自测（全绿）。
+    """
+    import shutil
+    import tempfile
+
+    work = tempfile.mkdtemp()
+    path = os.path.join(work, "todos.json")
+    try:
+        try:
+            save_tasks([{"text": "买菜", "done": False}], path)
+        except Exception as e:
+            print("❌ 成功路径失败：%s: %s" % (type(e).__name__, e))
+            print("   → 存盘这条路是坏的！去看 os.replace 是不是写在 with 里面")
+            return
+
+        if not os.path.exists(path):
+            print("❌ 成功路径失败：文件根本没生成")
+            return
+        内容 = open(path, encoding="utf-8").read()
+        if "买菜" in 内容:
+            print("✅ 成功路径通过：数据真的写进去了（%s）" % 内容)
+        else:
+            print("❌ 成功路径失败：文件内容不对 → %s" % 内容)
+    finally:
+        shutil.rmtree(work, ignore_errors=True)
+
+
 # ============================================================
 # 练习 2 · 抽出重复的写文件代码
 # ============================================================
@@ -154,16 +230,47 @@ def 自测_练习1():
 DATA_FILE = "todos.json"
 
 
+# 🔴 你 11-01 写的原版（保留对照）：
+#
+# def a(tasks):
+#     with open(DATA_FILE, "w", encoding="utf-8") as f:
+#         f.write(json.dumps(tasks, ensure_ascii=False))
+#
+# ✅ 批改：
+#   · E27 的核心你做对了 ✅ —— 两份 with open 都从函数体里消失了，
+#     全文只剩 1 份（官方自测 检查① 检查①b 检查② 全过）
+#   · 但有两个扣分点：
+#     ① 函数名 a 没有含义。抽函数是为了【复用】，名字得让人一眼看懂
+#        （a / f / tmp 这种名字，抽出来也没人敢用）
+#     ② 更要紧：抽出来的这一份是【裸 open('w')】—— E24 的老坑原封不动
+#        搬进了新函数。你练习 1 刚写好的安全版 save_tasks 就摆在上面，
+#        却没复用它。
+#        「抽函数」只做了一半：既要【只写一份】，这一份还得【是对的】。
+#        （真实项目里最常见的事故：抽出去了，但抽出来的是那个有 bug 的版本）
+
+
+def 保存任务(tasks, path=None):
+    """把 tasks 存盘 —— 全文件唯一一份写文件的代码。
+
+    ⚠️ 注意这里为什么用 path=None 而不是 path=DATA_FILE：
+        默认参数【在函数定义时】就绑定了当时的值。
+        写成 path=DATA_FILE，等于把此刻的 "todos.json" 焊死进函数里；
+        后面测试里改 DATA_FILE 就【不影响】这个函数 → 存到错地方去。
+        用 path=None + 运行时再读 DATA_FILE，才是活的。
+    """
+    if path is None:
+        path = DATA_FILE          # 运行时才读全局，改了 DATA_FILE 才生效
+    save_tasks(tasks, path)       # 复用练习1 的原子写入，不重复写文件逻辑
+
+
 def add_task(tasks, text):
     """加一条任务。
 
-    ❌ 这里混进了写文件的代码（复制粘贴来的第 1 份）
+    ✅ 写文件的代码已抽走，这里只管业务逻辑。
     """
     tasks.append({"text": text, "done": False})
 
-    # ❌ 重复的第 1 份写文件代码
-    with open(DATA_FILE, "w", encoding="utf-8") as f:
-        f.write(json.dumps(tasks, ensure_ascii=False))
+    保存任务(tasks)
 
     return tasks
 
@@ -171,7 +278,7 @@ def add_task(tasks, text):
 def mark_done(tasks, n):
     """把第 n 条任务标记为已完成。
 
-    ❌ 这里也混进了写文件的代码（复制粘贴来的第 2 份）
+    ✅ 写文件的代码已抽走，这里只管业务逻辑。
     """
     if not isinstance(tasks, list):
         return "错误：tasks 必须是列表"
@@ -182,39 +289,32 @@ def mark_done(tasks, n):
 
     tasks[n - 1]["done"] = True
 
-    # ❌ 重复的第 2 份写文件代码（和上面那份几乎一模一样）
-    with open(DATA_FILE, "w", encoding="utf-8") as f:
-        f.write(json.dumps(tasks, ensure_ascii=False))
+    保存任务(tasks)
 
     return tasks
 
 
 # ---------------------------------------------------------------
-# ⬇️⬇️⬇️ 你的答案写在这里 ⬇️⬇️⬇️
+# ⬇️⬇️⬇️ 你的答案区（11-01 批改后补全） ⬇️⬇️⬇️
 # ---------------------------------------------------------------
 #
 # 【你的答案区 · 按这 4 步写】
 #
 # ① 重复的写文件代码在第 ____ 行 和 第 ____ 行
-#    （提示：一份在 add_task 里，一份在 mark_done 里）
+#    → 原稿：第 165-166 行（add_task 里）、第 186-187 行（mark_done 里）
+#    （你现在写的是自己文件里的行号，标对位置就行 ✅）
 #
-# ② 抽出来的函数（自己起名，建议 save_tasks）：
+# ② 抽出来的函数：保存任务（内部复用练习1 的 save_tasks）
 #
-#    def __________:
-#        ...
+# ③ 改写后的 add_task / mark_done：见上（只留业务逻辑 + 调用 保存任务(tasks)）
 #
-# ③ 改写后的 add_task：
+# ④ 改完后全文 with open 出现的次数：__1__ （应该是 1）  ← ✅ 你写对了
+#    原来两处重复的代码你删了吗？__删了__ （应该是「删了」）  ← ✅ 你写对了
 #
-#    def add_task(tasks, text):
-#        ...
-#
-#    改写后的 mark_done：
-#
-#    def mark_done(tasks, n):
-#        ...
-#
-# ④ 改完后全文 with open 出现的次数：____ （应该是 1）
-#    原来两处重复的代码你删了吗？____ （应该是「删了」）
+# ⚠️ 但 ① ② ③ 你没填 —— 「抽函数」这个动作本身你做对了，
+#    可「为什么抽、抽成什么样」没写下来 = 没进脑子里。
+#    这正是巩固清单第五节的结论：
+#      「写下来的那部分，才是真正记住的那部分。」
 #
 # ⬇️⬇️⬇️ 在上面写代码 ⬇️⬇️⬇️
 
@@ -277,6 +377,36 @@ def 自测_练习2():
 
 
 # ============================================================
+# 🎯 E24 补救小测（做完这 3 行，你就能补回 1 次 pass → 1/2）
+# ============================================================
+# 📋 11-01 批改：3 个答案【全对】，但—— 这个小测作废了，是我的锅。
+#     因为这 3 个答案就写在本文件里（第 88-89 行、第 94-97 行、第 111 行），
+#     你抄了一遍而已，等于【什么都没测】。
+#     抄 = 「读懂」，≠ 「自己想得出来」。
+#     → 所以 E24 的 pass 不在这儿拿，在【变式】那份文件里拿（那里没有答案可抄）。
+#
+# (1) 你原来那版把 os.replace 写在 with 【里面】，在 Windows 上会报什么错？
+#     （提示：错误码是 WinError 32）
+#     答：另一个程序正在使用此文件                      ← ✅ 意思对
+#     （完整的报错是：PermissionError: [WinError 32] 另一个程序正在使用此文件，
+#       进程无法访问：'xxx.tmp' -> 'xxx.json'
+#       答全一点要带：① 异常类型 PermissionError ② 错误码 WinError 32）
+#
+# (2) 为什么官方自测 全绿，却没发现这个 bug？一句话。
+#     答：因为 自测_练习1 只喂了会崩的数据（那个 set），走的是「json.dumps 先崩」那条路 —— 压根没测过「存成功」。
+#     ← ✅ 对（但这句是我批注里的原话，属于抄）
+#
+# (3) 修正版为什么要把 os.replace 挪到 with 【外面】？一句话。
+#     答：with 结束 = 文件已关闭 = Windows 才肯放行
+#     ← ✅ 对（同样是抄我批注里的原话）
+#
+# ⚠️ 这三条抄完之后，请你自己重新回答一遍【不看本文件】：
+#     把手机/文件关掉，凭记忆写出：① 报的什么错 ② 为什么不报错 ③ 为什么要挪出去
+#     写出来的才是你的。写不出来也没关系 —— 那就说明这题还没过。
+# ============================================================
+
+
+# ============================================================
 # 运行入口
 # ============================================================
 if __name__ == "__main__":
@@ -288,6 +418,9 @@ if __name__ == "__main__":
     print()
     print("---- 练习 1 自测 ----")
     自测_练习1()
+    print()
+    print("---- 练习 1 补测（成功路径 · 官方自测漏掉的那条）----")
+    自测_练习1_成功路径()
     print()
     print("---- 练习 2 自测 ----")
     自测_练习2()
