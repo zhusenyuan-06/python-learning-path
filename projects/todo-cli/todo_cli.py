@@ -27,7 +27,13 @@
 import json
 from os import path
 
-DATA_FILE = "todos.json"          # 数据文件名（相对路径：相对于本文件所在目录）
+DATA_FILE = "todos.json"          # 数据文件名（相对路径：相对于【你运行程序时所在的目录】，不是本文件所在目录）
+# ⚠️ 2026-11-01 修正：原来这里写的是「相对于本文件所在目录」—— 那是错的。
+#    相对路径永远相对于【当前工作目录】：
+#    cd D:/别的目录 && python D:/.../todo_cli.py  →  todos.json 生成在 D:/别的目录 里
+#    想让数据跟着脚本走，改成：
+#        DATA_FILE = path.join(path.dirname(path.abspath(__file__)), "todos.json")
+#    （这条还没改，先记在 README 的「已知限制」里。）
 
 
 # ============================================================
