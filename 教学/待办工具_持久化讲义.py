@@ -5,7 +5,7 @@
 # 已有底稿：练习/待办工具.py（add_task / list_tasks / mark_done / run_cli 都写好了）
 #
 # ⚠️ 这是「只读讲义」，别在这里写答案。
-#    你的答案写在 → 练习/待办工具_持久化.py
+#    你的答案写在 → projects/todo-cli/todo_cli.py
 
 import json
 import os

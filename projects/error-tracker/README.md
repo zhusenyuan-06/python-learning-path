@@ -47,7 +47,7 @@
 ## 快速开始
 
 ```bash
-cd 笔记
+cd projects/error-tracker
 python 错题追踪器.py stats        # 看池子里还剩几题
 python 错题追踪器.py ls           # 待复习清单（按优先级）
 python 错题追踪器.py plan 6       # 生成本周复习卷（默认含「本周新错区」）

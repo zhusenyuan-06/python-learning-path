@@ -39,7 +39,7 @@ print("③ README 里「怎么跑」的路径是否真实存在")
 print("=" * 70)
 for p in ["小项目_多模块demo", "projects/contact-book", "笔记",
           "小项目_多模块demo/main.py", "projects/contact-book/contact_book.py",
-          "笔记/错题追踪器.py", "笔记/工具链坑.py", "笔记/错题追踪.md"]:
+          "projects/error-tracker/错题追踪器.py", "笔记/工具链/工具链坑.py", "projects/error-tracker/错题追踪.md"]:
     存在 = os.path.exists(os.path.join(ROOT, p))
     print(f"  {'✅' if 存在 else '❌'} {p}")
     if not 存在:

@@ -36,7 +36,7 @@ PY = r"D:\AAAA\python.exe"
 
 # Path(...) = pathlib 的路径对象，比字符串路径好用（能自动处理分隔符）
 #   └─ 这个路径是【绝对路径】，所以在哪个目录跑这个脚本都能找到追踪器
-TRACKER = Path(r"D:\AI应用工程师\01-学习仓库-Python学习路径\pythonProject\笔记\错题追踪器.py")
+TRACKER = Path(r"D:\AI应用工程师\01-学习仓库-Python学习路径\pythonProject\projects\error-tracker\错题追踪器.py")
 
 # 要登记的 5 条新错。
 # 每条是 4 个元素的元组：(标题, 错误写法, 正确写法, 标签)

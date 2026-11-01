@@ -50,7 +50,7 @@ def find_review():
           └─ 正则：从文件名里抠出日期，用来排除「使用说明」这种
             不带日期的文件
     """
-    pattern = str(NOTES / "周四大复习_*.md")
+    pattern = str(NOTES / "复习卷" / "周四大复习_*.md")
     files = sorted(glob.glob(pattern), reverse=True)
     for f in files:
         name = os.path.basename(f)
@@ -66,8 +66,8 @@ def main():
     path = find_review()
     if not path:
         print("[X] 没找到复习卷。")
-        print("    应该在：%s" % (NOTES / "周四大复习_YYYY-MM-DD_复习卷.md"))
-        print("    跑一下：\"D:\\AAAA\\python.exe\" 错题追踪器.py plan 6 生成")
+        print("    应该在：%s" % (NOTES / "复习卷" / "周四大复习_YYYY-MM-DD_复习卷.md"))
+        print("    跑一下：\"D:\\AAAA\\python.exe\" projects\\error-tracker\\错题追踪器.py plan 6 生成")
         input("\n按回车键关闭...")
         return 1
 
@@ -95,13 +95,13 @@ def main():
     print("     ③ 改完之后凭什么就「跑得对」了")
     print("  3. 9 题全做完，再逐题记结果（别一题一题提前记）：")
     print()
-    print('     cd /d "D:\\AI应用工程师\\01-学习仓库-Python学习路径\\pythonProject\\笔记"')
-    print('     "D:\\AAAA\\python.exe" 错题追踪器.py record E15 pass "你的理解"')
-    print('     "D:\\AAAA\\python.exe" 错题追踪器.py record E01 fail "又错在哪"')
+    print('     cd /d "D:\\AI应用工程师\\01-学习仓库-Python学习路径\\pythonProject"')
+    print('     "D:\\AAAA\\python.exe" projects\\error-tracker\\错题追踪器.py record E15 pass "你的理解"')
+    print('     "D:\\AAAA\\python.exe" projects\\error-tracker\\错题追踪器.py record E01 fail "又错在哪"')
     print()
     print("  4. 全做完收尾：")
-    print('     "D:\\AAAA\\python.exe" 错题追踪器.py render')
-    print('     "D:\\AAAA\\python.exe" 错题追踪器.py stats')
+    print('     "D:\\AAAA\\python.exe" projects\\error-tracker\\错题追踪器.py render')
+    print('     "D:\\AAAA\\python.exe" projects\\error-tracker\\错题追踪器.py stats')
     print()
     print("  提示：答案卷（答案与讲解.md）要等你交卷后我再给你，")
     print("        提前看等于没做。")

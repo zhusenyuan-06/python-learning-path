@@ -29,7 +29,7 @@ import sys
 import time
 
 # ============================================================
-# 载入被测对象：仓库根目录的 gh_hosts_fix.py
+# 载入被测对象：仓库 工具/ 目录下的 gh_hosts_fix.py
 #   └─ 用 importlib 按【文件路径】加载，因为它带中文注释但文件名是英文，
 #     直接 import 也行，但按路径加载更稳（不依赖 sys.path 和工作目录）
 # ============================================================
@@ -38,11 +38,12 @@ BASE = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 #     __file__      = .../pythonProject/笔记/_自检脚本/本文件.py
 #     dirname #1    = .../pythonProject/笔记/_自检脚本
 #     dirname #2    = .../pythonProject/笔记
-#     dirname #3    = .../pythonProject          ← 仓库根目录，gh_hosts_fix.py 在这
+#     dirname #3    = .../pythonProject          ← 仓库根目录
+#   └─ 2026-11-01 起 gh_hosts_fix.py 在 工具/ 子目录里，所以下面多拼一层
 #   └─ 剥三层是因为本文件被放在「笔记/_自检脚本」两层子目录里
 
 spec = importlib.util.spec_from_file_location(
-    "ghfix", os.path.join(BASE, "gh_hosts_fix.py"))
+    "ghfix", os.path.join(BASE, "工具", "gh_hosts_fix.py"))
 ghfix = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(ghfix)
 #   └─ exec_module = 真正执行这个 .py 文件（模块顶部的代码跑起来）
