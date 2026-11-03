@@ -64,26 +64,21 @@ python todo_cli.py
 
 ## 数据文件在哪（第一次用必看）
 
-任务存在 **`todos.json`** 里，它在**你运行程序时所在的目录**，不是脚本所在目录：
+任务存在 **`todos.json`** 里，它在**脚本自己所在的目录**（`projects/todo-cli/`），**不在**你运行程序时所在的目录：
 
 ```bash
 cd D:/某个目录
 python D:/AI应用工程师/.../projects/todo-cli/todo_cli.py
-# → todos.json 会生成在 D:/某个目录 里
+# → todos.json 依然在 D:/AI应用工程师/.../projects/todo-cli/ 里，不会跑到 D:/某个目录
 ```
 
-原因：`DATA_FILE = "todos.json"` 是**相对路径**，相对的是**当前工作目录**（命令行所在的目录），
-不是脚本文件所在的目录 —— 这两件事经常不一样。我第一次就以为它会跟着脚本走，
-结果在别的目录跑出了一个**另一个** `todos.json`，差点以为数据丢了。
+原因：`DATA_FILE = Path(__file__).parent / "todos.json"` —— `__file__` 是当前脚本的路径，
+`Path(__file__).parent` 取它的目录，`/ "todos.json"` 拼上文件名。**数据就钉在脚本旁边了。**
 
-**想要数据永远跟着脚本走**，把这一行改成：
-
-```python
-DATA_FILE = path.join(path.dirname(path.abspath(__file__)), "todos.json")
-```
-
-`__file__` = 当前脚本的路径 → 取它的目录 → 拼上文件名 → 数据就钉在脚本旁边了。
-（这条改动还没做，先记在下面的「已知限制」里。）
+> **2026-11-03 之前**：这里写的是 `DATA_FILE = "todos.json"`（相对路径），
+> 相对的是**当前工作目录**（命令行所在的目录），不是脚本所在目录 —— 这两件事经常不一样。
+> 我第一次就以为它会跟着脚本走，结果在别的目录跑出了一个**另一个** `todos.json**，差点以为数据丢了。
+> 那次踩坑促成了 11-03 的第 5 条限制修复。
 
 ---
 
@@ -99,10 +94,28 @@ DATA_FILE = path.join(path.dirname(path.abspath(__file__)), "todos.json")
 - **不这么写会怎样**：我在 `load_tasks` 里手滑写成了 `"w"`。`open(path, "w")` 的完整语义是「不存在就创建 + 存在就清空」，所以文件当场被清成 0 字节，紧接着写入那步又因为变量没定义崩了 —— 结果留下一个 0 字节的空壳，任务一条都没存进去
 - **现在这么写**：读用 `"r"`，写用 `"w"`，两个值不交叉
 
-### 3. 两道守卫：文件不在 / 文件是空的
+### 3. 三道守卫：文件不在 / 文件是空的 / 文件内容是坏的
 
-- **不这么写会怎样**：删掉第一道守卫 → `open(..., "r")` 打开一个不存在的文件 → `FileNotFoundError`，程序连第一行任务都读不到就崩；删掉第二道守卫 → `json.loads("")` → `JSONDecodeError: Expecting value`
-- **现在这么写**：先问 `path.exists`，不在就返回 `[]`；读到空字符串也返回 `[]`。**两道守卫守的是两个完全不同的错误**，一个都不能省
+- **不这么写会怎样**：删掉第一道守卫 → `open(..., "r")` 打开一个不存在的文件 → `FileNotFoundError`，程序连第一行任务都读不到就崩；删掉第二道守卫 → `json.loads("")` → `JSONDecodeError: Expecting value`；删掉第三道守卫 → 文件有内容但**内容是坏的**（断电写到一半、手滑用记事本改过）→ 一样抛 `JSONDecodeError`
+- **现在这么写**（2026-11-03 补上第三道）：
+
+  ```python
+  if not DATA_FILE.exists():          # 守卫①：文件不在
+      return []
+  with open(DATA_FILE, "r", encoding="utf-8") as f:
+      内容 = f.read()
+  if 内容 == "":                      # 守卫②：0 字节空文件
+      return []
+  try:
+      return json.loads(内容)         # 守卫③：内容是坏的 json
+  except json.JSONDecodeError:
+      print("数据文件坏了，可能是上次写入中途断电")
+      return []
+  ```
+
+  **三道守卫守的是三个完全不同的错误，一个都不能省。**
+  注意第 ③ 道必须写全名 `json.JSONDecodeError`（带 `json.` 前缀），
+  只写 `JSONDecodeError` 会 NameError —— 它不在 Python 内置命名空间里。
 
 ### 4. JSON 序列化：`dumps` 和 `loads`
 
@@ -148,50 +161,126 @@ DATA_FILE = path.join(path.dirname(path.abspath(__file__)), "todos.json")
 
 ---
 
-## ⚠️ 已知限制 / 下一步
+## ✅ 已修复（2026-11-03）｜仍在的已知限制
 
-> 这四条其实是同一类问题：**用户输入和外部数据没有校验就直接用**。
+> **2026-11-03 更新**：11-01 列的 4 条限制已修 3 条，另有 1 条隐藏限制也修了。
+> 下面先列出**已修的**（附实际修法和验收结果），再列**还没做的**。
 
-### 1. 输入 `done abc` 会直接崩
+### ✅ 已修 1｜输入 `done abc` 会直接崩
 
-`done abc` 会直接崩 —— `int("abc")` 抛 `ValueError`，用户看到的是一整页红色报错栈，不是人话。
+**当时的问题**：`int("abc")` 抛 `ValueError`，用户看到的是一整页红色报错栈，不是人话。
 
-对比一下：`done 999` 会被 `mark_done` 里的边界检查挡住，返回一句「错误：n 必须在 1~2 之间」——
-**同样是错，一个友好一个不友好**，差别就在于有没有校验。
+**现在怎么修的**（`run_cli()` 里）：
 
-**打算怎么修**：`try/except ValueError` → 打印「编号得是数字，比如 `done 1`」。
+```python
+try:
+    n = int(cmd[5:])
+except ValueError:
+    print("编号得是数字，比如 done 1")
+    continue
+```
 
-### 2. `todos.json` 内容坏了会崩
+**验收**：`done abc` → 打印「编号得是数字，比如 done 1」，程序不崩，继续等下一条命令。
 
-`todos.json` 内容坏了的话会抛 `JSONDecodeError: Expecting value: line 1 column 1 (char 0)`。
+> ⚠️ 顺带记一个坑：**`except` 必须写具体异常类，不能光写 `except:`**。
+> 裸 `except:` 会把任何错都吞掉，程序出错时你连错在哪都不知道 —— 这正是我错题本里的 E15「静默错误」。
+> 另外 `ValueError` 和 `TypeError` 别搞混：
+> **TypeError = 类型都不对（`int(None)`）；ValueError = 类型对但值不合理（`int("abc")`）** —— 已记为 E30。
 
-**但是它和「文件不存在」不是同一个错**：文件不存在会被第一道守卫挡住，直接返回空列表；
-坏 JSON 过得了存在性检查，却过不了 `json.loads`。
+### ✅ 已修 2｜`todos.json` 内容坏了会崩
 
-现在两道守卫挡的是「① 文件不存在 ② 文件是 0 字节」，**第 3 种情况没挡：文件有内容但是坏 JSON**。
+**当时的问题**：文件有内容但是坏 JSON 时，`json.loads` 抛 `JSONDecodeError` 直接崩。
+两道守卫挡的是「① 文件不存在 ② 文件是 0 字节」，**第 3 种情况没挡**。
 
-**打算怎么修**：`try/except json.JSONDecodeError` → 提示「数据文件坏了，可能是上次写入中途断电」，
-并建议先把坏文件改名备份再重新开始。
+**现在怎么修的**（`load_tasks()` 里加了第三道守卫）：
 
-> 「两道守卫守的是两个完全不同的错误，一个都不能省」—— 现在要变成三道。
+```python
+try:
+    return json.loads(内容)
+except json.JSONDecodeError:
+    print("数据文件坏了，可能是上次写入中途断电")
+    return []
+```
 
-### 3. `save_tasks` 还是裸 `open('w')`
+**验收**：把 `todos.json` 写成半截 JSON（`{"text":`）再启动 → 打印提示，不崩，当作空任务继续跑。
+
+> 「三道守卫守的是三个完全不同的错误，一个都不能省」—— 现在真的是三道了。
+
+### ✅ 已修 3（隐藏的第 5 条）｜`DATA_FILE` 是相对路径
+
+**当时的问题**：`DATA_FILE = "todos.json"` 相对的是**当前工作目录**，不是脚本所在目录。
+换个目录运行就生成另一个数据文件，看起来像"数据丢了"。
+
+**现在怎么修的**：
+
+```python
+from pathlib import Path
+DATA_FILE = Path(__file__).parent / "todos.json"
+```
+
+**验收**：从 `C:\` 运行 `python D:/.../todo_cli.py`，数据仍在项目目录里，`C:\` 下没有多出文件。
+
+> pathlib 是"面向对象"的新写法（官方现在推它），比老式 `os.path.join(dirname(abspath(__file__)), ...)`
+> 三层嵌套好记多了。**Path 对象可以直接喂给 `open()` / `.exists()`，不用转字符串。**
+
+### 🐛 顺带修的 3 个 bug（都是"程序没崩但结果是错的"）
+
+这 3 个是我自己 code review 时跑测试跑出来的，**都不在原来的限制清单里**：
+
+| Bug | 现象 | 根因 | 现在怎么修的 |
+|---|---|---|---|
+| `done 999` | 打印「已完成第 999 条」，**其实一条都没改** | `mark_done` 的返回值**被丢弃**了，调用方不知道成功没成功 | `mark_done` 改成**永远返回 `(成功标志, 消息)`**，调用方 tuple unpacking 判断 |
+| `done -1` | **真的改掉了最后一条**，还打印「已完成第 -1 条」 | Python 负数索引不报错，`tasks[-1]` 就是最后一条 | `mark_done` 里的 `n < 1` 检查挡住了（之前有检查，但返回值被丢了） |
+| `done True` | 把第 1 条标成完成 | **`bool` 是 `int` 的子类**，`isinstance(True, int)` 是 True | 加 `isinstance(n, bool) or not isinstance(n, int)` |
+
+**核心改动：返回值设计统一**
+
+```python
+# 改前：成功返回列表，失败返回字符串 → 类型不统一，调用方没法用统一方式判断
+def mark_done(tasks, n):
+    if n < 1 or n > len(tasks):
+        return f"错误：n 必须在 1~{len(tasks)} 之间"
+    ...
+    return tasks
+
+# 改后：永远返回 (成功标志, 消息)
+def mark_done(tasks, n):
+    if n < 1 or n > len(tasks):
+        return False, f"错误：编号必须在 1~{len(tasks)} 之间"
+    ...
+    return True, f"已完成第 {n} 条"
+
+# 调用方：tuple unpacking，无脑解包
+成功, 消息 = mark_done(tasks, n)
+if not 成功:
+    print(消息)
+    continue
+```
+
+> **教训**：一个函数如果"有时返回 A、有时返回 B"，调用方就没法用统一方式判断成功失败，
+> 迟早会有人把返回值扔掉 —— 然后 bug 就来了。**要么统一返回一种类型，要么明确文档化"可能返回什么"。**
+
+### ⏳ 还没修 1｜`save_tasks` 还是裸 `open('w')`
 
 直接 `open(DATA_FILE, "w")` 写。万一 `json.dumps` 在写之前崩溃的话，正式文件就已经被清空，
 文件内 0 字节，导致用户所有任务没了。
 
 **最讽刺的地方**：`load_tasks` 特意挡了「0 字节文件」这个情况，但**写的时候自己还在制造 0 字节文件**。
 
-**打算怎么修**：把上面第 5 条的写法C 搬过来（tmp + `os.replace` + 失败清理 + `raise`）。
+**打算怎么修**：把上面技术点第 5 条的写法C 搬过来（tmp + `os.replace` + 失败清理 + `raise`）。
 
 **这一条的额外价值**：我在同一个项目里，先用一天学了原子写入，第二天就把它用进自己的项目 ——
 **错题本和作品之间是闭环的**。
 
-### 4. 没有删除命令
+> **2026-11-04 待办**（已写进日程表）
+
+### ⏳ 还没修 2｜没有删除命令
 
 现在只能加任务和标记完成，**删不掉一条做错的事** —— 加错了只能留着。
 
 **打算怎么修**：加 `del <编号>`，走和 `done` 一样的边界检查（编号必须是整数、必须在 1~总数 之间）。
+
+> **2026-11-04 待办**（已写进日程表）
 
 ### 接下来想加的
 
@@ -331,3 +420,4 @@ Python 的缩进不是「对齐好看」，是**层级栈**。`if` 在 8 格 →
 | 2026-10-29 | 初版：3 个业务函数 + 文件持久化雏形 |
 | 2026-10-29 | 补 README（功能 / 技术点 / 4 个踩坑复盘），3 条验收全部通过 |
 | 2026-11-01 | README 细节打磨：修正运行输出块（首跑应为「已载入 0 条任务」）、补「数据文件在哪」一节、补第 5 条技术点（`open('w')` 是开门不是追加 / 写法C 原子替换 / Windows WinError 32 坑）、新增「已知限制 / 下一步」一节 |
+| 2026-11-03 | **改代码 + 同步 README**：修 11-01 的 4 条限制中的 3 条（第1条 `try/except ValueError`、第2条 `try/except json.JSONDecodeError`、隐藏第5条 `Path(__file__).parent` 绝对路径），并额外修 3 个 bug（`done 999` 谎报成功 / `done -1` 负数索引 / `isinstance` 挡不住 bool）；核心改动是 **`mark_done` 返回值设计统一为 `(成功标志, 消息)`**；README 同步：技术点第 3 条改「三道守卫」、「数据文件在哪」改 pathlib 版、「已知限制」拆成「已修 3 条 + 还没修 2 条」并补写 3 个 bug 复盘 |
