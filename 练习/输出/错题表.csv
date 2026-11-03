@@ -1,0 +1,30 @@
+编号,标题,状态,标签,犯过次数
+E01,if 缺 else/return：提示了却照样执行,mastered,静默错误|控制流|函数,4
+E02,同一个变量名承担两种角色（被覆盖/泄漏）,active,变量角色|高频|函数,5
+E03,静默错误：漏了 .strip()，词频被标点污染,mastered,静默错误|字符串|高频,4
+E04,静默错误：sorted 漏 reverse=True，排名是倒的,mastered,静默错误|排序|高频,3
+E05,类型不统一：数字 vs 字符串混用,active,类型|静默错误|数据一致性,3
+E06,硬编码：写死的数字,active,硬编码|可维护性,1
+E07,嵌套安全查必须传 {} 当默认值,active,dict|安全查,1
+E08,.get() 的 key 不能是 list（unhashable）,active,dict|key|括号,1
+E09,key= 传函数本身，不带括号,mastered,排序|key=|函数,1
+E10,{} 不是空 set；空 set 必须 set(),active,set|容器|括号,1
+E11,遍历中不能 remove()，会漏删,active,list|循环|静默错误,1
+E12,continue 只能在循环里用,active,控制流|语法,1
+E13,字符串方法返回新值，不改原变量,mastered,字符串|赋值|高频,3
+E14,注释里的锚点值要和真实输出对得上,active,验证习惯|自检,1
+E15,静默错误三件套：能跑但结果是错的（缺 strip / 缺 reverse / 缺 else）,active,静默错误|核心方法论|高频,6
+E16,静默错误：x[1] 取到什么，取决于 x 是什么类型,mastered,静默错误|key=|类型|高频,2
+E17,浅拷贝：dict(a) / a.copy() 只复制外层，内层 dict 仍共享,active,浅拷贝|字典合并|静默错误|查漏补缺,1
+E18,静默覆盖：update() 遇到同名 key 直接顶掉，不报错也没提示,active,字典合并|静默覆盖|静默错误|查漏补缺,1
+E19,strip 后可能变成空串，空串被算进词频,active,字符串|strip|词频|静默错误|查漏补缺,2
+E20,缩进决定归属：print 放在循环里会每轮都打印,active,缩进|控制流|调试,1
+E21,json.dumps 忘写 ensure_ascii=False：中文变成 \uXXXX,active,json|标准库|中文乱码|静默错误,1
+E22,import 报错时机搞反：以为 from 写法会晚报错,active,import|模块|报错时机,1
+E23,*args 当成乘法、**kwargs 当成幂运算,active,args|kwargs|函数|可变参数,1
+E24,"open(path, 'w') 会先清空再写 —— 中途失败留下 0 字节文件",active,文件读写|持久化|w模式,3
+E25,'not in' 和 'not' 混淆 —— not in 后面必须跟容器,active,条件判断|not|in|布尔,2
+E26,顺序错：先存盘后改内存 —— 存进去的是旧值,mastered,持久化|顺序|数据流,1
+E27,复制粘贴的代码块：改一处会漏另一处,mastered,复制粘贴|代码复用|重构,2
+E28,缩进栈层级不匹配 —— docstring 多缩进一层就报 IndentationError,active,缩进|IndentationError|docstring,2
+E29,默认参数在定义时绑定：path=DATA_FILE 把路径焊死,active,默认参数|作用域|静默错误|路径|函数定义,1
