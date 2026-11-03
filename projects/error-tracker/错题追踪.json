@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created": "2026-10-22",
-  "updated": "2026-11-01",
+  "updated": "2026-11-03",
   "config": {
     "master_streak_default": 2,
     "review_day": "周四",
@@ -1204,6 +1204,60 @@
       "history": [
         {
           "date": "2026-11-01",
+          "result": "new",
+          "note": "首次登记"
+        }
+      ]
+    },
+    {
+      "id": "E30",
+      "title": "ValueError vs TypeError 分不清：except 写错类型就接不住",
+      "bad": "try:\n    n = int(cmd[5:])        # \"abc\" 不是数字\nexcept TypeError:           # ❌ 我以为 int(\"abc\") 是 TypeError\n    print(\"类型不对\")\n# 结果：ValueError 没被接住 → 异常继续往上抛 → 程序照样崩",
+      "good": "try:\n    n = int(cmd[5:])\nexcept ValueError:          # ✅ int(\"abc\") 抛的是 ValueError\n    print(\"编号得是数字，比如 done 1\")\n# 口诀：TypeError = 类型都不对（int(None)）；ValueError = 类型对但值不合理（int(\"abc\")）",
+      "tags": [
+        "异常处理",
+        "ValueError",
+        "TypeError",
+        "静默错误",
+        "自查"
+      ],
+      "occurrences": 1,
+      "first_seen": "2026-11-03",
+      "last_seen": "2026-11-03",
+      "streak": 0,
+      "need": 2,
+      "status": "active",
+      "source": [],
+      "history": [
+        {
+          "date": "2026-11-03",
+          "result": "new",
+          "note": "首次登记"
+        }
+      ]
+    },
+    {
+      "id": "E31",
+      "title": "写目标与读源用了同一个路径变量：open(源, 'w') 把源数据清空",
+      "bad": "源 = Path(\"..\") / \"projects\" / \"error-tracker\" / \"错题追踪.json\"\n目标 = Path(\"输出\") / \"错题表.csv\"\nwith open(源, \"w\", encoding=\"utf-8\", newline=\"\") as f:   # ❌ 源和目标写混了\n    writer = csv.writer(f)\n# 后果：一执行就把 29 条错题库当场清空，再灌进 csv 数据 → 数据没了",
+      "good": "源 = Path(\"..\") / \"projects\" / \"error-tracker\" / \"错题追踪.json\"   # 只读\n目标 = Path(\"输出\") / \"错题表.csv\"                          # 只写\nwith open(源, \"r\", encoding=\"utf-8\") as f:                  # 读用 \"r\"\n    数据 = json.load(f)[\"items\"]\nwith open(目标, \"w\", encoding=\"utf-8\", newline=\"\") as f:     # 写用 \"w\"，对象是目标\n    writer = csv.writer(f)\n# 口诀：源和目标必须是两个不同的变量名，写之前先问\"这个 open 会清空谁\"",
+      "tags": [
+        "文件读写",
+        "w模式",
+        "路径",
+        "静默错误",
+        "数据一致性"
+      ],
+      "occurrences": 1,
+      "first_seen": "2026-11-03",
+      "last_seen": "2026-11-03",
+      "streak": 0,
+      "need": 2,
+      "status": "active",
+      "source": [],
+      "history": [
+        {
+          "date": "2026-11-03",
           "result": "new",
           "note": "首次登记"
         }
