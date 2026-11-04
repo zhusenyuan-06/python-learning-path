@@ -28,3 +28,7 @@ E26,顺序错：先存盘后改内存 —— 存进去的是旧值,mastered,持�
 E27,复制粘贴的代码块：改一处会漏另一处,mastered,复制粘贴|代码复用|重构,2
 E28,缩进栈层级不匹配 —— docstring 多缩进一层就报 IndentationError,active,缩进|IndentationError|docstring,2
 E29,默认参数在定义时绑定：path=DATA_FILE 把路径焊死,active,默认参数|作用域|静默错误|路径|函数定义,1
+E30,ValueError vs TypeError 分不清：except 写错类型就接不住,active,异常处理|ValueError|TypeError|静默错误|自查,1
+E31,"写目标与读源用了同一个路径变量：open(源, 'w') 把源数据清空",active,文件读写|w模式|路径|静默错误|数据一致性,1
+E32,raise 缩进掉出 except 块：语法检查全绿，运行时才抛 RuntimeError,active,缩进|异常处理|raise|静默错误|原子写入|自查,1
+E33,startswith 少结尾空格：命令前缀误匹配，空参数切出空串崩溃,active,字符串|startswith|命令解析|异常处理|ValueError|静默错误,1

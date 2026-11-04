@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created": "2026-10-22",
-  "updated": "2026-11-03",
+  "updated": "2026-11-04",
   "config": {
     "master_streak_default": 2,
     "review_day": "周四",
@@ -1258,6 +1258,62 @@
       "history": [
         {
           "date": "2026-11-03",
+          "result": "new",
+          "note": "首次登记"
+        }
+      ]
+    },
+    {
+      "id": "E32",
+      "title": "raise 缩进掉出 except 块：语法检查全绿，运行时才抛 RuntimeError",
+      "bad": "try:\n    with open(TMP_FILE, 'w', encoding='utf-8') as f:\n        f.write(json.dumps(tasks, ensure_ascii=False))\n    os.replace(TMP_FILE, DATA_FILE)\nexcept Exception:\n    if TMP_FILE.exists():\n        TMP_FILE.unlink()\nraise          # ❌ 缩进掉出了 except 块 → 语法全绿，运行时 RuntimeError: No active exception to reraise，且掩盖原始异常",
+      "good": "try:\n    with open(TMP_FILE, 'w', encoding='utf-8') as f:\n        f.write(json.dumps(tasks, ensure_ascii=False))\n    os.replace(TMP_FILE, DATA_FILE)      # ← 在 with 块【外面】（Windows WinError 32 坑）\nexcept Exception:\n    if TMP_FILE.exists():\n        TMP_FILE.unlink()                # 崩了就清掉临时文件\n    raise                                # ✅ 与 if 平级，在 except 块内\n# 口诀：raise 前面那行缩进多少，raise 就是多少 —— 它属于当前所在的块",
+      "tags": [
+        "缩进",
+        "异常处理",
+        "raise",
+        "静默错误",
+        "原子写入",
+        "自查"
+      ],
+      "occurrences": 1,
+      "first_seen": "2026-11-04",
+      "last_seen": "2026-11-04",
+      "streak": 0,
+      "need": 2,
+      "status": "active",
+      "source": [],
+      "history": [
+        {
+          "date": "2026-11-04",
+          "result": "new",
+          "note": "首次登记"
+        }
+      ]
+    },
+    {
+      "id": "E33",
+      "title": "startswith 少结尾空格：命令前缀误匹配，空参数切出空串崩溃",
+      "bad": "elif cmd.startswith('del'):        # ❌ 少了结尾空格\n    n = int(cmd[4:])                # 光敲 del 时 cmd[4:] 是空串 → int('') → ValueError\n# → 用户光敲 del（想看用法）→ 程序崩给用户看一整页红字\n# → 而且 delete / delicious 这类词也会被匹配上",
+      "good": "elif cmd.startswith('del '):       # ✅ 结尾那个空格是命令的一部分\n    try:\n        n = int(cmd[4:])\n    except ValueError:\n        print('编号得是数字，比如 del 1')\n        continue\n# 口诀：带结尾空格 = 严格匹配命令本身（没有参数就根本不进这个分支）\n#       不带空格 = 模糊匹配前缀，很容易误伤",
+      "tags": [
+        "字符串",
+        "startswith",
+        "命令解析",
+        "异常处理",
+        "ValueError",
+        "静默错误"
+      ],
+      "occurrences": 1,
+      "first_seen": "2026-11-04",
+      "last_seen": "2026-11-04",
+      "streak": 0,
+      "need": 2,
+      "status": "active",
+      "source": [],
+      "history": [
+        {
+          "date": "2026-11-04",
           "result": "new",
           "note": "首次登记"
         }
