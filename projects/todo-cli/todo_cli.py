@@ -1,5 +1,5 @@
 # todo_cli.py —— 命令行待办工具（带 JSON 持久化）
-# 2026-10-29 建 · 2026-11-03 升级（修了 3 条限制 + 修 3 个 bug）
+# 2026-10-29 建 · 2026-11-03 升级（修 3 条限制 + 3 个 bug）· 11-04 升级（修第3条限制）
 #
 # 内存里的任务  --save_tasks-->  todos.json（磁盘）
 # 内存里的任务  <--load_tasks--  todos.json（磁盘）
@@ -7,9 +7,16 @@
 # 跑法：python todo_cli.py
 # 数据：自动生成在【本脚本所在目录】的 todos.json（11-03 改：原来用相对路径，
 #       换个目录运行就会在别处生成一个，看起来像"数据丢了"）
+# 临时：存盘时会短暂出现一个 todos.json.tmp（11-04 原子写入用），
+#       正常情况下它会被 os.replace 改名掉，目录里不会留下它
 #
 # ---------------------------------------------------------------
-# 【2026-11-03 本次改动清单】
+# 【改动历史】
+#
+# 2026-10-29 建
+#   最初版本：内存里的任务，退出就丢
+#
+# 2026-11-03 升级（修了 3 条限制 + 修 3 个 bug）
 #   改动 A（第5条限制）DATA_FILE 改成 Path(__file__).parent / "todos.json"
 #                        → 数据文件永远跟着脚本走
 #   改动 B（第1条限制）done abc 加 try/except ValueError → 不再崩
@@ -17,8 +24,20 @@
 #   Bug 1 修        done 999 原本会打印"已完成第 999 条"（其实一条都没改）
 #   Bug 2 修        done -1  原本会真的改掉最后一条（Python 负数索引）
 #   Bug 3 修        isinstance(n, int) 挡不住 True（bool 是 int 的子类）
-#   遗留（明天做）  第3条限制：save_tasks 还是裸 open('w')，不是原子写入
-#                   第4条限制：还没有 del <编号> 命令
+#
+# 2026-11-04 升级（修了第3条限制 + 第4条限制 + 修 1 个 bug）
+#   改动 D（第3条限制）save_tasks 改成【原子写入】
+#                        → 先写 .tmp 临时文件，再用 os.replace 一次性替换
+#                        → 断电/崩溃时正式文件永远保持"旧的完整数据"，不会变 0 字节
+#   改动 E（第4条限制）加了 del <编号> 命令
+#                        → 新函数 del_task()，三道守卫跟 mark_done 完全一样
+#                        → 用 pop() 而不是 del 语句（pop 会返回被删的元素，能告诉用户删了哪条）
+#   Bug 4 修        save_tasks 里 raise 的缩进掉出 except 块
+#                        → 成功时也抛 RuntimeError: No active exception to reraise
+#                        → 教训：缩进错误不一定报错，可能只是改变语义（E15 同款）
+#
+#   ✅ 11-01 列的 4 条限制 + 1 条隐藏限制，至此全部修完
+#   遗留（11-05 起）无
 # ---------------------------------------------------------------
 #
 # 这个文件回答一个问题：程序退出后，任务去哪了？
@@ -37,6 +56,7 @@
 # ---------------------------------------------------------------
 
 import json
+import os
 # ★ 标准库自带 json 模块，不需要 pip install
 # json 只干一件事：Python 对象 ↔ 字符串 互转
 
@@ -45,6 +65,29 @@ from pathlib import Path
 # pathlib 是"面向对象"的新写法（官方现在推它），比老式的 os.path 拼接更安全
 
 DATA_FILE = Path(__file__).parent / "todos.json"
+TMP_FILE  = DATA_FILE.with_name(DATA_FILE.name + ".tmp")
+# ★ 临时文件的位置：正式文件旁边多一个 .tmp 后缀
+#   .../todo-cli/todos.json.tmp
+#
+# 逐个零件拆解：
+#   DATA_FILE.name            = 'todos.json'（只有文件名，不含目录）
+#   DATA_FILE.name + ".tmp"   = 'todos.json.tmp'（拼上后缀）
+#   .with_name(新名字)         = 换掉【文件名】，目录部分原样不动
+#
+# ✅ 为什么用 with_name 而不是别的写法（11-04 实跑对比）：
+#   with_name(DATA_FILE.name + ".tmp")  → todos.json.tmp  ← 用这个
+#   with_suffix(".tmp")                  → todos.tmp      ← ❌ 扩展名被【替换】不是追加
+#   with_name("todos.tmp") 写死          → todos.tmp      ← ⚠️ 名字写死，并发两个程序会撞车
+#   str(DATA_FILE) + ".tmp"              → todos.json.tmp ← ⚠️ 结果一样，但退回字符串了
+#
+# ✅ 为什么保留 .json 在中间：
+#   一眼看出"这是 todos.json 的临时版本"；
+#   而且将来 glob("*.json") 扫正式文件时【扫不到】todos.json.tmp（它结尾是 .tmp）
+#
+# ⚠️ with_name 的坑（11-04 实跑）：
+#   with_name("tmp")    → 不报错！返回 .../tmp（Python 3.12 不检查扩展名）
+#   with_name("")       → ValueError: Invalid name ''（只有空字符串才报错）
+#   → 教训：别靠"听起来会报错"来设计，得实跑
 # ★ 数据文件的位置：【本脚本所在目录】/todos.json
 #
 # 逐个零件拆解：
@@ -66,30 +109,100 @@ DATA_FILE = Path(__file__).parent / "todos.json"
 # 第 1 部分：存 —— 内存 → 磁盘
 # ============================================================
 def save_tasks(tasks):
-    """把 tasks 列表写进 todos.json 文件。
+    """把 tasks 列表写进 todos.json 文件。【原子写入】版（11-04 改）。
 
-    逐行拆解：
-        with open(DATA_FILE, "w", encoding="utf-8") as f:
+    ┌─────────────────────────────────────────────────────────────┐
+    │ 为什么不能直接 open(DATA_FILE, "w")？                        │
+    │                                                              │
+    │ open(路径, "w") 一执行，文件【当场就被清空】。               │
+    │ 从那一刻起，到 f.write() 写完为止，正式文件一直是 0 字节。  │
+    │ 这中间只要出事（断电 / json.dumps 崩溃 / Ctrl+C），          │
+    │ 用户的所有任务就全没了 —— 而且不留任何痕迹。               │
+    │                                                              │
+    │ 讽刺之处：load_tasks 特意挡住了"0 字节文件"，              │
+    │ 但 save_tasks 自己还在制造 0 字节文件。                    │
+    └─────────────────────────────────────────────────────────────┘
+
+    现在的做法：【先在临时文件里写好，再一次性原子替换】
+
+        ① open(TMP_FILE, "w")  → 写进 todos.json.tmp
+           ⚠️ 清空的是 tmp（本来就是垃圾），正式文件一个字节都没动
+        ② os.replace(TMP_FILE, DATA_FILE)  → 改名，一次性切换
+        ③ 出错的话删掉 tmp，再 raise 把错误抛出去
+
+    【逐行拆解】
+        try:
+        └─ 把可能出错的代码包起来
+
+            with open(TMP_FILE, "w", encoding="utf-8") as f:
             └─ open(路径, 模式) = 打开文件的唯一入口
-            └─ "w" = 写模式（write）。⚠️ 打开的瞬间会先把文件【清空】。
+            └─ TMP_FILE = DATA_FILE.with_name(DATA_FILE.name + ".tmp")
+                          = .../todos.json.tmp（目录跟着 DATA_FILE 走）
+            └─ "w" = 写模式。⚠️ 打开的瞬间会把这个【临时】文件清空
             └─ encoding="utf-8" = 用 UTF-8 编码，中文才不会变成乱码
-            └─ as f = 把打开的文件对象起名叫 f，后面就用 f 来操作它
-            └─ with = 「用完自动关」。出了这个缩进块，文件自动关闭，不用手写 close()
+            └─ as f = 把打开的文件对象起名叫 f
+            └─ with = 「用完自动关」。出了这个缩进块，文件自动关闭
+              ⚠️ 关键：with 块【结束】时，缓冲区才会刷盘
+                 块【内部】看 tmp 还是 0 字节是正常的！
 
-            f.write(json.dumps(tasks, ensure_ascii=False))
-            └─ json.dumps(列表) = 把 Python 对象变成一段【字符串】
-            └─ ensure_ascii=False = 不要把中文转成 \\uXXXX（E21）
-            └─ f.write(字符串) = 把这段字符串写进文件
+                f.write(json.dumps(tasks, ensure_ascii=False))
+                └─ json.dumps(列表) = 把 Python 对象变成一段【字符串】
+                └─ ensure_ascii=False = 不要把中文转成 \\uXXXX（E21）
+                └─ f.write(字符串) = 把这段字符串写进文件
 
-    ⚠️⚠️ 已知缺陷（第3条限制，明天修）：
-        这里直接 open(DATA_FILE, "w")，文件在【写入之前】就已经被清空了。
-        万一 json.dumps 在写之前崩溃（比如 tasks 未定义），正式文件就停在 0 字节，
-        用户所有任务全没了。
-        讽刺之处：load_tasks 特意挡了"0 字节文件"，但 save_tasks 自己还在制造 0 字节文件。
-        正确解法：先写 .tmp 临时文件，再用 os.replace 原子替换。
+            os.replace(TMP_FILE, DATA_FILE)
+            └─ os.replace(源, 目标) = 把【源文件改名成目标文件名】
+            └─ ⚠️ 参数顺序别反：源是 tmp，目标才是正式文件
+            └─ 为什么这样就安全：
+               改名是【操作系统层面的一次操作】，不是"删旧的 + 复制新的"
+               → 要么全部完成，要么完全没动，中间没有"文件不存在"的状态
+               → 这就是【原子】的含义：对外要么 0 变 1，绝不会是半成品
+            └─ 实测（11-04 验证）：
+               写 tmp 期间正式文件 = 77 字节（旧数据完好）
+               replace 之后正式文件 = 116 字节（新数据）
+               临时文件消失（replace 是改名，不是复制）
+
+        except Exception:
+        └─ 捕获任何异常。⚠️ 不能写裸 except:（那会把所有错都吞掉 = E15）
+        └─ Exception = 所有【常规】异常的基类（不含 KeyboardInterrupt）
+
+            if TMP_FILE.exists():
+            └─ 出错了，tmp 文件是半成品，留着没用还占地方
+                TMP_FILE.unlink()
+                └─ unlink() = 删除文件（pathlib 的方法，等价于 os.remove）
+
+            raise
+            └─ ⚠️【必须写在这里，且缩进要与 if 平级】
+            └─ raise 单独写 = 把当前这个异常【原样重新抛出去】
+            └─ 不写 raise = 异常被吞掉 → 程序假装成功 → E15 静默错误
+            └─ ⚠️⚠️ 11-04 踩过的坑：
+               raise 一开始缩进错了（掉出 except 块），语法检查【完全通过】，
+               但运行时抛 "RuntimeError: No active exception to reraise"
+               → 教训：缩进错误不一定报错，可能只是悄悄改变语义
     """
-    with open(DATA_FILE, "w", encoding="utf-8") as f:
-        f.write(json.dumps(tasks, ensure_ascii=False))
+    try:
+        with open(TMP_FILE, "w", encoding="utf-8") as f:
+            f.write(json.dumps(tasks, ensure_ascii=False))
+        os.replace(TMP_FILE, DATA_FILE)
+
+    except Exception:
+        # ③ 清理：把没用的临时文件删掉
+        if TMP_FILE.exists():
+            TMP_FILE.unlink()
+        raise
+
+
+# ════════════════════════════════════════════════════════════════
+# 📌 对照：11-03 之前的旧写法（留着当反面教材，【不要用】）
+#
+#     with open(DATA_FILE, "w", encoding="utf-8") as f:
+#         f.write(json.dumps(tasks, ensure_ascii=False))
+#
+#     为什么不行：
+#       open(DATA_FILE, "w") 一执行，正式文件就被清空了。
+#       从这行到下一行之间，正式文件一直是 0 字节 —— 中途出事就全丢。
+#       （11-04 改成了 tmp + os.replace，见上面 save_tasks）
+# ════════════════════════════════════════════════════════════════
 
 
 # ============================================================
@@ -244,6 +357,85 @@ def mark_done(tasks, n):
     return True, f"已完成第 {n} 条"
 
 
+
+
+def del_task(tasks, n):
+    """删除第 n 条任务（n 从 1 开始数）。【11-04 新增】
+
+    ★★★ 和 mark_done 完全一样的骨架，一样的三道守卫 ★★★
+        这是 11-03 定下的规范：所有「按编号操作」的命令共用同一套写法。
+        好处：审查时只要看守卫齐不齐，不用逐个函数重新判断。
+
+    ┌─────────────────────────────────────────────────────────────┐
+    │ ⚠️⚠️ 用户必须知道的一件事：编号会重排                          │
+    │                                                              │
+    │ 假设有 3 条：A / B / C                                       │
+    │   用户输入 del 2  → 删掉 B → 剩下 A / C                      │
+    │   此时 C 变成了【第 2 条】                                    │
+    │   用户再输入 del 2 → 删掉的是 C，不是 B（因为 B 已经没了）    │
+    │                                                              │
+    │ 这不是 bug，是"按序号操作"的通病（1Notes 等工具也一样）。      │
+    │ 对比：done 命令不会触发这个问题，因为它只改标记、不改顺序。   │
+    └─────────────────────────────────────────────────────────────┘
+
+    逐行拆解：
+        if not isinstance(tasks, list):
+        └─ 守卫①：tasks 必须是列表
+        └─ isinstance(x, 类型) = 「x 是不是这个类型」
+        └─ （和 mark_done 一致，防的是别人传错类型）
+
+        if isinstance(n, bool) or not isinstance(n, int):
+        └─ 守卫②：n 必须是【正整数】
+        └─ ⚠️ 坑：bool 是 int 的子类！isinstance(True, int) 是 True
+        └─ 所以光写 isinstance(n, int) 挡不住 True
+        └─ 必须额外加 isinstance(n, bool) 把它单独排除掉
+        └─ （和 mark_done 一致，11-03 已经踩过这个坑）
+
+        if n < 1 or n > len(tasks):
+        └─ 守卫③：上下界
+        └─ len(tasks) = 列表里有几个元素
+        └─ or = 或者（两个条件满足一个就行）
+        └─ ⚠️⚠️【今天最重要的守卫】：必须挡住 n < 1
+        └─    Python 里 tasks[-1] 不是报错，是【最后一条】！
+        └─    不挡的话 "del -1" 会真的删掉最后一条任务
+        └─    ⚠️ del 比 done 更危险：
+        └─       done -1 只是把最后一条标成【已完成】，数据还在，能撤销
+        └─       del -1 是【真删】，用户敲错一个负号，任务永久消失
+        └─    （11-03 修 done -1 的时候就已经知道这个坑，今天是它的孪生兄弟）
+
+        被删 = tasks.pop(n - 1)
+        └─ 【重点】pop(下标) = 删掉该位置的元素，【并把它返回】
+        └─ n - 1 = 列表从 0 开始数，用户说「第 1 条」对应 tasks[0]
+        └─ 为什么要 pop 而不是 del tasks[n-1]：
+        └─    del 只删不返回 → 想告诉用户"删的是哪条"就得先存再删，两行
+        └─    pop 一次搞定：既删了，又拿到了被删的那个字典
+        └─ 被删 = 一个字典 {"text": ..., "done": ...}
+        └─ ⚠️ pop(-1) 会删最后一条 —— 所以上面守卫③必须先挡住
+
+        return True, f"已删除第 {n} 条：{被删['text']}"
+        └─ 和 mark_done 一样：永远返回 (成功标志, 提示信息) 两个值
+        └─ 被删['text'] = 取被删任务里的任务文字 → 告诉用户删的是哪条
+        └─ 比 mark_done 多带一句文字，因为删除是不可逆的，
+        └─    用户需要知道"我刚才删掉的是哪个"，才能去别处找回来
+    """
+    # ① 类型守卫
+    if not isinstance(tasks, list):
+        return False, "错误：tasks 必须是列表"
+
+    if isinstance(n, bool) or not isinstance(n, int):
+        return False, "错误：n 必须是整数"
+
+    # ② 上下界守卫（挡住负数！）
+    if n < 1 or n > len(tasks):
+        return False, f"错误：编号必须在 1~{len(tasks)} 之间"
+
+    # ③ 真正删
+    被删 = tasks.pop(n - 1)
+
+    # ④ 返回统一格式
+    return True, f"已删除第 {n} 条：{被删['text']}"
+
+
 # ============================================================
 # 第 4 部分：主循环
 # ============================================================
@@ -267,7 +459,7 @@ def run_cli():
     tasks = load_tasks()
     print(f"已载入 {len(tasks)} 条任务")
     # f"已载入 {len(tasks)} 条任务" → len(tasks) 是条数，{ } 里塞进去
-    print("命令：add <任务> / list / done <编号> / quit")
+    print("命令：add <任务> / list / done <编号> / quit / del <编号>")
 
     # ============================================================
     # 主循环：不停地【读命令 → 判断 → 执行】
@@ -346,9 +538,59 @@ def run_cli():
             print(消息)
             # 消息 = "已完成第 1 条"
 
+        elif cmd.startswith("del "):
+            # ⚠️ 结尾那个空格【必须写】："del " 而不是 "del"
+            #    带空格 = 只有用户真的敲了 "del" + 空格才进来
+            #    不带空格 = 任何以 "del" 开头的东西都会进这个分支
+            #    （11-04 踩过：写成了 startswith("del")，用户光敲 "del" 不带编号
+            #      会被误判成"编号格式错误"，语义不对）
+            #    对照上面：startswith("add ") / startswith("done ") 都带空格
+
+            try:
+                n = int(cmd[4:])
+                # cmd[4:] = "del 1" 切掉前 4 个字符 "del " → "1"
+                # int("1") = 把字符串 "1" 转成数字 1
+                #   不转的话，del_task 里的 isinstance(n, int) 会直接报错
+                #   ⚠️ cmd[4:] 的 4 = len("del ") —— 空格也算进去了
+                #      写成 startswith("del") 的话这里得是 cmd[3:]，
+                #      但那样 "del1" 这种输入会被切成 "1"，反而"能用"了 ——
+                #      这种"能用"是巧合，不是设计，靠 startswith("del ") 统一
+            except ValueError:
+                # ValueError = 「类型对但值不对」的异常：int("abc")、int("") 都是它
+                # ⚠️ 必须指定具体异常类！裸写 except: 会把任何错都吞掉 = 静默错误（E15）
+                # 实测能挡住这几种（11-04）：
+                #   del abc（不是数字）、del（没带编号）、del 1x（数字后面跟字母）
+                print("编号得是数字，比如 del 1")
+                continue
+                # continue = 跳过本轮剩余代码，回到 while 下一轮
+                #   注意：continue 必须缩进在 while 循环体内，不能跑到外面去
+
+            成功, 消息 = del_task(tasks, n)
+            # ★ tuple unpacking：del_task 永远返回 2 个值
+            #   （和上面 done 分支一模一样 —— 11-03 定的规范，所有命令统一）
+
+            if not 成功:
+                # not 成功 = 失败时
+                print(消息)
+                # 打印错误提示（消息 = "错误：编号必须在 1~2 之间"）
+                continue
+                # 失败就跳过本轮，不往下走去 save_tasks
+                # ⚠️ 关键：失败时【不能】写磁盘
+                #    万一守卫没挡住、真的删错了，磁盘上的原数据就找不回来了
+
+            save_tasks(tasks)
+            # 删成功了才写磁盘（用 11-04 的原子写入，崩了也不会丢数据）
+
+            print(消息)
+            # 消息 = "已删除第 1 条：写作业"
+            # ⚠️ 编号会重排：删完之后，后面所有任务的编号都往前挪了一位
+            #    用户如果想删两条，得重新 list 看当前编号
+            #    （这是"按序号操作"的通病，已写进 del_task 的 docstring）
+
+
         else:
             # 上面全都没匹配上，才走到这里
-            print("未知命令，输入 add / list / done / quit")
+            print("未知命令，输入 add / list / done / quit / del")
 
 
 # ============================================================
