@@ -1,0 +1,14 @@
+# 批量重命名文件脚本 · 依赖说明
+#
+# 本项目【只用 Python 标准库】，不需要 pip install 任何东西：
+#   argparse —— 解析命令行参数（位置参数 / --apply 开关 / --ext 可选参数）
+#   pathlib  —— 路径操作（iterdir / glob / is_file / with_name / rename）
+#
+# Python 版本要求：3.6+（f-string 需要）
+#
+# 跑法：
+#   python batch_rename.py <目录> <旧片段> <新片段> [选项]
+#
+#   --ext .txt     只改这个扩展名的文件（默认全部）
+#   --apply        真正执行（不加就只打印计划表 = dry-run）
+#   --undo 日志     按日志撤销之前的改名

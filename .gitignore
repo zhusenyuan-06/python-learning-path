@@ -32,6 +32,9 @@ save_token.sh
 # 待办工具的运行时数据（每次运行都会变，不属于作品内容）
 todos.json
 
+# 批量重命名脚本的测试目录（每次运行都会重建，不是作品内容）
+projects/batch-rename/_测试目录/
+
 # 幼儿园菜项目：打包与临时产物（不进仓库）
 projects/幼儿园菜汇总工具/_构建产物/
 projects/幼儿园菜汇总工具/.buildenv/
