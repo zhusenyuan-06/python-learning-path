@@ -86,8 +86,19 @@ def next_id(db):
 
 # ---------------------------------------------------------------- 排序
 def priority(items):
-    """踩得多的排前面；次数相同则最近踩的排前面。"""
-    a = sorted(items, key=lambda x: x.get("last_hit", ""), reverse=True)
+    """踩得多的排前面；次数相同则最近踩的排前面。
+
+    ⚠️ `x.get("last_hit", "")` 是个陷阱（2026-11-05 修）：
+        .get(k, 默认值) 的默认值只在【键不存在】时才生效。
+        如果键存在但值是 None（早期一次性写入脚本漏填日期就会这样），
+        .get 返回的是 None 而不是 "" → 排序时 None 和 str 比较 → TypeError:
+        '<' not supported between instances of 'NoneType' and 'str'
+        → `ls` / `stats` 直接崩。
+        实测：只要有条目 last_hit=None，
+        追加到末尾 / 插在中间 / 只有一个 None —— 三种排列全部崩。
+        正确写法：`x.get("last_hit") or ""`（None 和 "" 都会被 or 吃掉）。
+    """
+    a = sorted(items, key=lambda x: x.get("last_hit") or "", reverse=True)
     return sorted(a, key=lambda x: x.get("hits", 1), reverse=True)
 
 
@@ -126,8 +137,8 @@ def render(db):
             lines.append("|---|---|")
             lines.append("| 踩过次数 | **%d** |" % it.get("hits", 1))
             lines.append("| 标签 | %s |" % ("、".join(it.get("tags", [])) or "—"))
-            lines.append("| 第一次 | %s |" % it.get("first_hit", "—"))
-            lines.append("| 最近一次 | %s |" % it.get("last_hit", "—"))
+            lines.append("| 第一次 | %s |" % (it.get("first_hit") or "—"))
+            lines.append("| 最近一次 | %s |" % (it.get("last_hit") or "—"))
             lines.append("")
             lines.append("**症状（当时看到什么）**")
             lines.append("")
@@ -199,7 +210,7 @@ def cmd_show(db, tid):
             print("踩过 %d 次 | %s | 最近 %s" % (
                 it.get("hits", 1),
                 "、".join(it.get("tags", [])) or "无标签",
-                it.get("last_hit", "—")))
+                it.get("last_hit") or "—"))
             print("=" * 60)
             print()
             print("【症状】")
