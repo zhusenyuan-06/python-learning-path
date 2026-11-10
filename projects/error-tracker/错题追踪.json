@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created": "2026-10-22",
-  "updated": "2026-11-04",
+  "updated": "2026-11-10",
   "config": {
     "master_streak_default": 2,
     "review_day": "周四",
@@ -88,10 +88,10 @@
         "高频",
         "函数"
       ],
-      "occurrences": 5,
+      "occurrences": 6,
       "first_seen": "2026-10-19",
-      "last_seen": "2026-10-29",
-      "streak": 1,
+      "last_seen": "2026-11-10",
+      "streak": 0,
       "need": 2,
       "status": "active",
       "source": [
@@ -149,6 +149,16 @@
           "date": "2026-10-31",
           "result": "pass",
           "note": "10-31 改bug第2题：自己修掉return nums，对照讲解后记录（连对1/2）"
+        },
+        {
+          "date": "2026-11-05",
+          "result": "pending",
+          "note": "复习卷 2026-11-05 已出，待作答"
+        },
+        {
+          "date": "2026-11-10",
+          "result": "fail",
+          "note": "①三行全找到；②改写制造新角色冲突：累加器命名t撞上字典t→AttributeError，且漏return、for仍在函数外；③未答"
         }
       ]
     },
@@ -300,10 +310,10 @@
         "静默错误",
         "数据一致性"
       ],
-      "occurrences": 3,
+      "occurrences": 4,
       "first_seen": "2026-10-21",
-      "last_seen": "2026-11-01",
-      "streak": 1,
+      "last_seen": "2026-11-10",
+      "streak": 0,
       "need": 2,
       "status": "active",
       "source": [
@@ -340,6 +350,16 @@
           "date": "2026-11-01",
           "result": "pass",
           "note": "10-31 补救小测3问全对：==不报错静默False / in报错TypeError / 号码+1属静默错误——'混用类型不一定报错'这个点补上了"
+        },
+        {
+          "date": "2026-11-05",
+          "result": "pending",
+          "note": "复习卷 2026-11-05 已出，待作答"
+        },
+        {
+          "date": "2026-11-10",
+          "result": "fail",
+          "note": "①②全对（改写与标准答案一致）；③只答了'哪些会报错'，漏了'第一个不报错但静默返回False、结果是错的'这一半——静默错误这半仍未掌握（与11-01栽的是同一处）"
         }
       ]
     },
@@ -653,10 +673,10 @@
         "核心方法论",
         "高频"
       ],
-      "occurrences": 6,
+      "occurrences": 7,
       "first_seen": "2026-10-21",
-      "last_seen": "2026-10-29",
-      "streak": 1,
+      "last_seen": "2026-11-10",
+      "streak": 0,
       "need": 2,
       "status": "active",
       "source": [
@@ -714,6 +734,16 @@
           "date": "2026-11-01",
           "result": "pass",
           "note": "10-31合成题：从空白写出清洗链+reverse+优雅分支五条全对"
+        },
+        {
+          "date": "2026-11-05",
+          "result": "pending",
+          "note": "复习卷 2026-11-05 已出，待作答"
+        },
+        {
+          "date": "2026-11-10",
+          "result": "fail",
+          "note": "①三行全找到；②第3行return写在print前→print成死代码，提示凭空消失（静默）；③未答"
         }
       ]
     },
@@ -1194,9 +1224,9 @@
         "路径",
         "函数定义"
       ],
-      "occurrences": 1,
+      "occurrences": 2,
       "first_seen": "2026-11-01",
-      "last_seen": "2026-11-01",
+      "last_seen": "2026-11-10",
       "streak": 0,
       "need": 2,
       "status": "active",
@@ -1206,6 +1236,16 @@
           "date": "2026-11-01",
           "result": "new",
           "note": "首次登记"
+        },
+        {
+          "date": "2026-11-05",
+          "result": "pending",
+          "note": "复习卷 2026-11-05 已出，待作答"
+        },
+        {
+          "date": "2026-11-10",
+          "result": "fail",
+          "note": "①说对路径被焊死；②不会改（应path=None+运行时判断）；③未答"
         }
       ]
     },
@@ -1221,9 +1261,9 @@
         "静默错误",
         "自查"
       ],
-      "occurrences": 1,
+      "occurrences": 2,
       "first_seen": "2026-11-03",
-      "last_seen": "2026-11-03",
+      "last_seen": "2026-11-10",
       "streak": 0,
       "need": 2,
       "status": "active",
@@ -1233,6 +1273,16 @@
           "date": "2026-11-03",
           "result": "new",
           "note": "首次登记"
+        },
+        {
+          "date": "2026-11-05",
+          "result": "pending",
+          "note": "复习卷 2026-11-05 已出，待作答"
+        },
+        {
+          "date": "2026-11-10",
+          "result": "fail",
+          "note": "①②全对；③答'不知道'——int('abc')抛ValueError而不是TypeError的原理未掌握（类型对=str被int允许，错在值不合法）。本次已实跑讲解"
         }
       ]
     },
@@ -1251,7 +1301,7 @@
       "occurrences": 1,
       "first_seen": "2026-11-03",
       "last_seen": "2026-11-03",
-      "streak": 0,
+      "streak": 1,
       "need": 2,
       "status": "active",
       "source": [],
@@ -1260,6 +1310,16 @@
           "date": "2026-11-03",
           "result": "new",
           "note": "首次登记"
+        },
+        {
+          "date": "2026-11-05",
+          "result": "pending",
+          "note": "复习卷 2026-11-05 已出，待作答"
+        },
+        {
+          "date": "2026-11-10",
+          "result": "pass",
+          "note": "③答对：open(path,'w')是【当场】清空（实测open后立即0字节，旧数据已不在磁盘），不是等写才覆盖。补充：更稳做法=原子写入（临时文件+os.replace）"
         }
       ]
     },
@@ -1279,7 +1339,7 @@
       "occurrences": 1,
       "first_seen": "2026-11-04",
       "last_seen": "2026-11-04",
-      "streak": 0,
+      "streak": 1,
       "need": 2,
       "status": "active",
       "source": [],
@@ -1288,6 +1348,16 @@
           "date": "2026-11-04",
           "result": "new",
           "note": "首次登记"
+        },
+        {
+          "date": "2026-11-05",
+          "result": "pending",
+          "note": "复习卷 2026-11-05 已出，待作答"
+        },
+        {
+          "date": "2026-11-10",
+          "result": "pass",
+          "note": "③答对核心：Python语法层面不检查'当前有无活动异常'→语法全绿，运行时才抛RuntimeError。补充修正：try成功时那句raise照样执行（实测），且它会掩盖原始异常"
         }
       ]
     },
@@ -1304,9 +1374,9 @@
         "ValueError",
         "静默错误"
       ],
-      "occurrences": 1,
+      "occurrences": 2,
       "first_seen": "2026-11-04",
-      "last_seen": "2026-11-04",
+      "last_seen": "2026-11-10",
       "streak": 0,
       "need": 2,
       "status": "active",
@@ -1314,6 +1384,42 @@
       "history": [
         {
           "date": "2026-11-04",
+          "result": "new",
+          "note": "首次登记"
+        },
+        {
+          "date": "2026-11-05",
+          "result": "pending",
+          "note": "复习卷 2026-11-05 已出，待作答"
+        },
+        {
+          "date": "2026-11-10",
+          "result": "fail",
+          "note": "①对；②只改startswith漏了try/except ValueError→光敲'del '仍int('')崩；③未答"
+        }
+      ]
+    },
+    {
+      "id": "E34",
+      "title": "复习卷只答代码不答③：把'为什么没报错'当成附加题",
+      "bad": "①找出错误 ②改写成正确版本 → 直接交卷（③ 留空）",
+      "good": "①找出错误 ②改写成正确版本 ③说明'原来为什么没报错 / 改完凭什么跑得对' —— ③ 才是静默错误的根，不写等于没验证这个概念",
+      "tags": [
+        "复习方法",
+        "静默错误",
+        "自检",
+        "答题习惯"
+      ],
+      "occurrences": 1,
+      "first_seen": "2026-11-10",
+      "last_seen": "2026-11-10",
+      "streak": 0,
+      "need": 2,
+      "status": "active",
+      "source": [],
+      "history": [
+        {
+          "date": "2026-11-10",
           "result": "new",
           "note": "首次登记"
         }
