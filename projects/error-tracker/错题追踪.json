@@ -1424,6 +1424,63 @@
           "note": "首次登记"
         }
       ]
+    },
+    {
+      "id": "E35",
+      "title": "dict.values() 返回视图对象永远为真：if d.values() 判空 → 静默错误",
+      "bad": "if d.values():        # ❌ values() 返回的是【视图对象】不是列表\n    return True        #    视图对象只要字典非空就【永远为真】→ 这题会永远返回 True\n# 实测：d = {'a': 0, 'b': 3}（明显不相等）→ bool(d.values()) → True\n# ⚠️ 不崩、不报警、一律返回 True —— LeetCode 官方那 2 个用例还能【蒙对】\n#    暴露条件：t 是 s 的真子集（如 'aab' vs 'ab'）→ 减一不产生负数 → 走不到提前返回",
+      "good": "return all(v == 0 for v in d.values())   # ✅ all() 逐个检查，每个值都得是 0\n# 想要真列表得 list(d.values())；d.keys() 同理也是永远为真的视图",
+      "tags": [
+        "字典",
+        "values",
+        "视图对象",
+        "all",
+        "静默错误",
+        "LeetCode",
+        "selfcheck"
+      ],
+      "occurrences": 1,
+      "first_seen": "2026-11-10",
+      "last_seen": "2026-11-10",
+      "streak": 0,
+      "need": 2,
+      "status": "active",
+      "source": [],
+      "history": [
+        {
+          "date": "2026-11-10",
+          "result": "new",
+          "note": "首次登记"
+        }
+      ]
+    },
+    {
+      "id": "E36",
+      "title": "判断条件查错对象：ch（键·字符）当成计数用 → TypeError",
+      "bad": "if ch <= -1:              # ❌ ch 是【字符】(str)，-1 是【整数】(int)\n    return False           #    → TypeError: '<=' not supported between instances of 'str' and 'int'\n# 实测：ch = \"a\" → ch <= -1 直接 TypeError\n# ⚠️ 脑子里想的是「计数变负了」，手下写的是「字符变负了」—— 概念对，落笔落错层\n#    计数住在 d[ch] 里（键是 ch，值是 d[ch]）",
+      "good": "if d[ch] < 0:              # ✅ 查的是【值】d[ch]（整数计数），不是【键】ch\n    return False           #    d[ch] = -1 → d[ch] < 0 → True\n# 口诀：字典里 ch 是【键】，d[ch] 是【值】—— 要判断计数大小，永远查 d[ch]\n#       用 < 0 而不是 <= -1：语义直白「负数」，读代码的人不用想",
+      "tags": [
+        "字典",
+        "键与值",
+        "对象层级",
+        "TypeError",
+        "LeetCode",
+        "取值"
+      ],
+      "occurrences": 1,
+      "first_seen": "2026-11-10",
+      "last_seen": "2026-11-10",
+      "streak": 0,
+      "need": 2,
+      "status": "active",
+      "source": [],
+      "history": [
+        {
+          "date": "2026-11-10",
+          "result": "new",
+          "note": "首次登记"
+        }
+      ]
     }
   ],
   "skills": []
