@@ -35,6 +35,9 @@ todos.json
 # 批量重命名脚本的测试目录（每次运行都会重建，不是作品内容）
 projects/batch-rename/_测试目录/
 
+# 批量重命名脚本的操作日志（每次真改都会生成，属于运行时数据）
+projects/batch-rename/改名日志.log
+
 # 幼儿园菜项目：打包与临时产物（不进仓库）
 projects/幼儿园菜汇总工具/_构建产物/
 projects/幼儿园菜汇总工具/.buildenv/
