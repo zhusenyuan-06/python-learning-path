@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created": "2026-10-22",
-  "updated": "2026-11-10",
+  "updated": "2026-11-11",
   "config": {
     "master_streak_default": 2,
     "review_day": "周四",
@@ -1477,6 +1477,87 @@
       "history": [
         {
           "date": "2026-11-10",
+          "result": "new",
+          "note": "首次登记"
+        }
+      ]
+    },
+    {
+      "id": "E37",
+      "title": "f-string 里一个 {} 都没有：字面量原样打印 → 静默错误",
+      "bad": "print(f\"文件名 | 主名 | 扩展名\")   # ❌ f 只是个标记，{} 才是插值的地方\n# 实测输出：4 行完全一模一样 ——「文件名 | 主名 | 扩展名」\n# ⚠️ 不崩、不报警，看着像跑成功了，其实一个变量都没进去\n# 病根：写的时候脑子里过的是「语法对不对」，不是「结果出来是什么样」",
+      "good": "print(f\"{名} | {主名} | {扩展名}\")     # ✅ 变量名放进 {} 里\n# 要对齐再加宽度：f\"{名:<12} | {主名:<12} | {扩展名}\"\n# 口诀：f\"...\" 里如果一个 {} 都没有，它就是个【普通字符串】，f 毫无作用\n#      实测对照：f\"{名}\" → 报告.pdf   ；\"{名}\"（无 f）→ {名}",
+      "tags": [
+        "f-string",
+        "插值",
+        "静默错误",
+        "格式化",
+        "字符串"
+      ],
+      "occurrences": 1,
+      "first_seen": "2026-11-11",
+      "last_seen": "2026-11-11",
+      "streak": 0,
+      "need": 2,
+      "status": "active",
+      "source": [],
+      "history": [
+        {
+          "date": "2026-11-11",
+          "result": "new",
+          "note": "首次登记"
+        }
+      ]
+    },
+    {
+      "id": "E38",
+      "title": "算完了不 print：结果只活在内存里，屏幕上一片空白",
+      "bad": "sorted(os.listdir(DEMO))          # ❌ 算完了，但屏幕上啥也没有\nos.path.join(\"输出\", \"报告.txt\")    # ❌ 同上\n# ⚠️ 静默错误：不报错、退出码 0，看着像跑通了，其实这步白做\n# 实测：赋值给变量也一样 —— 结果存在内存里，没人看得到\n# 11-11 一天犯 2 次（第 65 行 listdir + 第 102 行 join）",
+      "good": "print(sorted(os.listdir(DEMO)))   # ✅ 算 + 显，两步都要有\n# 病根：写的时候脑子里过的是「语法对不对」，不是「结果出来是什么样」\n# 养成习惯：写完一行立刻跑一下看输出，别攒到最后一起跑",
+      "tags": [
+        "print",
+        "静默错误",
+        "自检",
+        "验证习惯",
+        "输出"
+      ],
+      "occurrences": 1,
+      "first_seen": "2026-11-11",
+      "last_seen": "2026-11-11",
+      "streak": 0,
+      "need": 2,
+      "status": "active",
+      "source": [],
+      "history": [
+        {
+          "date": "2026-11-11",
+          "result": "new",
+          "note": "首次登记"
+        }
+      ]
+    },
+    {
+      "id": "E39",
+      "title": "timedelta 的 .days 只算【完整天数】，零头在 .seconds 里",
+      "bad": "差 = now - (now - timedelta(hours=1))\nprint(差.days)          # ❌ 以为会得到 1 —— 实际是 0\n# 实测：差 = 1:00:00 → .days = 0, .seconds = 3600, .total_seconds() = 3600.0\n# 因为 timedelta 内部是 days + seconds + microseconds 三段，days 只数「掐掉整天才有的」\n# 同样地：一个文件 6天23小时前改的 → .days = 6，但实际快满 7 天了\n# 负数更坑：差 -10 天 → .days = -10（不是 -1）；只有差 1 小时才出现 .days = -1, .seconds = 82800",
+      "good": "print(差.days)                  # 拿「完整天数」：7\nprint(差.seconds)                # 拿「零头秒数」：3600\nprint(差.total_seconds())        # ✅ 要精确比较就拿这个：3600.0（浮点秒）\n# 判断「7 天前改过的」用 差.total_seconds() >= 7*86400 或 差.days >= 7",
+      "tags": [
+        "timedelta",
+        "days",
+        "seconds",
+        "datetime",
+        "时间计算"
+      ],
+      "occurrences": 1,
+      "first_seen": "2026-11-11",
+      "last_seen": "2026-11-11",
+      "streak": 0,
+      "need": 2,
+      "status": "active",
+      "source": [],
+      "history": [
+        {
+          "date": "2026-11-11",
           "result": "new",
           "note": "首次登记"
         }
