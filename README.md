@@ -6,7 +6,7 @@
 
 [![Python](https://img.shields.io/badge/Python-3.12-3776AB?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
 [![GitHub](https://img.shields.io/badge/GitHub-100%25-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/zhusenyuan-06/python-learning-path)
-[![进度](https://img.shields.io/badge/学习进度-第%205%20周%20%2F%2016%20周-97CA00?style=flat-square)](#成长轨迹)
+[![进度](https://img.shields.io/badge/学习进度-第%207%20周%20%2F%2016%20周-97CA00?style=flat-square)](#成长轨迹)
 
 </div>
 
@@ -18,9 +18,9 @@
 
 我不写"认真负责"这种空话。能证明的是：
 
-- **5 个可运行项目** —— 不是片段，是能 `python xxx.py` 直接跑起来的
-- **22 条错题追踪记录** —— 自己写的系统，每周四自动出卷，连对 2 次才算掌握
-- **12 条工具链坑** —— git / 网络 / Windows 环境的坑，踩一次记一次
+- **9 个可运行项目** —— 不是片段，是能 `python xxx.py` 直接跑起来的
+- **36 条错题追踪记录** —— 自己写的系统，每周四自动出卷，连对 2 次才算掌握
+- **22 条工具链坑** —— git / 网络 / Windows 环境的坑，踩一次记一次
 - **真实交付经验** —— 幼儿园菜品汇总工具已打包交付园方使用（**数据已脱敏**）
 
 <div align="center">
@@ -42,8 +42,11 @@
 | 4 | **[错题追踪器](projects/error-tracker/README.md)** | 管理自己的错题池。每周四自动出复习卷，连续答对 2 次才退场，再犯门槛 +1。已积累 36 题 / 70 次犯错 / 8 题已退场 | dict 嵌套、JSON 读写、CLI 参数、状态机、优先级排序 |
 | 5 | **[工具链坑追踪器](笔记/工具链/工具链坑_README.md)** | 记录非 Python 的坑（git 配置 / 网络排障 / Windows 环境），踩一次计数 +1 自动排序。已积累 22 条 / 27 次踩坑 | JSON 读写、CLI 参数、Markdown 渲染、标签系统 |
 | 6 | **[词频统计器 CLI](projects/词频统计器/README.md)** | 统计文本里每个词出现多少次，**中英文混排都能切**。结果可复现（次数相同时按词字典序排，跟词在文件里出现的顺序无关）、条形图可视化、文件不存在给中文提示而不是甩红字 | 正则切词（`[\u4e00-\u9fa5]+\|[a-zA-Z]+`）、dict 词频计数、`sorted` 元组 key 可复现排序、argparse 位置参数 + 可选参数、友好报错层 |
+| 7 | **[待办工具 CLI](projects/todo-cli/README.md)** | 命令行版待办工具，add / list / done / del 四条命令，任务存本地 JSON，**程序关了再开任务还在**。保存走**原子写入**（先写临时文件再替换），中途崩溃也不丢数据 | JSON 读写、原子写入（临时文件 + `os.replace`）、CLI 循环、异常捕获、函数封装 |
+| 8 | **[批量重命名文件脚本](projects/batch-rename/README.md)** | 把某目录下文件名里的「旧片段」批量换成「新片段」。**干跑默认开** —— 先打印计划表给你看，确认了才真改；改错了能按日志**一键撤销**。支持链式改名（两阶段） | 干跑（dry-run）默认开、冲突预检、操作日志 + 反向撤销、`argparse` 位置/可选参数、逐文件 try/except 隔离 |
+| 9 | **[API 数据落地练习](projects/api-demo/README.md)** | 把数据从网上抓下来、解析成 Python 对象、再存成能反复用的本地文件。6 个脚本走通「请求 → 解析 → 存储」全链路，**每个坑都实跑复现过** | venv 虚拟环境隔离、requests GET、`json` 四对函数、嵌套取值与拍平、状态码优先的错误处理、CSV 落地三参数 |
 
-> 六个项目**都有独立 README**（链接直达），里面是真实运行输出、技术点原因和踩坑复盘。
+> 九个项目**都有独立 README**（链接直达），里面是真实运行输出、技术点原因和踩坑复盘。
 
 ### 练习片段（不是项目，不计入上面的数量）
 
@@ -53,7 +56,7 @@
 |---|---|---|
 | [`练习/词频统计器进阶版.py`](练习/词频统计器进阶版.py) | 32 行 | 教学骨架：读文件 → 切词 → 字典计数 → 排序取 TOP N。文件里带着「核心逻辑由你填」和参考答案 |
 | [`练习/词频.py`](练习/词频.py) | 8 行 | 最小的词频演示，就是 `d.get(w, 0) + 1` 那一句 |
-| [`练习/待办工具.py`](练习/待办工具.py) | 63 行 | 待办 CLI 骨架：add / list / done / quit |
+| [`练习/待办工具.py`](练习/待办工具.py) | 63 行 | 待办 CLI **教学骨架**：`add_task` / `list_tasks` / `mark_done` 三个函数已写好，主流程留给读者填 —— 是作品 7 的**前置练习**，不是同一个东西 |
 
 > 它们记录的是**我学到哪一步了**，不是**我能交付什么**。
 
@@ -86,6 +89,25 @@ python 错题追踪器.py plan 6        # 生成本周复习卷
 # 作品 5：工具链坑追踪器
 cd 笔记/工具链
 python 工具链坑.py ls
+
+# 作品 6：词频统计器 CLI
+cd projects/词频统计器
+python 词频统计器.py 数据.txt --top 10
+
+# 作品 7：待办工具 CLI（交互式，输 quit 退出）
+cd projects/todo-cli
+python todo_cli.py
+
+# 作品 8：批量重命名（不加 --apply 只打印计划，不改任何文件）
+cd projects/batch-rename
+python batch_rename.py D:/你的目录 _v1 _v2 --apply
+
+# 作品 9：API 数据落地练习（★ 必须先建虚拟环境，见该目录 README）
+cd projects/api-demo
+D:\AAAA\python.exe -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+python 06_存成CSV.py
 ```
 
 ---
@@ -103,22 +125,23 @@ python 工具链坑.py ls
 | **错题追踪** | 所有踩过的坑记进系统，每周四复习直到不再犯 |
 | **静默错误优先** | 能跑但结果是错的错，比会报错的错更值得警惕 |
 
-### 学习路线（16 周 · 当前第 5 周）
+### 学习路线（16 周 · 当前第 7 周）
 
 | 周次 | 阶段 | 内容 | 状态 |
 |---|---|---|---|
 | 1-2 | 阶段 1 | 变量 / 类型 / 运算符 / 字符串 / 分支 / 循环 | ✅ |
 | 3-4 | 阶段 1 | 函数 / 作用域 / 字典 / 列表 / 集合 / 推导式 | ✅ |
-| 5 | 阶段 1 | 文件读写 / JSON / 异常 / **`*args` `**kwargs`** / **模块与导入** | 🔄 进行中 |
-| 6-8 | 阶段 1 | csv / json / 异常 / 重命名 / 词频作品化 | ⬜ |
-| 9-12 | 阶段 2 | requests / pandas / PDF 解析 / SQLite / API 调用 | ⬜ |
+| 5 | 阶段 1 | 文件读写 / JSON / 异常 / **`*args` `**kwargs`** / **模块与导入** | ✅ |
+| 6-8 | 阶段 1 | csv / json / 异常 / 批量重命名 / 词频作品化 | ✅ |
+| 7（提前学） | 阶段 1 收尾 | **venv 虚拟环境 / requests / API 调用** | ✅ |
+| 9-12 | 阶段 2 | pandas / PDF 解析 / SQLite / 数据清洗 | ⬜ |
 | 13-16 | 阶段 3 | RAG 原理 / LangChain 认知 / FastAPI / Claude Code 协作 | ⬜ |
 
 > 16 周计划全部落在一张表里，**每天做什么、做到没有，逐格可查**。
 
 ### 我踩过的坑（精选）
 
-完整的在 [`projects/error-tracker/错题追踪.md`](projects/error-tracker/错题追踪.md)（22 条，每周四抽考）。
+完整的在 [`projects/error-tracker/错题追踪.md`](projects/error-tracker/错题追踪.md)（36 题 / 累计犯错 70 次，每周四抽考）。
 
 #### 静默错误：代码能跑，但结果是错的
 
@@ -195,10 +218,20 @@ pythonProject/
 │   │   └── data/月度台账.csv      # 趋势图数据源
 │   ├── contact-book/            # 作品 3：通讯录 CLI
 │   ├── 词频统计器/              # 作品 6：词频统计 CLI（中英文混排 + 可复现排序）
-│   ├── todo-cli/                # 待办 CLI：增删改查 + JSON 持久化
+│   ├── todo-cli/                # 作品 7：待办 CLI（增删改查 + JSON 持久化 + 原子写入）
+│   ├── batch-rename/            # 作品 8：批量重命名（干跑默认开 + 冲突预检 + 一键撤销）
+│   ├── api-demo/                # 作品 9：API 数据落地（venv + requests + JSON + CSV）
+│   │   ├── 01_第一次GET.py       # 请求 → 看状态码 / 响应头 / 正文切片
+│   │   ├── 02_第一次GET_httpbin.py # 回声壁：看清请求与响应的结构
+│   │   ├── 03_解析JSON.py        # text vs json()，故意撞一次 404
+│   │   ├── 04_正确的错误处理.py    # 先判状态码 / raise_for_status 两种写法
+│   │   ├── 05_存成JSON.py        # 嵌套取值 → 存 JSON → 读回核对
+│   │   ├── 06_存成CSV.py         # 拍平成表格 → 存 CSV → 读回核对
+│   │   ├── requirements.txt      # 依赖清单
+│   │   └── 输出/                  # 运行时数据（已 gitignore）
 │   └── error-tracker/           # 作品 4：错题追踪器
 │       ├── 错题追踪器.py         # 主程序：出卷 / 判分 / 退场
-│       ├── 错题追踪.json         # 错题池数据（29 题 / 57 次犯错 / 8 题已退场）
+│       ├── 错题追踪.json         # 错题池数据（36 题 / 70 次犯错 / 8 题已退场）
 │       ├── 错题追踪.md           # 自动渲染出来的错题清单
 │       └── README.md            # 作品说明
 ├── 小项目_多模块demo/           # 作品 2：四层架构示例
@@ -233,8 +266,9 @@ pythonProject/
 
 - **Python 3.12** —— 基础语法、函数、容器、文件/JSON/CSV 读写、模块化设计
 - **标准库** —— `dict` / `list` / `set` / `tuple`、`json`、`csv`、`os.path`、`datetime`
+- **第三方库** —— `requests`（HTTP 请求）—— **已学完**：venv 隔离 / GET / JSON 解析 / 错误处理 / 存文件
 - **工程化** —— Git / GitHub（日常提交）、PyCharm、venv + PyInstaller 打包交付
-- **进行中** —— requests、pandas、SQLite、FastAPI、RAG 检索增强
+- **进行中** —— pandas、SQLite、FastAPI、RAG 检索增强
 
 ---
 
@@ -254,6 +288,7 @@ pythonProject/
 | 2026-10-28 | **补齐作品 2 / 4 / 5 的独立 README**（真实运行输出 + 技术点原因 + 踩坑复盘）｜作品速览改为「5 个可运行项目」，词频统计 / 待办工具诚实降级为「练习片段」 |
 | 2026-10-28 | **清理仿真终端截图**：删掉 3 张「模拟终端」图及其生成脚本（图与 README 文字对不上，且 macOS 窗口框与 Windows 环境矛盾），改为真实架构图 + 由交付 Excel 直接读出的图表 |
 | 2026-11-10 | **作品 6「词频统计器」从练习片段升级为正式作品**（argparse 命令行 + 正则切中文 + 元组 key 可复现排序 + 友好报错层 + 条形图；README 记录 4 个实跑复现的坑）｜作品 5「批量重命名脚本」支持链式改名（两阶段）｜错题池 34→36、工具链坑补齐 T19/T20/T21/T22 正文｜根 README 作品速览数据同步到实际值（错题池 36 题 / 70 次犯错，工具链坑 22 条 / 27 次） |
+| 2026-11-11 | **作品 7/8/9 补进作品速览表**（此前只有 6 行，todo-cli / 批量重命名 / API 数据落地 三个项目漏在表外）｜**作品 9「API 数据落地练习」成立**：venv + requests + JSON + CSV，6 个脚本，README 记录 8 个实跑复现的坑（含 CSV 三坑正反双向实验、`newline` 2×2 组合矩阵）｜README 过期数字同步到实际值（可运行项目 5→9、错题 22→36 条、进度 第 5 周→第 7 周、技术栈 requests 从「进行中」改为「已学完」） |
 
 ---
 

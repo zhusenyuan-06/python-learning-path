@@ -31,6 +31,22 @@ resp404 = requests.get("https://httpbin.org/status/404")
 # 先看状态码
 print("状态码：", resp404.status_code)
 
-# 然后直接 .json() —— 猜猜会怎么样
-data404 = resp404.json()
-print("解析结果：", data404)
+# 然后直接 .json() —— 会抛 JSONDecodeError
+# 这里用 try/except 接住，是为了让脚本能跑完；不接的话程序会直接崩在这行
+# 想看完整 traceback（两段异常链），把下面的 except 段删掉再跑一次
+try:
+    data404 = resp404.json()
+    print("解析结果：", data404)
+except requests.exceptions.JSONDecodeError as e:
+    print("❌ 解析失败，异常类型：", type(e).__name__)
+    print("   错误信息：", e)
+    print()
+    print("为什么会这样：")
+    print("  404 返回的正文是 HTML（而且是空的），不是 JSON")
+    print("  空正文 → json 解析器在第 0 个字符就找不到任何值 → JSONDecodeError")
+    print("  所以正确顺序是：先看 status_code，确认 200 了再 .json()")
+    print()
+    print("★ 异常链（traceback 里为什么有两段）：")
+    print("   第 1 段：json.decoder.JSONDecodeError  ← 原始错误（标准库 json 抛的）")
+    print("   第 2 段：requests.exceptions.JSONDecodeError  ← requests 接住后重新包装再抛")
+    print("   requests 的这个异常是 json 那个的【子类】，所以 except json.JSONDecodeError 也能抓住它")
