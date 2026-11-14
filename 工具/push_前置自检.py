@@ -44,6 +44,7 @@ PUSH_PITFALLS = {
     "T24": "push_gitcode.sh 失败却照样打印「[OK]」—— 退出码骗人，要看 ls-remote",
     "T27": "脚本里的相对路径 + 被 2>/dev/null 吞掉的 stderr —— 会伪装成「网络问题」",
     "T28": "学校 DNS 可能把 github.com 解析到校园镜像 —— 先 nslookup 看解析到哪",
+    "T29": ".gitignore 会让「你以为提交了其实没提交」—— git status 干净不代表文件被跟踪，用 git ls-files 查",
 }
 
 

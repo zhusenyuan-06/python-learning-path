@@ -27,6 +27,7 @@ push.sh
 push_github.sh
 push_gitcode.sh
 save_token.sh
+_push_now.sh
 
 # 截图目录（本地素材，放 README 引用前先确认体积）
 
