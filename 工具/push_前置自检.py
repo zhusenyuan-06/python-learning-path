@@ -46,6 +46,7 @@ PUSH_PITFALLS = {
     "T28": "学校 DNS 可能把 github.com 解析到校园镜像 —— 先 nslookup 看解析到哪",
     "T29": ".gitignore 会让「你以为提交了其实没提交」—— git status 干净不代表文件被跟踪，用 git ls-files 查",
     "T30": "校验远端别只用 ls-remote —— 它和 push 走同一条链路，窗口一关就误判「推送失败」，改用 GitHub API / 网页",
+    "T31": "探针只扫 140.82.x 官方段会误判成「GitHub 全挂」—— 亚太段（20.20x/4.237.x）可能还活着",
 }
 
 
