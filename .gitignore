@@ -18,6 +18,10 @@ test.txt
 # 临时练习文件（做题时的草稿，不进作品集）
 cishi.py
 
+# 手动备份文件（改数据源前的 .bak-YYYYMMDD 快照，只用于本地回滚，不进仓库）
+*.bak-*
+*.bak
+
 # 本地网络/环境辅助脚本（含本机特定配置，不属于作品内容）
 push.sh
 push_github.sh

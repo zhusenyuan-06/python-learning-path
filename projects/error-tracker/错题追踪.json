@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created": "2026-10-22",
-  "updated": "2026-11-11",
+  "updated": "2026-11-14",
   "config": {
     "master_streak_default": 2,
     "review_day": "周四",
@@ -88,9 +88,9 @@
         "高频",
         "函数"
       ],
-      "occurrences": 6,
+      "occurrences": 7,
       "first_seen": "2026-10-19",
-      "last_seen": "2026-11-10",
+      "last_seen": "2026-11-14",
       "streak": 0,
       "need": 2,
       "status": "active",
@@ -159,6 +159,16 @@
           "date": "2026-11-10",
           "result": "fail",
           "note": "①三行全找到；②改写制造新角色冲突：累加器命名t撞上字典t→AttributeError，且漏return、for仍在函数外；③未答"
+        },
+        {
+          "date": "2026-11-14",
+          "result": "pending",
+          "note": "11-12复习卷已出，待作答"
+        },
+        {
+          "date": "2026-11-14",
+          "result": "fail",
+          "note": "①三个错全找到；②改写后缩进错误+return之后是死代码，跑不起来；③留空"
         }
       ]
     },
@@ -313,7 +323,7 @@
       "occurrences": 4,
       "first_seen": "2026-10-21",
       "last_seen": "2026-11-10",
-      "streak": 0,
+      "streak": 1,
       "need": 2,
       "status": "active",
       "source": [
@@ -360,6 +370,16 @@
           "date": "2026-11-10",
           "result": "fail",
           "note": "①②全对（改写与标准答案一致）；③只答了'哪些会报错'，漏了'第一个不报错但静默返回False、结果是错的'这一半——静默错误这半仍未掌握（与11-01栽的是同一处）"
+        },
+        {
+          "date": "2026-11-14",
+          "result": "pending",
+          "note": "11-12复习卷已出，待作答"
+        },
+        {
+          "date": "2026-11-14",
+          "result": "pass",
+          "note": "①②全对；③只答了改完是什么，没答原来为什么没报错"
         }
       ]
     },
@@ -676,7 +696,7 @@
       "occurrences": 7,
       "first_seen": "2026-10-21",
       "last_seen": "2026-11-10",
-      "streak": 0,
+      "streak": 1,
       "need": 2,
       "status": "active",
       "source": [
@@ -744,6 +764,16 @@
           "date": "2026-11-10",
           "result": "fail",
           "note": "①三行全找到；②第3行return写在print前→print成死代码，提示凭空消失（静默）；③未答"
+        },
+        {
+          "date": "2026-11-14",
+          "result": "pending",
+          "note": "11-12复习卷已出，待作答"
+        },
+        {
+          "date": "2026-11-14",
+          "result": "pass",
+          "note": "①三处错全找到；②return后面的print不可达，应写成return '未覆盖'；③只说了结果，没答出'原来为什么没报错'的根"
         }
       ]
     },
@@ -1012,9 +1042,9 @@
       "occurrences": 3,
       "first_seen": "2026-10-29",
       "last_seen": "2026-11-01",
-      "streak": 1,
+      "streak": 2,
       "need": 2,
-      "status": "active",
+      "status": "mastered",
       "source": [],
       "history": [
         {
@@ -1041,8 +1071,19 @@
           "date": "2026-11-01",
           "result": "pass",
           "note": "10-31 变式1 独立作答：情况②答'空'(0字节)正确、情况①正确、(1)先算后开门正确、(3)用w会清空正确；薄弱点：'a'模式语义、磁盘写一半=半截JSON、最低成本改法没落成代码"
+        },
+        {
+          "date": "2026-11-14",
+          "result": "pending",
+          "note": "11-12复习卷已出，待作答"
+        },
+        {
+          "date": "2026-11-14",
+          "result": "pass",
+          "note": "①②全对；③答到了'先备好内容'这个顺序，但没展开清空发生在open那一刻"
         }
-      ]
+      ],
+      "mastered_on": "2026-11-14"
     },
     {
       "id": "E25",
@@ -1400,32 +1441,6 @@
       ]
     },
     {
-      "id": "E34",
-      "title": "复习卷只答代码不答③：把'为什么没报错'当成附加题",
-      "bad": "①找出错误 ②改写成正确版本 → 直接交卷（③ 留空）",
-      "good": "①找出错误 ②改写成正确版本 ③说明'原来为什么没报错 / 改完凭什么跑得对' —— ③ 才是静默错误的根，不写等于没验证这个概念",
-      "tags": [
-        "复习方法",
-        "静默错误",
-        "自检",
-        "答题习惯"
-      ],
-      "occurrences": 1,
-      "first_seen": "2026-11-10",
-      "last_seen": "2026-11-10",
-      "streak": 0,
-      "need": 2,
-      "status": "active",
-      "source": [],
-      "history": [
-        {
-          "date": "2026-11-10",
-          "result": "new",
-          "note": "首次登记"
-        }
-      ]
-    },
-    {
       "id": "E35",
       "title": "dict.values() 返回视图对象永远为真：if d.values() 判空 → 静默错误",
       "bad": "if d.values():        # ❌ values() 返回的是【视图对象】不是列表\n    return True        #    视图对象只要字典非空就【永远为真】→ 这题会永远返回 True\n# 实测：d = {'a': 0, 'b': 3}（明显不相等）→ bool(d.values()) → True\n# ⚠️ 不崩、不报警、一律返回 True —— LeetCode 官方那 2 个用例还能【蒙对】\n#    暴露条件：t 是 s 的真子集（如 'aab' vs 'ab'）→ 减一不产生负数 → 走不到提前返回",
@@ -1439,9 +1454,9 @@
         "LeetCode",
         "selfcheck"
       ],
-      "occurrences": 1,
+      "occurrences": 2,
       "first_seen": "2026-11-10",
-      "last_seen": "2026-11-10",
+      "last_seen": "2026-11-14",
       "streak": 0,
       "need": 2,
       "status": "active",
@@ -1451,6 +1466,16 @@
           "date": "2026-11-10",
           "result": "new",
           "note": "首次登记"
+        },
+        {
+          "date": "2026-11-14",
+          "result": "pending",
+          "note": "11-12复习卷已出，待作答"
+        },
+        {
+          "date": "2026-11-14",
+          "result": "fail",
+          "note": "不会：values()返回的是视图对象恒为真，应该用all(v==0 for v in d.values())逐个判断"
         }
       ]
     },
@@ -1497,7 +1522,7 @@
       "occurrences": 1,
       "first_seen": "2026-11-11",
       "last_seen": "2026-11-11",
-      "streak": 0,
+      "streak": 1,
       "need": 2,
       "status": "active",
       "source": [],
@@ -1506,6 +1531,16 @@
           "date": "2026-11-11",
           "result": "new",
           "note": "首次登记"
+        },
+        {
+          "date": "2026-11-14",
+          "result": "pending",
+          "note": "11-12复习卷已出，待作答"
+        },
+        {
+          "date": "2026-11-14",
+          "result": "pass",
+          "note": "①找对了：f-string没有{}就只是普通字符串；②改写完全正确 {文件名}|{主名}|{扩展名}；③只说了'这样就有真实内容'，没答原来为什么没报错"
         }
       ]
     },
@@ -1560,6 +1595,43 @@
           "date": "2026-11-11",
           "result": "new",
           "note": "首次登记"
+        }
+      ]
+    },
+    {
+      "id": "E40",
+      "title": "返回值里放「给人看的句子」而不是「给机器判断的标识」：拿描述文字比类型名永远 False",
+      "bad": "def safe_get(url, timeout=5):\n    try:\n        r = requests.get(url, timeout=timeout)\n        r.raise_for_status()\n        return (r.status_code, r.json(), None)\n    except requests.exceptions.JSONDecodeError as e:\n        return (None, None, f\"返回的不是JSON: {e}\")        # ❌ 第3位是「描述文字」\n    except requests.exceptions.HTTPError as e:\n        return (e.response.status_code, None, f\"HTTP错误: {e}\")\n    except requests.RequestException as e:\n        return (None, None, f\"请求失败({type(e).__name__}): {e}\")\n\n# 调用方拿第3位做判断：\nif 错误类型 == \"JSONDecodeError\":      # ❌ 拿一句描述去比「类型名」→ 永远 False\n    不重试()\n# 后果：JSONDecodeError 被当成「网络层错误」→ 错误地重试 3 次，\n#       违反自己写的决策表（对方返回的根本不是 JSON，重试一万次也不是）",
+      "good": "def safe_get(url, timeout=5):\n    try:\n        r = requests.get(url, timeout=timeout)\n        r.raise_for_status()\n        return (r.status_code, r.json(), None, None)\n    except requests.exceptions.JSONDecodeError as e:\n        return (None, None, type(e).__name__, f\"返回的不是JSON: {e}\")\n    except requests.exceptions.HTTPError as e:\n        return (e.response.status_code, None, type(e).__name__, f\"HTTP错误: {e}\")\n    except requests.RequestException as e:\n        return (None, None, type(e).__name__, f\"请求失败: {e}\")\n\n# 第3位 = 类型名（给机器判断），第4位 = 详情（给人看）\nif 错误类型 == \"JSONDecodeError\":      # ✅ 现在真的能匹配上了\n    不重试()\n# 口诀：会被 if 拿去比较的值，必须是「稳定的标识」；\n#      字符串是给人看的，结构（tuple/dict/dataclass）是给机器判断的",
+      "tags": [
+        "静默错误",
+        "异常处理",
+        "返回值设计",
+        "条件判断",
+        "自检"
+      ],
+      "occurrences": 1,
+      "first_seen": "2026-11-14",
+      "last_seen": "2026-11-14",
+      "streak": 1,
+      "need": 2,
+      "status": "active",
+      "source": [],
+      "history": [
+        {
+          "date": "2026-11-14",
+          "result": "new",
+          "note": "首次登记"
+        },
+        {
+          "date": "2026-11-14",
+          "result": "pending",
+          "note": "11-12复习卷已出，待作答"
+        },
+        {
+          "date": "2026-11-14",
+          "result": "pass",
+          "note": "①两处全找到，尤其'描述比类型名永远False'；②类型名放错位置且硬编码字符串；③到位"
         }
       ]
     }
