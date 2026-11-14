@@ -1634,6 +1634,34 @@
           "note": "①两处全找到，尤其'描述比类型名永远False'；②类型名放错位置且硬编码字符串；③到位"
         }
       ]
+    },
+    {
+      "id": "E42",
+      "title": "findall 返回字符串列表、finditer 返回 Match 对象 —— 对 findall 的结果调 .group() 直接 AttributeError",
+      "bad": "for i in re.findall(r'\\d+', 文本):\n    print(i.group(), i.span())   # ❌ findall 给的是 str，没有 .group()",
+      "good": "for i in re.finditer(r'\\d+', 文本):\n    print(i.group(), i.span())   # ✅ finditer 给的是 Match 对象，才有 .group()/.span()",
+      "tags": [
+        "正则",
+        "返回类型",
+        "findall",
+        "finditer",
+        "Match对象",
+        "静默错误"
+      ],
+      "occurrences": 1,
+      "first_seen": "2026-11-14",
+      "last_seen": "2026-11-14",
+      "streak": 0,
+      "need": 2,
+      "status": "active",
+      "source": [],
+      "history": [
+        {
+          "date": "2026-11-14",
+          "result": "new",
+          "note": "首次登记"
+        }
+      ]
     }
   ],
   "skills": []
