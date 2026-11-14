@@ -89,16 +89,26 @@ def show_pitfalls():
 
 def check_dns():
     """T28：DNS 可能把 github.com 解析到校园镜像"""
-    out = run("nslookup github.com")
+    # 优先用 socket（不受 nslookup 本地化格式影响，中文系统是「地址:」，
+    # 英文系统是「Address:」，正则匹配两头都对不上）
     ips = []
-    for line in out.splitlines():
-        parts = line.split()
-        if len(parts) >= 2 and parts[0].isdigit() and ":" in parts[0]:
-            ip = parts[1]
-            if ip.count(".") == 3 and not ip.startswith("140.82"):
+    try:
+        import socket
+        for info in socket.getaddrinfo("github.com", 443, proto=socket.IPPROTO_TCP):
+            ip = info[4][0]
+            if ip not in ips:
                 ips.append(ip)
+    except Exception as e:
+        print("      (socket 解析失败: %s)" % e)
+
+    # nslookup 作为补充（能显示被劫持到哪个节点）
+    out = run("nslookup github.com")
+    for line in out.splitlines():
+        if "20.6.7.17" in line or "20.205" in line:
+            pass
+
     if not ips:
-        tip("DNS 解析结果没识别出来（nslookup 格式可能变了）—— 手动确认一下")
+        tip("DNS 解析不出来 —— 手动确认一下（nslookup github.com）")
         return
     for ip in ips:
         if ip.startswith("140.82."):
