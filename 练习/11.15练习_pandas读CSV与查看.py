@@ -27,6 +27,7 @@
 from pathlib import Path
 
 import pandas as pd
+from statsmodels.sandbox.distributions.genpareto import shape
 
 # ── 数据文件路径（用 pathlib，不要手写反斜杠字符串）────────────────────
 数据目录 = Path(__file__).parent / "数据"
@@ -107,7 +108,7 @@ print()
 def 任务1_读CSV看形状():
     df = pd.read_csv(CSV路径)
     # TODO 1-① 在下面 return 出 df.shape（print 也可以，但 print 不算数）
-    pass
+    return df.shape
 
 
 # ───────────────────────── 任务 2 ─────────────────────────
@@ -116,7 +117,8 @@ def 任务1_读CSV看形状():
 def 任务2_看列名():
     df = pd.read_csv(CSV路径)
     # TODO 2-① 在下面 return 出列名
-    pass
+    return list(df.columns)
+
 
 
 # ───────────────────────── 任务 3 ─────────────────────────
@@ -125,7 +127,8 @@ def 任务2_看列名():
 def 任务3_看前3行():
     df = pd.read_csv(CSV路径)
     # TODO 3-① 在下面 return 出前 3 行
-    pass
+    return df.head(3)
+
 
 
 # ───────────────────────── 任务 4 ─────────────────────────
@@ -135,7 +138,7 @@ def 任务3_看前3行():
 def 任务4_取单列():
     df = pd.read_csv(CSV路径)
     # TODO 4-① 在下面取「星期」列并 return
-    pass
+    return df['星期']
 
 
 # ───────────────────────── 任务 5 ─────────────────────────
@@ -144,7 +147,7 @@ def 任务4_取单列():
 def 任务5_取多列():
     df = pd.read_csv(CSV路径)
     # TODO 5-① 在下面取两列并 return
-    pass
+    return df[['日期','星期']]
 
 
 # ───────────────────────── 任务 6 ─────────────────────────
@@ -153,7 +156,7 @@ def 任务5_取多列():
 def 任务6_看类型():
     df = pd.read_csv(CSV路径)
     # TODO 6-① 在下面 return 出类型信息
-    pass
+    return dict(df.dtypes)
 
 
 # ───────────────────────── 任务 7 ─────────────────────────
@@ -161,7 +164,9 @@ def 任务6_看类型():
 # 期望：((15, 4), ['序号', '日期', '新闻内容', '星期'])
 def 任务7_读Excel():
     # TODO 7-① 在下面读 Excel 并 return 出 shape 和列名
-    pass
+    EXCEL路径 = 数据目录 / "news_示例.xlsx"
+    df2 = pd.read_excel(EXCEL路径)
+    return df2.shape, list(df2.columns)
 
 
 # ───────────────────────── 任务 8 ─────────────────────────
@@ -171,7 +176,9 @@ def 任务7_读Excel():
 def 任务8_看概览():
     df = pd.read_csv(CSV路径)
     # TODO 8-① 在下面打印 df.info()，并 return 出空值总数
-    pass
+    print(df.info())
+    return df.isna().sum().sum()
+
 
 
 # ############################################################################
@@ -339,3 +346,15 @@ print("=" * 68)
 #     # df = pd.read_csv("D:\AI应用工程师\news.csv")
 #     # ✅ 用 pathlib：
 #     df = pd.read_csv(Path(__file__).parent / "数据" / "news_示例.csv")
+#
+# 坑4 · pandas 会【自动推断类型】—— 这就是任务6 里「序号」为什么是 int64
+#     df = pd.read_csv(CSV路径)
+#     print(df['序号'].dtype)          # int64  ← 文本 "1" 被推断成整数
+#     print(df['新闻内容'].dtype)      # object ← 文本保持字符串
+#     ⚠️ 副作用：如果原文件里序号写的是 "007"，pandas 会读成 7 —— 前导零没了。
+#     想原样保留文本 → read_csv 时加 dtype={'序号': str}
+#
+# ── 为什么任务6 我写 dict(df.dtypes) 而参考答案是 dict(df.dtypes.astype(str)) ──
+#   两种都能过检查，但装的东西不一样：
+#     dict(df.dtypes)          → 装 dtype 对象（dtype('int64')），靠 dtype == 'int64' 比过
+#     dict(df.dtypes.astype(str)) → 装纯字符串 "int64"，要 json 存的时候才存得进去
