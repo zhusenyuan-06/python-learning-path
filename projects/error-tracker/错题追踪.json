@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created": "2026-10-22",
-  "updated": "2026-11-14",
+  "updated": "2026-11-15",
   "config": {
     "master_streak_default": 2,
     "review_day": "周四",
@@ -88,9 +88,9 @@
         "高频",
         "函数"
       ],
-      "occurrences": 7,
+      "occurrences": 8,
       "first_seen": "2026-10-19",
-      "last_seen": "2026-11-14",
+      "last_seen": "2026-11-15",
       "streak": 0,
       "need": 2,
       "status": "active",
@@ -169,6 +169,11 @@
           "date": "2026-11-14",
           "result": "fail",
           "note": "①三个错全找到；②改写后缩进错误+return之后是死代码，跑不起来；③留空"
+        },
+        {
+          "date": "2026-11-15",
+          "result": "fail",
+          "note": "11-15重练：①错在哪3题全对（识别已会）；②改写仍错——第1题把词频改成词频1但return的还是len的int、契约没改；第2题改循环变量名但循环体是pass、没补比较逻辑。共同病根：只顾解变量冲突，忘了问'这函数最后要交出的是什么'"
         }
       ]
     },
@@ -1454,9 +1459,9 @@
         "LeetCode",
         "selfcheck"
       ],
-      "occurrences": 2,
+      "occurrences": 3,
       "first_seen": "2026-11-10",
-      "last_seen": "2026-11-14",
+      "last_seen": "2026-11-15",
       "streak": 0,
       "need": 2,
       "status": "active",
@@ -1476,6 +1481,11 @@
           "date": "2026-11-14",
           "result": "fail",
           "note": "不会：values()返回的是视图对象恒为真，应该用all(v==0 for v in d.values())逐个判断"
+        },
+        {
+          "date": "2026-11-15",
+          "result": "fail",
+          "note": "11-15重练：①错在哪对（values()视图对象恒为真）；②改写语义反了——写成'有0就True'(any语义)应为'全是0'(all语义)，且return写在循环体内第一次迭代就退出。已给重做区：all(值==0 for 值 in d.values())"
         }
       ]
     },
