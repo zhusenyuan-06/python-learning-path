@@ -148,8 +148,17 @@ def main():
             "4.237.22.38", "4.237.22.39",
         ]
         host = "github.com"
-        # github.com/login 是个真页面，返回 200 才算活
-        ok_codes = {"200"}
+        # github.com/login 是个真页面，返回 200 才算「完全正常」
+        #
+        # ⚠️ T39（2026-11-15 17:35 实测）：【只认 200 会漏判】
+        #   官方段全超时那次，140.82.112.6 / 140.82.114.5 返回 404 ——
+        #   但 404 说明 TCP 连上、TLS 握手成功、HTTP 有响应，
+        #   【链路是活的】，只是这个边缘节点不认 /login 这个路径。
+        #   api 段早就吃过同样的亏（见下面 else 分支的注释），web 段这次补上。
+        #   所以放宽成「拿到任何 HTTP 状态码都算链路通」。
+        # ⚠️ 但 403 是【服务端拒绝】，不是网络故障 —— 绑上去 push 仍可能 403。
+        #   因此下面收集时把 200 排最前、其余（404/403/301...）降为兜底。
+        ok_codes = {"200", "404", "400", "403", "301", "302"}
         #   └─ {..} 是集合（set），用 in 判断快
     else:
         # api 段候选：只扫 .5 / .6（GitHub 的 api 边缘节点是另一个网段）
@@ -167,6 +176,7 @@ def main():
     print(f"=== 扫描 {host} （{len(cands)} 个候选）===", flush=True)
 
     live = []       # 存所有判定为「活」的 IP，保持发现顺序
+    备用 = []       # T39：非 200 的（链路通但不认路径 / 服务端拒绝）降到后面兜底
     # ThreadPoolExecutor(max_workers=32) = 32 个线程的线程池
     #   └─ with = 用完自动关（不关会挂住程序不退出）
     #   └─ 32 是并发上限，太高会被对方限流，太低浪费时间
@@ -177,7 +187,11 @@ def main():
         #   └─ 注意 map 是「并发跑、按序出」，所以打印顺序和候选顺序一致
         for ip, h, code, note in ex.map(lambda i: check(i, host), cands):
             if code in ok_codes:
-                live.append(ip)                       # 记下来，push 时按这个顺序试
+                # T39：200 是「完全正常」优先试；404/403 等只是「链路通」兜底
+                if code == "200":
+                    live.append(ip)
+                else:
+                    备用.append(ip)
                 print(f"    {ip:16s} {code}  <== 活", flush=True)
                 #   └─ {ip:16s} = 格式化输出，左对齐占 16 个字符宽
                 #     （:16 后面跟 s 表示字符串 + 左对齐；:>16 才是右对齐）
@@ -187,6 +201,7 @@ def main():
                 # 这类情况可能是 TLS 配置问题，值得看一眼
                 print(f"    {ip:16s} {code}  {note}", flush=True)
 
+    live += 备用     # T39：200 全试完了再试「只通链路」的那批
     print("")
     print("可用列表（按顺序尝试）:")
     print(" ".join(live) if live else "  （本次扫描没有活 IP）")
