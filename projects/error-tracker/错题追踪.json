@@ -91,7 +91,7 @@
       "occurrences": 8,
       "first_seen": "2026-10-19",
       "last_seen": "2026-11-15",
-      "streak": 0,
+      "streak": 1,
       "need": 2,
       "status": "active",
       "source": [
@@ -174,6 +174,11 @@
           "date": "2026-11-15",
           "result": "fail",
           "note": "11-15重练：①错在哪3题全对（识别已会）；②改写仍错——第1题把词频改成词频1但return的还是len的int、契约没改；第2题改循环变量名但循环体是pass、没补比较逻辑。共同病根：只顾解变量冲突，忘了问'这函数最后要交出的是什么'"
+        },
+        {
+          "date": "2026-11-15",
+          "result": "pass",
+          "note": "11-15 重做区全对：词频直接 return 字典不经 len()；求总和把累加器与循环变量拆成两个名字并补上累加逻辑"
         }
       ]
     },
@@ -1462,7 +1467,7 @@
       "occurrences": 3,
       "first_seen": "2026-11-10",
       "last_seen": "2026-11-15",
-      "streak": 0,
+      "streak": 1,
       "need": 2,
       "status": "active",
       "source": [],
@@ -1486,6 +1491,11 @@
           "date": "2026-11-15",
           "result": "fail",
           "note": "11-15重练：①错在哪对（values()视图对象恒为真）；②改写语义反了——写成'有0就True'(any语义)应为'全是0'(all语义)，且return写在循环体内第一次迭代就退出。已给重做区：all(值==0 for 值 in d.values())"
+        },
+        {
+          "date": "2026-11-15",
+          "result": "pass",
+          "note": "11-15 重做区全对：改用 all(值 == 0 for 值 in 计数表.values())，反例/正例/首元素非0/空表 四测全过"
         }
       ]
     },
