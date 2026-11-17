@@ -105,9 +105,9 @@ for ip in 候选:
         code = (r.stdout or '').strip() or 'ERR'
     except Exception:
         code = 'ERR'
-    判读 = {'200': '✅ 认证通过·可 push', '404': 'api 段机器',
+    判读 = {'200': '✅ 认证通过·候选优先（不代表 git 能连上 · T55）', '404': 'api 段机器',
             '403': '凭据/权限没过', '400': '机器在·请求体不合法',
-            '000': '链路不通'}.get(code, '')
+            '000': '链路不通（但 git 实推可能反而能用 · T53）'}.get(code, '')
     print('  POST %-16s -> %-4s %s' % (ip, code, 判读), flush=True)
     if code == '200':
         ok.append(ip)

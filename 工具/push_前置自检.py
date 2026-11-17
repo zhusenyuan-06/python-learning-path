@@ -52,6 +52,7 @@ PUSH_PITFALLS = {
     "T52": "判断 IP 能不能 push 用 curl POST 探针（秒级），别拿 git push 试错（每个失败 21 秒超时）",
     "T53": "curl 能 POST 通但 git 连不上 ≠ IP 死了 —— 两套 TLS 栈表现不同，curl 筛、git 推",
     "T54": "gh-proxy 等加速镜像只代理 GET，push 会回「No anonymous write access」；镜像只能当校验通道",
+    "T55": "POST 探针的 200 ≠ 能 push —— 探针结论只作排序参考，判据只有 git 实推（退出码 0 + main -> main）",
 }
 
 
