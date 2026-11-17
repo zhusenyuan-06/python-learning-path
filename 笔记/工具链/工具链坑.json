@@ -883,14 +883,15 @@
     },
     {
       "id": "T40",
-      "title": "子目录脚本用 parent.parent 定位仓库根 → 少退一级 → FileNotFoundError；同一坑连续踩两次",
-      "symptom": "2026-11-17 15:20 铺 11-16 下午档 pandas 练习，连续两个脚本报同一个错：\n  ① 笔记/_自检脚本/_生成多天新闻数据.py\n     FileNotFoundError: '...\\pythonProject\\笔记\\练习\\数据\\news_示例.csv'\n     → 期望是 pythonProject\\练习\\数据\\，实际多了一层「笔记」\n  ② 笔记/_自检脚本/_自检_pandas筛选练习.py\n     FileNotFoundError: '...\\pythonProject\\笔记\\_自检脚本\\11.17练习_pandas筛选与增删列.py'\n     → 期望是 pythonProject\\练习\\，实际少了一层\n两个脚本连着栽在同一个地方：脚本在 笔记/_自检脚本/（深两级），\n  但 parent.parent 只退到 笔记/，还差一级才到仓库根。",
-      "cause": "① 用 parent.parent 硬猜层级，没先数目录深度：\n   pythonProject/笔记/_自检脚本/脚本.py  →  脚本所在目录是第 3 层\n     .parent        = _自检脚本\n     .parent.parent = 笔记            ← 只退到了这里\n     .parents[2]    = pythonProject   ← 仓库根在这\n  ② 更根本的问题：同一个错误连犯两次，说明是「凭感觉写路径」，\n     不是「看一眼目录结构再写」。第一次报错后没把结论固化下来，\n     第二个脚本又照抄了同一个错法。",
+      "title": "子目录脚本用 parent.parent / ../../ 相对路径定位目录 → 退级错位 → FileNotFoundError 或文件落错地方；同一坑连踩三次",
+      "symptom": "2026-11-17 15:20 铺 11-16 下午档 pandas 练习，连续两个脚本报同一个错：\n  ① 笔记/_自检脚本/_生成多天新闻数据.py\n     FileNotFoundError: '...\\pythonProject\\笔记\\练习\\数据\\news_示例.csv'\n     → 期望是 pythonProject\\练习\\数据\\，实际多了一层「笔记」\n  ② 笔记/_自检脚本/_自检_pandas筛选练习.py\n     FileNotFoundError: '...\\pythonProject\\笔记\\_自检脚本\\11.17练习_pandas筛选与增删列.py'\n     → 期望是 pythonProject\\练习\\，实际少了一层\n两个脚本连着栽在同一个地方：脚本在 笔记/_自检脚本/（深两级），\n  但 parent.parent 只退到 笔记/，还差一级才到仓库根。\n  ③ 16:45 登记新错题 E43 时，在 projects/error-tracker/ 目录里用相对路径备份：\n       备份 = Path('../../09-求职资产/错题追踪.改编号备份_%s.json' % stamp)\n     → projects/error-tracker 退两级 = pythonProject/，所以备份被写进了\n       pythonProject\\09-求职资产\\ —— 仓库里凭空多出一个目录（git 显示 ?? 09-求职资产/）\n     → 正确位置 D://AI应用工程师//09-求职资产// 反而没有这份备份\n     → 危害比前两次更隐蔽：前两次是【跑不起来】，这次是【跑成功了、但文件存错了地方】\n       （git status 一眼能看出来，若不看就会把垃圾目录提交进仓库）",
+      "cause": "① 用 parent.parent 硬猜层级，没先数目录深度：\n   pythonProject/笔记/_自检脚本/脚本.py  →  脚本所在目录是第 3 层\n     .parent        = _自检脚本\n     .parent.parent = 笔记            ← 只退到了这里\n     .parents[2]    = pythonProject   ← 仓库根在这\n  ② 更根本的问题：同一个错误连犯两次，说明是「凭感觉写路径」，\n     不是「看一眼目录结构再写」。第一次报错后没把结论固化下来，\n     第二个脚本又照抄了同一个错法。\n  ③ 第三次暴露了更深的问题：同一个目录名「09-求职资产」在不同脚本里的相对层级不同。\n     pythonProject 在 D://AI应用工程师//01-学习仓库-Python学习路径// 下，\n     所以「退到 pythonProject 的上一级再进 09-求职资产」才是对的 —— 靠数层级很容易数错。",
       "solutions": [
         "【按深度定位，别猜】仓库根 = Path(__file__).resolve().parents[2]\n  （脚本在 笔记/_自检脚本/ 下时）；练习目录 = parents[2] / '练习'。",
         "【先打印再写】新脚本第一行先 print(Path(__file__).resolve()) 和目标路径 exists()，\n  确认无误再跑逻辑 —— 别让路径问题混进业务报错里。",
         "【同类脚本抄现成的】已经在 笔记/_自检脚本/ 里跑通过的脚本（如 _给日程表收尾_1115.py\n  用的是 PATH = r'C:\\Users\\15816\\Desktop\\...' 绝对路径），直接照抄它的路径写法，\n  不要自己另发明相对层级。",
-        "【备份目录好写】D:\\AI应用工程师\\09-求职资产\\ 是固定的归档位，\n  用绝对路径拼，别从 __file__ 推。"
+        "【备份目录好写】D:\\AI应用工程师\\09-求职资产\\ 是固定的归档位，\n  用绝对路径拼，别从 __file__ 推。",
+        "【归档位一律用绝对路径】09-求职资产 是固定位置，直接写\n  备份目录 = Path(r'D://AI应用工程师//09-求职资产')\n  绝不用 ../../09-求职资产 这种相对写法 —— 层级会随脚本位置变。\n  仓库内的相对路径只用于「仓库根 → 仓库内某处」（如 练习/、笔记/）。"
       ],
       "tags": [
         "路径",
@@ -900,7 +901,7 @@
         "层级",
         "连踩两次"
       ],
-      "hits": 2,
+      "hits": 3,
       "first_hit": "2026-11-17",
       "last_hit": "2026-11-17"
     }
