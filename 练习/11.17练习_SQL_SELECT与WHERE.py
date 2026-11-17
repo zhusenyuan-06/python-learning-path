@@ -51,19 +51,19 @@ print("""
   读法： 「从 表 里，选出 哪些列，只要 满足 条件的那些行」
 
 【怎么用 Python 执行 SQL】
-  import sqlite3
-  con = sqlite3.connect("库文件路径")     # 连上库
-  cur = con.cursor()                      # 拿一个游标（发命令用）
-  cur.execute("SELECT * FROM 新闻")        # 执行
-  cur.fetchall()                          # 取全部结果（list[tuple]）
+  con = sqlite3.connect(库路径)        # 连上库（库路径 = 数据目录/"新闻库.sqlite"）
+  cur = con.cursor()                   # 拿一个游标（发命令用）
+  cur.execute("SELECT * FROM 新闻")     # 执行
+  cur.fetchall()                       # 取全部结果（list[tuple]）
 
-【五个必记的 WHERE 条件写法】
+【七个必记的 WHERE 条件写法】
   等于      WHERE 星期 = '星期二'          ← 注意是【一个 =】，不是 ==
   不等于    WHERE 星期 <> '星期六'          ← 也可写 !=
   多条件    WHERE 星期 = '星期一' AND 序号 > 5   ← 用 AND / OR，不用 Python 的 and / or
-  模糊匹配  WHERE 新闻内容 LIKE '%银行%'    ← % 是通配符，匹配任意长度
+  模糊匹配  WHERE 新闻内容 LIKE '%银行%'    ← % 匹配任意长度，_ 匹配恰好 1 个
   区间      WHERE 序号 BETWEEN 3 AND 8      ← 含两端
   多值      WHERE 星期 IN ('星期五', '星期日')
+  排除      WHERE 星期 <> '星期六' AND 序号 <= 6
 
 【聚合函数 COUNT】
   SELECT COUNT(*) FROM 新闻             → 总行数
@@ -78,19 +78,44 @@ print("""
 
   坑1 · 字符串必须用【单引号】
         正确：WHERE 星期 = '星期二'
-        错误：WHERE 星期 = "星期二"   ← 双引号在 SQL 里是【标识符】引号
-        错误：WHERE 星期 = 星期二     ← 没引号，数据库会当成列名 → 报错
+        错误：WHERE 星期 = 星期二     ← 没引号，数据库会当成列名
+              → 实测报错：no such column: 星期二
+
+        ⚠️ 但注意：双引号 "星期二" 在 SQLite 里【居然能跑通】（返回正确结果）。
+          那是 SQLite 的兼容性 misfeature（找不到同名列时退化成字符串），
+          换 MySQL / PostgreSQL 就会报错。
+          → 所以【永远】写单引号，别因为"能跑"就养成习惯。
 
   坑2 · SQL 注入（这不只是"不规范"，是真漏洞）
         拼接用户输入进 SQL：
             sql = "SELECT * FROM 新闻 WHERE 新闻内容 = '%s'" % 用户输入
         用户输入一个 ' 就把引号闭合了，后面全是他的代码。
-        今天先记住这个形状；正确解法（参数化 ?）你在练习里会用到。
+        实测：输入 星期二' OR '1'='1  → 15 条全漏出来。
+        正确解法：参数化 ? —— 实测同样输入返回 0 条。
 
   坑3 · Python 和 SQL 的"="不是一回事
         Python 里 = 是赋值，== 才是相等。
         SQL 里 = 就是相等（没有 == 这个写法）。
-        你写 SQL 的时候别把 == 带进去。
+        ⚠️ 实测：SQLite 也认 ==（同样属于 misfeature），MySQL 也认，
+           但 PostgreSQL 会直接报错。
+           → 一律写一个等号，别把 == 带进去。
+
+  坑4 · AND 连接的是【两个条件】
+        SQL：  WHERE 星期 = '星期一' AND 序号 > 5
+        pandas：df[(df["星期"] == "星期一") & (df["序号"] > 5)]
+        对应关系：SQL 的 AND ＝ pandas 的 &（两边都要加括号）
+        ⚠️ 实测：SQLite 也认小写 and，但同样属于 misfeature。
+
+  坑5 · 必须 con.close()
+        实测：连接开着时，数据库文件【改不了名】（WinError 32 另一个程序正在使用此文件）。
+
+  坑6 · ⭐ 连错路径【不报错】，会悄悄建一个新空库
+        实测：connect("新闻库.sqlit")（少个 e）→ 不报错，连上了，
+              但里面一张表都没有 → 查询返回空。
+        → 查出来是空的时候，先 print(库路径) 看一眼路径对不对。
+
+  📎 完整讲解见：笔记/讲义/11-17_讲义_SQL_SELECT与WHERE.md
+     可跑样例见：练习/_参考样例_SQL讲义.py（每一段输出都能复现）
 """)
 print("=" * 68)
 
@@ -186,13 +211,21 @@ print()
 def 任务1_查全部标题():
     """返回全部 15 条新闻的标题，按序号升序。"""
     # TODO 1-① 在下面写你的代码
-    pass
+    con = sqlite3.connect(库路径)
+    cur = con.cursor()
+    cur.execute("SELECT 新闻内容 FROM 新闻 ORDER BY 序号 ASC")
+    结果 = [行[0] for 行 in cur.fetchall()]
+    con.close()
+    return 结果
 
 
 def 任务2_查某星期的():
     """返回 (条数, [序号])：星期二有几条、分别是哪些序号。"""
     # TODO 2-① 在下面写你的代码
-    pass
+    con = sqlite3.connect(库路径)
+    cur = con.cursor()
+    cur.execute("SELECT 新闻内容 FROM 新闻 ORDER BY 序号 ASC")
+    
 
 
 def 任务3_多条件与():
@@ -429,7 +462,10 @@ def 任务8_条件计数():
 ''')
 
 print()
-print("⭐ 三个坑的正解，用在上面代码里：")
+print("⭐ 六个坑的正解，用在上面代码里：")
 print("  坑1 字符串用单引号      →  WHERE 星期 = '星期二'")
-print("  坑2 SQL 注入            →  用 ? 参数化（上面全是 ?），不要把输入拼进 SQL")
-print("  坑3 SQL 里 = 就是相等   →  不要写 ==")
+print("  坑2 别信 SQLite 的宽容  →  单引号 + 一个等号 + 大写 AND")
+print("  坑3 SQL 注入            →  用 ? 参数化（上面全是 ?），不要把输入拼进 SQL")
+print("  坑4 SQL 里 = 就是相等   →  不要写 ==")
+print("  坑5 AND 连接两个条件    →  对应 pandas 的 & （两边加括号）")
+print("  坑6 必须 con.close()    →  否则文件被锁；连错路径会静默建空库")
