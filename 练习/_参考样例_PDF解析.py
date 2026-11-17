@@ -264,6 +264,46 @@ print("     1) 不 con.commit() → 关连接时数据回滚（行数变 0）")
 print("     2) 路径写错 → sqlite3.connect 静默创建一个 0 字节假库，不报错")
 print("     3) with sqlite3.connect() 只管事务【不管关连接】→ 要用 contextlib.closing")
 
+分隔("【九】⭐⭐⭐ 坑 6：验证时别拿「全文 ==」当判据（我自己今天踩了）")
+
+import re
+from collections import Counter
+
+d = pymupdf.open(str(主素材))
+A = chr(10).join(d[i].get_text() for i in range(d.page_count))
+d.close()
+with pdfplumber.open(str(主素材)) as pdf:
+    B = chr(10).join(pg.extract_text() for pg in pdf.pages)
+
+print("  同一个文件，两个库拼出来的全文：")
+print("    pymupdf    长度 = %d" % len(A))
+print("    pdfplumber 长度 = %d" % len(B))
+print("    直接 ==    → %s   ← ⚠️ 判「不一致」！" % (A == B))
+print()
+print("  但真相是【内容完全一样，只是排版不同】：")
+sa = ''.join(A.split())
+sb = ''.join(B.split())
+print("    去掉所有空白后长度：%d vs %d  相同=%s" % (len(sa), len(sb), len(sa) == len(sb)))
+ca, cb = Counter(sa), Counter(sb)
+print("    字符出现频次相同=%s" % (ca == cb))
+print()
+print("  差异只在【页眉的位置】：")
+print("    pymupdf 开头    : %r" % A[:20])
+print("    pdfplumber 开头: %r" % B[:20])
+print()
+print("  ✅ 正确判据（去页眉 + 去空白 + 比字符多重集）：")
+
+
+def 归一(文本):
+    文本 = re.sub(r'第\d+页，共\d+页', '', 文本)   # 去页眉页脚
+    return Counter(''.join(文本.split()))          # 去空白 + 字符多重集
+
+
+print("    归一(A) == 归一(B) → %s  ✅" % (归一(A) == 归一(B)))
+print()
+print("  ⭐ T38 的翻版：看到不一致时，先怀疑【判据】，再怀疑【被验证的对象】")
+
+
 print()
 print("=" * 66)
 print("✅ 参考样例跑完")
