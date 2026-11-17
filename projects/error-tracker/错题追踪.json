@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created": "2026-10-22",
-  "updated": "2026-11-15",
+  "updated": "2026-11-17",
   "config": {
     "master_streak_default": 2,
     "review_day": "周四",
@@ -1678,6 +1678,33 @@
       "history": [
         {
           "date": "2026-11-14",
+          "result": "new",
+          "note": "首次登记"
+        }
+      ]
+    },
+    {
+      "id": "E43",
+      "title": "pandas 方法不接返回值 = 哑弹：sort_values/drop 返回新表，不接就等于没调用",
+      "bad": "df.sort_values(by='序号', ascending=False)   # 返回值没接住 → 原表顺序一点没变，这一行是哑弹",
+      "good": "df = df.sort_values(by='序号', ascending=False)   # 接住才生效",
+      "tags": [
+        "pandas",
+        "哑弹",
+        "返回值",
+        "sort_values",
+        "静默错误"
+      ],
+      "occurrences": 1,
+      "first_seen": "2026-11-17",
+      "last_seen": "2026-11-17",
+      "streak": 0,
+      "need": 2,
+      "status": "active",
+      "source": [],
+      "history": [
+        {
+          "date": "2026-11-17",
           "result": "new",
           "note": "首次登记"
         }
