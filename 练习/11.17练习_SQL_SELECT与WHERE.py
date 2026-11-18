@@ -224,44 +224,85 @@ def 任务2_查某星期的():
     # TODO 2-① 在下面写你的代码
     con = sqlite3.connect(库路径)
     cur = con.cursor()
-    cur.execute("SELECT 新闻内容 FROM 新闻 ORDER BY 序号 ASC")
+    cur.execute("SELECT COUNT(*) FROM 新闻 WHERE 星期 = ?", ("星期二",))
+    条数 = cur.fetchone()[0] # 取一个数，不是 fetchall
+    cur.execute("SELECT 序号 FROM 新闻 WHERE 星期 = ? ORDER BY 序号 ASC", ("星期二",))
+    序号们 = [行[0] for 行 in cur.fetchall()]
+    con.close()
+    return 条数,序号们
     
 
 
 def 任务3_多条件与():
     """返回 [序号]：星期一 且 序号 > 5。"""
     # TODO 3-① 在下面写你的代码
-    pass
+    con = sqlite3.connect(库路径)
+    cur = con.cursor()
+    cur.execute("SELECT 序号 FROM 新闻 WHERE 星期 = ? AND 序号 > ? ORDER BY 序号 ASC",
+                ("星期一", 5))
+    结果 = [行[0] for 行 in cur.fetchall()]
+    con.close()
+    return 结果
 
 
 def 任务4_关键词或():
     """返回 [序号]：内容含『银行』或含『雨雪』。"""
     # TODO 4-① 在下面写你的代码
-    pass
+    con = sqlite3.connect(库路径)
+    cur = con.cursor()
+    cur.execute("SELECT 序号 FROM 新闻 WHERE 新闻内容 LIKE ? OR 新闻内容 LIKE ? ORDER BY 序号 ASC",
+                 ("%银行%", "%雨雪%"))
+    结果 = [行[0] for 行 in cur.fetchall()]
+    con.close()
+    return 结果
 
 
 def 任务5_排除某星期():
     """返回 [序号]：不是星期六 且 序号 <= 6。"""
     # TODO 5-① 在下面写你的代码
-    pass
+    con = sqlite3.connect(库路径)
+    cur = con.cursor()
+    cur.execute("SELECT 序号 FROM 新闻 WHERE 星期 <> ? AND 序号<= ? ORDER BY 序号 ASC",
+                ("星期六", 6))
+    结果 = [行[0] for 行 in cur.fetchall()]
+    con.close()
+    return 结果
+
 
 
 def 任务6_区间():
     """返回 [序号]：序号 BETWEEN 3 AND 8（含两端）。"""
     # TODO 6-① 在下面写你的代码
-    pass
+    con = sqlite3.connect(库路径)
+    cur = con.cursor()
+    cur.execute("SELECT 序号 FROM 新闻 WHERE 序号 BETWEEN ? AND ? ORDER BY 序号 ASC",
+                (3, 8))
+    结果 = [行[0] for 行 in cur.fetchall()]
+    con.close()
+    return 结果
+
 
 
 def 任务7_多值():
     """返回 [序号]：星期 IN ('星期五', '星期日')。"""
     # TODO 7-① 在下面写你的代码
-    pass
+    con = sqlite3.connect(库路径)
+    cur = con.cursor()
+    cur.execute("SELECT 序号 FROM 新闻 WHERE 星期 IN ('星期五' , '星期日') ORDER BY 序号 ASC")
+    结果 = [行[0] for 行 in cur.fetchall()]
+    con.close()
+    return 结果
 
 
 def 任务8_条件计数():
     """返回整数：内容含『金融』的条数。"""
     # TODO 8-① 在下面写你的代码
-    pass
+    con = sqlite3.connect(库路径)
+    cur = con.cursor()
+    cur.execute("SELECT COUNT(*) FROM 新闻 WHERE 新闻内容 LIKE ?",("%金融%",))
+    结果 = cur.fetchone()[0]
+    con.close()
+    return 结果
 
 
 # ############################################################################
