@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created": "2026-10-22",
-  "updated": "2026-11-17",
+  "updated": "2026-11-19",
   "config": {
     "master_streak_default": 2,
     "review_day": "周四",
@@ -90,10 +90,10 @@
       ],
       "occurrences": 8,
       "first_seen": "2026-10-19",
-      "last_seen": "2026-11-15",
-      "streak": 1,
+      "last_seen": "2026-11-19",
+      "streak": 2,
       "need": 2,
-      "status": "active",
+      "status": "mastered",
       "source": [
         "10.19练习.py sum_list",
         "10.21练习.py for w, counts in t",
@@ -179,8 +179,14 @@
           "date": "2026-11-15",
           "result": "pass",
           "note": "11-15 重做区全对：词频直接 return 字典不经 len()；求总和把累加器与循环变量拆成两个名字并补上累加逻辑"
+        },
+        {
+          "date": "2026-11-19",
+          "result": "pass",
+          "note": "用户确认已熟练：①三个错全找到；讲解后当场订正 —— print 必须在循环外、循环后 c 是 int 故 c.items() 整句删掉"
         }
-      ]
+      ],
+      "mastered_on": "2026-11-19"
     },
     {
       "id": "E03",
@@ -332,10 +338,10 @@
       ],
       "occurrences": 4,
       "first_seen": "2026-10-21",
-      "last_seen": "2026-11-10",
-      "streak": 1,
+      "last_seen": "2026-11-19",
+      "streak": 2,
       "need": 2,
-      "status": "active",
+      "status": "mastered",
       "source": [
         "10.21练习2.py 第2行",
         "10.22复习.py 第2行"
@@ -390,8 +396,14 @@
           "date": "2026-11-14",
           "result": "pass",
           "note": "①②全对；③只答了改完是什么，没答原来为什么没报错"
+        },
+        {
+          "date": "2026-11-19",
+          "result": "pass",
+          "note": "用户确认已熟练：①找到根因；讲解后当场订正 —— 类型要两处一起改（字典 + 调用点）、③补上静默三层（建字典不报错/用时TypeError/比较静默False）"
         }
-      ]
+      ],
+      "mastered_on": "2026-11-19"
     },
     {
       "id": "E06",
@@ -705,10 +717,10 @@
       ],
       "occurrences": 7,
       "first_seen": "2026-10-21",
-      "last_seen": "2026-11-10",
-      "streak": 1,
+      "last_seen": "2026-11-19",
+      "streak": 2,
       "need": 2,
-      "status": "active",
+      "status": "mastered",
       "source": [
         "10.21练习.py",
         "10.22复习.py",
@@ -784,8 +796,14 @@
           "date": "2026-11-14",
           "result": "pass",
           "note": "①三处错全找到；②return后面的print不可达，应写成return '未覆盖'；③只说了结果，没答出'原来为什么没报错'的根"
+        },
+        {
+          "date": "2026-11-19",
+          "result": "pass",
+          "note": "用户确认已熟练：①三个错全找到；讲解后当场订正 —— return 只能在函数体内、.strip(\".,!?\") 才是去标点、return 是结束函数不是跳出循环"
         }
-      ]
+      ],
+      "mastered_on": "2026-11-19"
     },
     {
       "id": "E16",
@@ -1512,9 +1530,9 @@
         "LeetCode",
         "取值"
       ],
-      "occurrences": 1,
+      "occurrences": 2,
       "first_seen": "2026-11-10",
-      "last_seen": "2026-11-10",
+      "last_seen": "2026-11-19",
       "streak": 0,
       "need": 2,
       "status": "active",
@@ -1524,6 +1542,11 @@
           "date": "2026-11-10",
           "result": "new",
           "note": "首次登记"
+        },
+        {
+          "date": "2026-11-19",
+          "result": "fail",
+          "note": "空白未作答。知识点：计数住在d[ch]里(值/int)，不住在ch里(键/str)；还要补最终判定all(v==0 for v in d.values())，否则s有剩余字符时漏判"
         }
       ]
     },
@@ -1671,7 +1694,7 @@
       "occurrences": 1,
       "first_seen": "2026-11-14",
       "last_seen": "2026-11-14",
-      "streak": 0,
+      "streak": 1,
       "need": 2,
       "status": "active",
       "source": [],
@@ -1680,6 +1703,11 @@
           "date": "2026-11-14",
           "result": "new",
           "note": "首次登记"
+        },
+        {
+          "date": "2026-11-19",
+          "result": "pass",
+          "note": "知道findall返回字符串列表、finditer返回Match对象；换finditer就能调.group()和.span()拿位置。缺点：只写了for头没写函数体"
         }
       ]
     },
@@ -1695,9 +1723,9 @@
         "sort_values",
         "静默错误"
       ],
-      "occurrences": 1,
+      "occurrences": 2,
       "first_seen": "2026-11-17",
-      "last_seen": "2026-11-17",
+      "last_seen": "2026-11-19",
       "streak": 0,
       "need": 2,
       "status": "active",
@@ -1707,6 +1735,11 @@
           "date": "2026-11-17",
           "result": "new",
           "note": "首次登记"
+        },
+        {
+          "date": "2026-11-19",
+          "result": "fail",
+          "note": "空白未作答。知识点：pandas哑弹——sort_values/drop/set_index返回新表，不接返回值=没调用；唯一区别是多一个df=。判据：写完pandas一行问自己'我接了吗'"
         }
       ]
     }

@@ -67,7 +67,18 @@ def 建星期对照表(库):
         后面的 SQL 片段全被当成普通代码解析 → IndentationError。
         记住：docstring 里要举三引号的例子，用单引号代替。
     """
-    raise NotImplementedError("TODO 1：还没写")
+    cur = 库.cursor()
+    # 幂等：表已存在也不报错，可以反复跑
+    cur.execute('CREATE TABLE IF NOT EXISTS 星期对照 ('
+                '星期 TEXT PRIMARY KEY, 编号 INTEGER, 类型 TEXT)')
+    # 一次插 5 行；同主键就替换，没有就插入
+    cur.executemany('INSERT OR REPLACE INTO 星期对照 VALUES (?, ?, ?)',
+                    [("星期一", 1, "工作日"),
+                     ("星期二", 2, "工作日"),
+                     ("星期三", 3, "工作日"),
+                     ("星期四", 4, "工作日"),
+                     ("星期五", 5, "工作日")])
+    库.commit()   # 不 commit 数据不落盘
 
 
 # ═════════════════════════════════════════════════════════════════════
@@ -89,7 +100,12 @@ def 内连接取序号与类型(库):
     ⚠️ 坑1：ON 两边都写「星期」，列名必须一致
     ⚠️ 坑2：SELECT 里「序号」两张表都有，必须写「表名.列名」
     """
-    raise NotImplementedError("TODO 2：还没写")
+    cur = 库.cursor()
+    # 注意两处：JOIN 两边列名都是「星期」；SELECT 的列写 表名.列名
+    cur.execute("SELECT 新闻.序号, 星期对照.类型 FROM 新闻 "
+                "JOIN 星期对照 ON 新闻.星期 = 星期对照.星期 "
+                "ORDER BY 新闻.序号 ASC")
+    return cur.fetchall()   # 两列 → 直接就是 list[tuple]，不用压平
 
 
 # ═════════════════════════════════════════════════════════════════════
@@ -108,7 +124,12 @@ def 左连接取全部序号(库):
     ⚠️ 注意：题目要求【只取前 8 行】来看效果，其余不查也行，
             但函数返回的必须是完整 15 行（别被题目里的「前8行」带偏）
     """
-    raise NotImplementedError("TODO 3：还没写")
+    cur = 库.cursor()
+    # 只把 JOIN 换成 LEFT JOIN，其余不动 → 左边 15 行一行不少
+    cur.execute("SELECT 新闻.序号, 星期对照.类型 FROM 新闻 "
+                "LEFT JOIN 星期对照 ON 新闻.星期 = 星期对照.星期 "
+                "ORDER BY 新闻.序号 ASC")
+    return cur.fetchall()   # 6 行的「类型」是 None（SQL 里的 NULL）
 
 
 # ═════════════════════════════════════════════════════════════════════
@@ -129,7 +150,13 @@ def 连接后按类型分组统计(库):
         GROUP BY 星期对照.类型
         ORDER BY n DESC, 星期对照.类型 ASC
     """
-    raise NotImplementedError("TODO 4：还没写")
+    cur = 库.cursor()
+    # 子句顺序是死的：SELECT → FROM → JOIN → ON → GROUP BY → ORDER BY
+    cur.execute("SELECT 星期对照.类型, COUNT(*) AS n FROM 新闻 "
+                "JOIN 星期对照 ON 新闻.星期 = 星期对照.星期 "
+                "GROUP BY 星期对照.类型 "
+                "ORDER BY n DESC, 星期对照.类型 ASC")
+    return cur.fetchall()   # [('工作日', 9)]
 
 
 # ═════════════════════════════════════════════════════════════════════
