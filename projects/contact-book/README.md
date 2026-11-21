@@ -114,6 +114,37 @@ def 添加(姓名, 电话, 地址, 邮箱=""):
 
 ---
 
+## Web 界面（Streamlit · 骨架待填 TODO）
+
+> ⚠️ 助手已写入骨架，`streamlit_app.py` 里 3 处 TODO 还没填、`contact_book.py` 的 `main()` CLI 也没补全。
+> **填完 + 能讲清"为什么数据要放 session_state"才算完成这笔欠账。**
+
+运行方式：
+
+```bash
+pip install -r requirements.txt
+streamlit run streamlit_app.py
+```
+
+**要你填的 TODO（共 5 处）**：
+
+| 文件 | TODO | 内容 |
+|---|---|---|
+| `streamlit_app.py` | A | 添加按钮回调：调用 `添加()` + 显示提示 |
+| `streamlit_app.py` | B | 删除按钮回调：调用 `删除()` + `st.rerun()` 刷新 |
+| `streamlit_app.py` | C | 查询按钮回调：调用 `查询()` + `st.write()` |
+| `contact_book.py` | 1 | CLI 菜单循环（`while True` + 选项） |
+| `contact_book.py` | 2 | CLI 分支：按选项调用增删改查函数 |
+
+**为什么重构了 `contact_book.py`**：
+原来 5 个函数写死全局 `lianxiren`，而且文件一 import 就执行一堆裸 `print`。
+Streamlit 每次点按钮都会重跑整个脚本 —— 不重构的话数据每次被重置回初始值、控制台还疯狂刷屏。
+现在函数都接受 `contacts` 参数，CLI 和 Web 各管各的数据，共用同一套增删改查逻辑。
+
+跑通后把截图贴在这里：`![Web 界面](截图路径.png)`
+
+---
+
 ## 更新记录
 
 | 日期 | 内容 |
@@ -121,3 +152,4 @@ def 添加(姓名, 电话, 地址, 邮箱=""):
 | 2026-10-21 | 初版：5 个函数封装 |
 | 2026-10-27 | 整理成 CLI + 补 README |
 | 2026-10-28 | 补齐 README 正文、技术点原因说明、踩坑复盘 |
+| 2026-11-21 | 骨架：数据层参数化（解全局 dict）+ 新增 Streamlit Web 界面（5 处 TODO 待本人填） |

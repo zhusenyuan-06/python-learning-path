@@ -1,3 +1,5 @@
-# 通讯录 CLI - 依赖说明
-# Python 3.12+，只用标准库，无需安装任何第三方包
-# 运行：python contact_book.py
+# Contact Book - dependencies
+# Python 3.12+
+# CLI: standard library only. Run: python contact_book.py
+# Web: needs streamlit. Run: streamlit run streamlit_app.py
+streamlit
