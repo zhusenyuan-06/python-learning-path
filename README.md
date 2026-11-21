@@ -18,9 +18,9 @@
 
 我不写"认真负责"这种空话。能证明的是：
 
-- **9 个可运行项目** —— 不是片段，是能 `python xxx.py` 直接跑起来的
-- **39 条错题追踪记录** —— 自己写的系统，每周四自动出卷，连对 2 次才算掌握
-- **35 条工具链坑** —— git / 网络 / Windows 环境的坑，踩一次记一次
+- **12 个可运行项目** —— 不是片段，是能 `python xxx.py` 直接跑起来的
+- **41 条错题追踪记录** —— 自己写的系统，每周四自动出卷，连对 2 次才算掌握
+- **56 条工具链坑** —— git / 网络 / Windows 环境的坑，踩一次记一次
 - **真实交付经验** —— 幼儿园菜品汇总工具已打包交付园方使用（**数据已脱敏**）
 
 <div align="center">
@@ -38,16 +38,18 @@
 |---|---|---|---|
 | 1 | **[幼儿园菜品配送汇总工具](projects/幼儿园菜汇总工具/README.md)** ⭐ | **已交付园方使用的真实项目**（数据已脱敏）。把每月送货单丢进去，自动按 9 大类汇总成带图表的 Excel：344 种食材自动归类、逐行重算金额并与表内小计对账、多供应商分表 + 全园合并 | pandas 数据清洗、openpyxl 读写、YAML 配置化规则、Excel 原生图表、公式缓存值处理、多种表格格式兼容、PyInstaller 打包 |
 | 2 | **[多模块配送单生成器](小项目_多模块demo/README.md)** ⭐ | 完整项目结构：入口 / 配置 / 业务 / 工具四层分离，CSV 读数据 → 算账 → 校验 → 出表格。改一个参数全局生效 | 模块拆分、跨文件 import、`__name__` 入口守卫、csv 读写、os.path 路径、f-string |
-| 3 | **[通讯录 CLI](projects/contact-book/README.md)** ⭐ | 命令行版通讯录，增删改查 + 统计未填邮箱 + 双层遍历展示 | dict 套 dict、函数封装、安全查询 `.get()`、防覆盖 |
-| 4 | **[错题追踪器](projects/error-tracker/README.md)** | 管理自己的错题池。每周四自动出复习卷，连续答对 2 次才退场，再犯门槛 +1。已积累 39 题 / 75 次犯错 / 9 题已退场 | dict 嵌套、JSON 读写、CLI 参数、状态机、优先级排序 |
-| 5 | **[工具链坑追踪器](笔记/工具链/工具链坑_README.md)** | 记录非 Python 的坑（git 配置 / 网络排障 / Windows 环境），踩一次计数 +1 自动排序。已积累 35 条 / 43 次踩坑 | JSON 读写、CLI 参数、Markdown 渲染、标签系统 |
+| 3 | **[通讯录 CLI + Web 版](projects/contact-book/README.md)** ⭐ | 命令行版通讯录（增删改查 + 统计未填邮箱 + 双层遍历），**另有 Streamlit Web 版已部署上线**：[点这里试用](https://contact-book-streamlit.app.workbuddy.host/?sharecode=TPG64NECIH)（页面内增删改查，刷新即重置为初始数据） | dict 套 dict、函数封装、安全查询 `.get()`、防覆盖；Streamlit `session_state`、`st.rerun()`、按钮回调 |
+| 4 | **[错题追踪器](projects/error-tracker/README.md)** | 管理自己的错题池。每周四自动出复习卷，连续答对 2 次才退场，再犯门槛 +1。已积累 41 题 / 81 次犯错 / 12 题已退场 | dict 嵌套、JSON 读写、CLI 参数、状态机、优先级排序 |
+| 5 | **[工具链坑追踪器](笔记/工具链/工具链坑_README.md)** | 记录非 Python 的坑（git 配置 / 网络排障 / Windows 环境），踩一次计数 +1 自动排序。已积累 56 条 / 66 次踩坑 | JSON 读写、CLI 参数、Markdown 渲染、标签系统 |
 | 6 | **[词频统计器 CLI](projects/词频统计器/README.md)** | 统计文本里每个词出现多少次，**中英文混排都能切**。结果可复现（次数相同时按词字典序排，跟词在文件里出现的顺序无关）、条形图可视化、文件不存在给中文提示而不是甩红字 | 正则切词（`[\u4e00-\u9fa5]+\|[a-zA-Z]+`）、dict 词频计数、`sorted` 元组 key 可复现排序、argparse 位置参数 + 可选参数、友好报错层 |
 | 7 | **[待办工具 CLI](projects/todo-cli/README.md)** | 命令行版待办工具，add / list / done / del 四条命令，任务存本地 JSON，**程序关了再开任务还在**。保存走**原子写入**（先写临时文件再替换），中途崩溃也不丢数据 | JSON 读写、原子写入（临时文件 + `os.replace`）、CLI 循环、异常捕获、函数封装 |
 | 8 | **[批量重命名文件脚本](projects/batch-rename/README.md)** | 把某目录下文件名里的「旧片段」批量换成「新片段」。**干跑默认开** —— 先打印计划表给你看，确认了才真改；改错了能按日志**一键撤销**。支持链式改名（两阶段） | 干跑（dry-run）默认开、冲突预检、操作日志 + 反向撤销、`argparse` 位置/可选参数、逐文件 try/except 隔离 |
 | 9 | **[API 数据落地练习](projects/api-demo/README.md)** | 把数据从网上抓下来、解析成 Python 对象、再存成能反复用的本地文件。6 个脚本走通「请求 → 解析 → 存储」全链路，**每个坑都实跑复现过** | venv 虚拟环境隔离、requests GET、`json` 四对函数、嵌套取值与拍平、状态码优先的错误处理、CSV 落地三参数 |
 | 10 | **[综合 API 取数工具](projects/api-demo/README.md)** | 在作品 9 的链路上再加两层：**失败会自动重试**（4xx 不重试 / 5xx 重试 / 429 重试 / 网络错误重试），**落盘函数参数化后换个 API 不用改代码**。写完立刻读回校验，不做「只写不验」 | 异常层次（子类在前基类在后）、重试决策表、线性退避、返回值元组设计（类型名与描述文字分开）、CSV 落地三参数 |
+| 11 | **[课件 PDF → 题库 CSV](projects/pdf-extractor/README.md)** ⭐ | 把一份 PDF 复习资料自动拆成能刷的题库表：逐行认出「题干 / 选项」→ 结构化 CSV。**RAG 项目 ingest 层的第一块砖**，素材是真实的《计算机网络基础》复习题 | PyPDF2 / pdfplumber / pymupdf 三库对比（98 页实测 pymupdf 快 29~35 倍）、PDF 文本解析、9 类异常处理、`finally` 关句柄、MD5 幂等校验 |
+| 12 | **[通讯录 Web 版（Streamlit）](projects/contact-book/streamlit_app.py)** ⭐ | 作品 3 的 Web 界面版，**真部署上线可点**：[试用链接](https://contact-book-streamlit.app.workbuddy.host/?sharecode=TPG64NECIH)。数据存 `session_state`（每次新会话重置），刷新/重开即回到初始 2 人 | Streamlit `session_state` 跨重跑存数据、`st.rerun()` 刷新下拉框、按钮回调、数据层参数化（解全局 dict） |
 
-> 十个项目**都有独立 README**（链接直达），里面是真实运行输出、技术点原因和踩坑复盘。
+> 十二个项目**都有独立 README**（链接直达），里面是真实运行输出、技术点原因和踩坑复盘。
 
 ### 练习片段（不是项目，不计入上面的数量）
 
@@ -78,9 +80,13 @@ python src/run.py report     # 出正式汇总表到 output/
 cd 小项目_多模块demo
 python main.py
 
-# 作品 3：通讯录 CLI
+# 作品 3：通讯录 CLI（另有 Web 版，见作品 12）
 cd projects/contact-book
 python contact_book.py
+
+# 作品 11：课件 PDF → 题库 CSV（素材 PDF 不在仓库，见该目录 README）
+cd projects/pdf-extractor
+python 01_提取PDF存CSV.py
 
 # 作品 4：错题追踪器
 cd projects/error-tracker
@@ -109,6 +115,11 @@ D:\AAAA\python.exe -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install -r requirements.txt
 python 06_存成CSV.py
+
+# 作品 12：通讯录 Web 版（Streamlit，本地起界面）
+cd projects/contact-book
+pip install -r requirements.txt
+streamlit run streamlit_app.py
 ```
 
 ---
@@ -135,14 +146,14 @@ python 06_存成CSV.py
 | 5 | 阶段 1 | 文件读写 / JSON / 异常 / **`*args` `**kwargs`** / **模块与导入** | ✅ |
 | 6-8 | 阶段 1 | csv / json / 异常 / 批量重命名 / 词频作品化 | ✅ |
 | 7（提前学） | 阶段 1 收尾 | **venv 虚拟环境 / requests / API 调用** | ✅ |
-| 9-12 | 阶段 2 | pandas / PDF 解析 / SQLite / 数据清洗 | ⬜ |
+| 9-12 | 阶段 2 | pandas / PDF 解析 / SQLite / 数据清洗 | 🔄 进行中（pandas / PDF / SQLite 已学，pytest 11-25 排期） |
 | 13-16 | 阶段 3 | RAG 原理 / LangChain 认知 / FastAPI / Claude Code 协作 | ⬜ |
 
 > 16 周计划全部落在一张表里，**每天做什么、做到没有，逐格可查**。
 
 ### 我踩过的坑（精选）
 
-完整的在 [`projects/error-tracker/错题追踪.md`](projects/error-tracker/错题追踪.md)（39 题 / 累计犯错 73 次，每周四抽考）。
+完整的在 [`projects/error-tracker/错题追踪.md`](projects/error-tracker/错题追踪.md)（41 题 / 累计犯错 81 次，每周四抽考）。
 
 #### 静默错误：代码能跑，但结果是错的
 
@@ -217,7 +228,8 @@ pythonProject/
 │   │   ├── input/               # 脱敏后的原始送货单
 │   │   ├── output/              # 生成的汇总表
 │   │   └── data/月度台账.csv      # 趋势图数据源
-│   ├── contact-book/            # 作品 3：通讯录 CLI
+│   ├── contact-book/            # 作品 3 + 12：通讯录 CLI + Streamlit Web 版（已部署上线）
+│   ├── pdf-extractor/           # 作品 11：课件 PDF → 题库 CSV（RAG ingest 第一块砖）
 │   ├── 词频统计器/              # 作品 6：词频统计 CLI（中英文混排 + 可复现排序）
 │   ├── todo-cli/                # 作品 7：待办 CLI（增删改查 + JSON 持久化 + 原子写入）
 │   ├── batch-rename/            # 作品 8：批量重命名（干跑默认开 + 冲突预检 + 一键撤销）
@@ -232,7 +244,7 @@ pythonProject/
 │   │   └── 输出/                  # 运行时数据（已 gitignore）
 │   └── error-tracker/           # 作品 4：错题追踪器
 │       ├── 错题追踪器.py         # 主程序：出卷 / 判分 / 退场
-│       ├── 错题追踪.json         # 错题池数据（39 题 / 73 次犯错 / 8 题已退场）
+│       ├── 错题追踪.json         # 错题池数据（41 题 / 81 次犯错 / 12 题已退场）
 │       ├── 错题追踪.md           # 自动渲染出来的错题清单
 │       └── README.md            # 作品说明
 ├── 小项目_多模块demo/           # 作品 2：四层架构示例
@@ -292,6 +304,7 @@ pythonProject/
 | 2026-11-11 | **作品 7/8/9 补进作品速览表**（此前只有 6 行，todo-cli / 批量重命名 / API 数据落地 三个项目漏在表外）｜**作品 9「API 数据落地练习」成立**：venv + requests + JSON + CSV，6 个脚本，README 记录 8 个实跑复现的坑（含 CSV 三坑正反双向实验、`newline` 2×2 组合矩阵）｜README 过期数字同步到实际值（可运行项目 5→9、错题 22→36 条、进度 第 5 周→第 7 周、技术栈 requests 从「进行中」改为「已学完」） |
 | 2026-11-11 | **os / datetime 2h（补 11-09 欠账，余量段完成）** —— 产出 `练习/11.11练习_os与datetime.py`（7 任务全通）+ `笔记/讲义/11-11_讲义_os与datetime.md`（358 行）+ `练习/_参考样例_os_datetime语法.py`（13 段语法样例）｜**实跑纠正讲义 2 处凭印象写错的说法**（`os.path.join` 遇绝对路径会吞前缀；负 `timedelta` 的 `.days` 不恒为 -1）｜**实跑发现 Windows ADS 静默失败**：`pathlib.write_text` 写含冒号文件名会「报成功但内容写进备用数据流、主文件 0 字节」，而 `open()` 会明确抛 `PermissionError` —— 讲义/样例/练习三处同步修正｜错题池 36→39（E37 f-string 无插值、E38 算完不 print、E39 timedelta.days 零头）｜日程表 R44/R45/R46 销账 |
 | 2026-11-14 | **作品 10「综合 API 取数工具」成立**（`projects/api-demo/09_综合_API取数存CSV.py`）—— 把周四学的**重试封装**与 06 的 CSV 落盘**焊成一件可反复用的工具**：`存成CSV(数据行, 文件路径, 表头)` 把一次性代码改造成参数化函数（换 API 不用改代码），`取新闻()` 负责请求→剥外壳→拍平成表格行｜**api-demo README 已知限制②「没做重试和退避」作废**，补上完整重试决策表｜自测 4 场景行为全部符合预期（正常 1 次 / 404 不重试 1 次 / 500 重试 3 次）｜**错题池 E24 连对 2 次毕业退场**（第一个出池的题）｜错题池 34→39 条、E41 与 E34 按要求从池中彻底删除｜**周四大复习卷（11-12）7 题：5 pass / 2 fail**｜产出 `笔记/周复盘/周复盘_2026-W46.md`（本周首次周复盘）｜日程表 R46/R47 销账 |
+| 2026-11-21 | **作品 11「课件 PDF → 题库 CSV」+ 作品 12「通讯录 Web 版」进速览表**（12 个项目）｜作品 12 真部署上线（[试用链接](https://contact-book-streamlit.app.workbuddy.host/?sharecode=TPG64NECIH)，Streamlit `session_state` + `st.rerun()`）｜**7 笔欠账全清**（销 6 + 撤销 1：看 JD 改每周日）｜SQL 五件套打勾（含 `11-21_讲义_SQLite到MySQL语法差异对照.md`，ERROR 1055 官方原文已核实）｜**看 JD 改周更**（14→17 份，快照改脚本统计，流程/清单/登记全套同步）｜pytest 并入 11-25、开源改名并入 12-04、RAG 排期纠正为 2026-12~2027-01｜产出 `笔记/周复盘/周复盘_2026-W47.md`（本周 commit 20 个，W46=12）｜工具链坑 55→56（T56：沙箱未注入 `$PORT`，端口写死 3000）｜README 过期数字同步（错题 39→41 / 81 次 / 12 退场，坑 35→56 / 66 次） |
 | 2026-11-15 | **LeetCode 125「验证回文串」补完**（清 11-14 上午欠账）—— 产出 `练习/11.14练习_LeetCode_验证回文串.py`：正则清洗法（`re.sub(r"[^a-zA-Z0-9]", "", s)` + `.lower()` + `s[::-1]`）+ 双指针法（`isalnum()` 跳符号 + `left < right` 护栏 + **必写 else 分支**否则死循环），**10 个自测用例全绿**｜⭐ **当场逮到我自己的一个错**：昨天写的「一条正则判回文」加分项实测只判【首尾字符相同】，`'race a car'` 清洗后 `raceacar` 首尾都是 r → 被误判成回文，已降级成「反面教材」小节留在文件里｜**工具链坑 31→32 条**：T32（实跑 ≠ 验证 —— 用例集本身必须能反证解法，否则只是给错误解法发了通行证）｜**错题池**：新增 `练习/11.15练习_E02_E35重练.py`（3 道题，错误版本全部静默给错结果，答案留空等本人作答）｜**作品 11「通讯录网页版」立项**（用户选定「做界面 + 真部署上线」，排期 11-19 ~ 11-21） |
 | 2026-11-14 | **re 正则基础 + 提取日期/邮箱（补 11-09 两笔欠账）** —— 产出 `练习/11.14练习_re正则基础.py`（8 任务全通）+ `笔记/讲义/11-14_讲义_re正则.md`（12 节，输出全部实跑可复现）+ `练习/_参考样例_re语法.py`（10 段样例）｜**实跑暴露邮箱正则 `[\w.+-]+@[\w-]+\.\w+` 会把 `wangwu@school.edu.cn` 截成 `wangwu@school`**，正确写法 `(?:\.[\w-]+)+` —— 写进讲义当教材｜**错题池 39→41 条**：E42（`findall` 返回字符串列表、`finditer` 返回 Match 对象，对 findall 结果调 `.group()` 直接 AttributeError）｜**工具链坑 26→35 条**：T25（PyCharm 中文命名组假警报）/ T26（交付物里的输出必须实跑验证，一天连错 4 处）/ T27（脚本相对路径 + 被 `2>/dev/null` 吞掉 stderr → 探活静默失败伪装成网络问题）/ T28（学校 DNS 把 github.com 解析到校园镜像，探针扫的网段和本机实际走的不是同一批机器）/ T29（`.gitignore` 让「你以为提交了其实没提交」）/ T30（校验远端不能只用 ls-remote —— 它和 push 走同一条链路，窗口一关就误判「推送失败」）/ T31（探针只扫 140.82.x 官方段会误判成「GitHub 全挂」—— 亚太段还活着，已把 15 个亚太 IP 加进 probe_gh.py）/ T32（实跑 ≠ 验证 —— 用例集本身必须能反证解法，「只判首尾相同」的错误解法在 6 个正例上蒙对，被 'race a car' 逮住）/ T33（练习/卷子文件必须把题干区和作答区物理隔开 —— 否则用户会直接改题干，把题目改没了）/ T34（同一文件里同名 def 定义多次 → 后者静默覆盖前者，用户写的代码被空壳吃掉，自动检查跑的是空壳）/ T35（f-string 里写字典字面量 → 花括号被当表达式解析，Invalid format specifier）｜**新增 `工具/push_前置自检.py`：把 16 条 push 相关坑直接打到屏幕上 + 自动查 DNS / 过期绑定 / origin**，并接进 `push_github.sh` 第 0 步 —— 让「读坑清单」从靠记性变成流程的必经步骤 |
 
